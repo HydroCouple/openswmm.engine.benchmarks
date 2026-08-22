@@ -27,10 +27,15 @@ _SCALARS: list[tuple[str, str, type]] = [
     (r"External Inflow\s*\.+\s*([-\d.]+)", "ext_inflow", float),
 ]
 
-_COUNTS: list[tuple[str, str]] = [
-    ("nodes_flooded", r"(\d+)\s+nodes? (?:were |was )?flooded"),
-    ("links_surcharged", r"(\d+)\s+links? (?:were |was )?surcharged"),
-    ("links_instability", r"(\d+)\s+links? .*?flow instability"),
+#: Summary tables whose ROW COUNT is the metric. SWMM does not write a
+#: sentence like "3 links were surcharged" — it writes a table, or the phrase
+#: "No conduits were surcharged." An inherited regex looking for the sentence
+#: matched nothing on any real report, silently reporting zero surcharging
+#: everywhere.
+_TABLES: list[tuple[str, str]] = [
+    ("nodes_flooded", "Node Flooding Summary"),
+    ("nodes_surcharged", "Node Surcharge Summary"),
+    ("conduits_surcharged", "Conduit Surcharge Summary"),
 ]
 
 #: Continuity tables, by report section heading.
@@ -58,7 +63,13 @@ def parse(path: str | Path) -> dict:
                       + r".*?Continuity Error \(%\)\s*\.+\s*([-\d.]+)",
                       text, re.S)
         if m:
-            out[key] = float(m.group(1))
+            try:
+                out[key] = float(m.group(1))
+            except ValueError:
+                # SWMM writes a bare '-' when the value is undefined (e.g. no
+                # runoff at all). Absent is the honest representation; 0.0
+                # would read as "perfect continuity".
+                pass
 
     for pat, key, cast in _SCALARS:
         m = re.search(pat, text, re.S)
@@ -68,10 +79,18 @@ def parse(path: str | Path) -> dict:
             except ValueError:
                 pass
 
-    for key, pat in _COUNTS:
-        m = re.search(pat, text, re.I)
-        if m:
-            out[key] = int(m.group(1))
+    for key, title in _TABLES:
+        n = table_row_count(text, title)
+        if n is not None:
+            out[key] = n
+
+    m = re.search(r"Highest Flow Instability Indexes(.*?)"
+                  r"(?:\n[ \t]*\n[ \t]*\n|\Z)", text, re.S)
+    if m:
+        body = m.group(1)
+        out["links_instability"] = (
+            0 if re.search(r"All links are stable", body, re.I)
+            else len(re.findall(r"^\s*Link\s+\S+", body, re.M)))
 
     q = quality_continuity(text)
     if q:
@@ -112,6 +131,41 @@ def quality_continuity(text: str) -> dict[str, float]:
     except ValueError:
         return {}
     return dict(zip(names, vals)) if len(names) == len(vals) else {}
+
+
+def table_row_count(text: str, title: str) -> int | None:
+    """Number of data rows in a named summary table.
+
+    Returns 0 when the section says nothing qualified ("No nodes were
+    surcharged."), and None when the section is absent entirely — the two are
+    different: absent means the engine did not report it, zero means it did
+    and found none.
+    """
+    m = re.search(re.escape(title) + r"(.*?)(?:\n[ \t]*\n[ \t]*\n|\Z)",
+                  text, re.S)
+    if not m:
+        return None
+    body = m.group(1)
+    if re.search(r"\bNo\s+\w+\s+(?:were|was)\s+\w+", body, re.I):
+        return 0
+    rows = 0
+    for line in body.splitlines():
+        parts = line.split()
+        if len(parts) < 3 or set(line.strip()) <= set("-*"):
+            continue
+        numeric = sum(1 for p in parts[1:] if _is_number(p))
+        # a data row is an id followed by mostly numbers; header rows are words
+        if numeric >= 2:
+            rows += 1
+    return rows
+
+
+def _is_number(token: str) -> bool:
+    try:
+        float(token)
+    except ValueError:
+        return False
+    return True
 
 
 def lid_performance(text: str) -> list[dict]:

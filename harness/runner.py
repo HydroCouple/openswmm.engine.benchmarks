@@ -2,14 +2,17 @@
 """Deterministic subprocess execution of a SWMM CLI run, for any suite.
 
 `run(exe, inp, rpt, out)` invokes ``<exe> <in.inp> <out.rpt> <out.out>`` with
-the core.engines environment, returns {ok, returncode, wall, stderr}.
-`parse_rpt` scrapes the global continuity / stability metrics from a .rpt.
+the harness.engines environment and returns
+{ok, launched, returncode, wall, stderr}.
 `inp_sha` provides the input-hash used for result caching by suite runners.
+
+Report parsing lives in harness.rptparse — this module used to carry a second,
+divergent copy of it whose surcharge and flooding patterns matched no real
+report. One parser, one place.
 """
 from __future__ import annotations
 
 import hashlib
-import re
 import subprocess
 import time
 from pathlib import Path
@@ -31,6 +34,7 @@ def run(exe: Path, inp: Path, rpt: Path, out: Path, reps: int = 1,
     if extra_env:
         e.update(extra_env)
     best, rc, err = None, -1, ""
+    launched = True
     for _ in range(max(1, reps)):
         for p in (rpt, out):
             if p and Path(p).exists():
@@ -43,43 +47,23 @@ def run(exe: Path, inp: Path, rpt: Path, out: Path, reps: int = 1,
             rc, err = res.returncode, res.stderr.strip()
         except subprocess.TimeoutExpired:
             rc, err = -9, f"timeout after {timeout}s"
+        except OSError as exc:
+            # The executable exists but cannot be launched here — wrong
+            # architecture, missing loader, permissions. A sweep must degrade
+            # to an UNAVAILABLE cell, never crash: one unusable engine in the
+            # registry cannot be allowed to take down every other engine's
+            # results for the whole corpus.
+            #
+            # `launched` separates "this environment cannot run the engine"
+            # from "the engine ran and failed on this model". Only the second
+            # is a result; the first must not gate CI, or every machine
+            # without every registered engine would report failures.
+            rc, err, launched = -1, f"cannot execute {exe}: {exc}", False
+            break
         dt = time.perf_counter() - t0
         if best is None or dt < best:
             best = dt
         if rc != 0:
             break
-    return {"ok": rc == 0, "returncode": rc, "wall": best, "stderr": err[:500]}
-
-
-def parse_rpt(path: Path) -> dict:
-    """Global continuity / stability metrics from a SWMM .rpt (either engine)."""
-    out: dict = {}
-    path = Path(path)
-    if not path.exists():
-        return out
-    text = path.read_text(errors="replace")
-
-    def f1(pat, key, cast=float):
-        m = re.search(pat, text, re.S)
-        if m:
-            try:
-                out[key] = cast(m.group(1))
-            except ValueError:
-                pass
-
-    for label, key in (("Runoff Quantity Continuity", "runoff_err"),
-                       ("Flow Routing Continuity", "routing_err")):
-        f1(re.escape(label) + r".*?Continuity Error \(%\)\s*\.+\s*([-\d.]+)", key)
-    f1(r"Average Iterations per Step\s*[:.]*\s*([\d.]+)", "avg_iter")
-    f1(r"(?:Percent\s+)?Not Converging\s*[:.]*\s*([\d.]+)", "pct_not_converging")
-    f1(r"Average Time Step\s*[:.]*\s*([\d.]+)", "avg_dt")
-    f1(r"Minimum Time Step\s*[:.]*\s*([\d.]+)", "min_dt")
-    f1(r"Maximum Time Step\s*[:.]*\s*([\d.]+)", "max_dt")
-    for label, pat in (("nodes_flooded", r"(\d+)\s+nodes? (?:were |was )?flooded"),
-                       ("links_surcharged", r"(\d+)\s+links? (?:were |was )?surcharged"),
-                       ("links_instability", r"(\d+)\s+links? .*?flow instability")):
-        m = re.search(pat, text, re.I)
-        if m:
-            out[label] = int(m.group(1))
-    out["had_error"] = bool(re.search(r"\bERROR\b", text))
-    return out
+    return {"ok": rc == 0, "launched": launched, "returncode": rc,
+            "wall": best, "stderr": err[:500]}

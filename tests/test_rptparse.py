@@ -166,6 +166,20 @@ def test_errors_and_warnings_are_collected(tmp_path):
     assert got["errors"][0].startswith("ERROR 138")
 
 
+def test_undefined_continuity_dash_is_omitted_not_zero(tmp_path):
+    """SWMM writes a bare '-' when a continuity value is undefined (a model
+    with no runoff at all). Recording 0.0 would read as perfect continuity;
+    absent is the honest representation."""
+    p = tmp_path / "m.rpt"
+    p.write_text("  Runoff Quantity Continuity        acre-feet\n"
+                 "  Continuity Error (%) .....             -\n\n\n"
+                 "  Flow Routing Continuity           acre-feet\n"
+                 "  Continuity Error (%) .....        -0.500\n")
+    got = rptparse.parse(p)
+    assert "runoff_err" not in got
+    assert got["routing_err"] == -0.500
+
+
 def test_missing_file_is_not_an_exception(tmp_path):
     assert rptparse.parse(tmp_path / "nope.rpt") == {}
 

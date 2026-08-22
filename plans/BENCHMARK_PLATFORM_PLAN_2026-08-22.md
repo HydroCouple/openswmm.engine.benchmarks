@@ -356,9 +356,14 @@ workflows/endpoints. Model-sweep perf publishing moves here; engine micro-benchm
      a WQ model's pollutant series is compared and reported (gap 2 closed).
 2. Migrate suites (epa_qa, swashes, transitions, manufactured, performance)
    → verify: each suite's report regenerates and matches its last known-good report.
-3. Corpus restructure: migration script emits metadata.yaml drafts; move dirs per taxonomy;
-   dedupe SWMM5_NCIMM/OWA_USER/LEW overlap
-   → verify: validate.py green over corpus/; census report (counts per tag) reviewed.
+3. ~~Corpus restructure~~ **DONE 2026-08-22** (`tools/migrate_corpus.py`,
+   `tools/cleanup_legacy.py`): 1,396 cases under `corpus/<collection>/`, each with
+   evidence-derived tags, metadata, and provenance; 248 byte-identical duplicates left in
+   place; 4 zero-byte files excluded; 663 legacy reports preserved as per-case
+   `reference/legacy.rpt` (the evidence behind the surcharge/flooding/instability tags, not a
+   grading reference); source material moved to `legacy/`, data files to `data/`, 1,658
+   regenerable outputs (770 MB) deleted.
+   → verified: `harness.validate` green over all 1,396 cases; tag census reviewed.
 4. Parity suite: port 08-16 plan §A/B (sweep + compare + manifests) onto harness protocol
    → verify: 5-model local sweep reproduces scripts/compare_results.py conclusions;
      deliberate perturbation fails the gate.
@@ -438,6 +443,46 @@ binding is an openswmm-only enrichment (richer diagnostics, `MassBalance.quality
 6. Stale references: `epaswmm5_qa/docs/plan.md` cites `compare_engines.py` and
    `sweep_anderson_implicit.py` at the engine root; neither file exists any more. Fix on
    promotion.
+
+## Appendix B — Corpus migration outcome (2026-08-22)
+
+| | |
+|---|---|
+| cases in `corpus/` | **1,396** across 22 collections, all schema-valid |
+| duplicates left in place | 248 byte-identical copies (verified by hash), plus 4 zero-byte files excluded |
+| legacy reports preserved | 663 as `reference/legacy.rpt` |
+| skip-list entries | 145, each with a reason and a route back |
+| repo size | 4.1 GB → 3.4 GB (`corpus/` 2.1 GB, `legacy/` 1.1 GB, `data/` 46 MB) |
+
+**Tag census highlights** — `hydraulics` 1,315 · `dynamic_wave` 1,289 · `hydrology` 734 ·
+`surcharge` ~390 · `flooding` ~280 · `flow_instability` ~270 · `force_main` ~265 ·
+`pollutants` 114 · `lid` 92 · `lid_pollutants` 28 · `dual_drainage` 20.
+
+**What the migration exposed**
+
+- **57 models were invisible to a case-sensitive glob.** They ship as `.INP`, including
+  `HALF_A_MiLLION.INP`. Nothing failed — the count was simply 57 short, which is only
+  detectable by reconciling totals. The scanner is now case-insensitive.
+- **The inherited surcharge/flooding regexes matched nothing on any real report.** SWMM writes
+  a *table* (`Conduit Surcharge Summary`) or the sentence "No conduits were surcharged", never
+  "N links were surcharged". Every model everywhere was silently reported as never surcharging.
+  Replaced with a table row counter, which distinguishes *absent section* from *zero rows*.
+- **134 models reference absolute paths** from their authoring machine (`P:\Active\…`,
+  `C:\Users\Robert\…`), several leaking usernames and client project names. They cannot run
+  anywhere else, so they are skip-listed with a stated reason rather than failing forever — and
+  they are the concrete first workload for the anonymization tool.
+- **`transition_pressurized` is deliberately untagged.** Surcharging proves a conduit
+  pressurized, not that it transitioned back and forth. Tagging 390 models on that basis would
+  make the tag useless to the suite it exists to feed. It stays a curation decision.
+
+**Follow-on work this creates**
+
+1. Curate the PR tier (step 7) — every case currently lands in `tiers: [nightly]`, and
+   `runtime_class` is an estimate from element count, not a measurement.
+2. Relocate or recover the data behind the 134 absolute-path models.
+3. Confirm provenance for `greenville`, `simon-epa`, and `special` (marked `unverified`).
+4. Refine `reference.class` where a case has a real reference — everything migrated as
+   `self_consistency`, which is correct by default but understates the EPA QA models.
 
 ## Out of scope
 

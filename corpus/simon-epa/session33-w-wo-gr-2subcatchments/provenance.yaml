@@ -1,0 +1,11 @@
+source: Legacy benchmarks collection 'simon-epa' (originally Simon_EPA/Session33_w_wo_GR_2Subcatchments.inp)
+license: unverified
+contributed_by: unknown (pre-migration corpus)
+date_added: '2026-08-22'
+original_units: US
+notes: 'Provenance carried over mechanically during the corpus migration. Contributed
+  collection — confirm the source and license before redistributing. reference/legacy.rpt
+  is the report that shipped beside this model in the pre-migration corpus, from an
+  engine and version that were not recorded. It is the evidence behind this case''s
+  surcharge/flooding/flow_instability tags. It is NOT a grading reference: the case
+  is graded as self_consistency.'

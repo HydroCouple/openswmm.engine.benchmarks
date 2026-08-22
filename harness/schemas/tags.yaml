@@ -34,6 +34,8 @@ tags:
   kinematic_wave:     FLOW_ROUTING KINWAVE
   steady_flow:        FLOW_ROUTING STEADY
   surcharge:          Conduits surcharge during the simulation
+  flooding:           Nodes flood during the simulation
+  flow_instability:   Engine reports flow instability indexes
   transition_pressurized: Open-channel <-> pressurized flow transition
   force_main:         Force main conduits
   transient:          Rapid transients — pump starts/stops, valve/gate operation

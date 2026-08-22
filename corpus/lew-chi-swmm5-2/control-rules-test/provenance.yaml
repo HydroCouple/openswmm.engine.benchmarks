@@ -1,0 +1,11 @@
+source: Legacy benchmarks collection 'lew-chi-swmm5-2' (originally LEW_CHI_SWMM5.2/Tests_CHI/control_rules_test.inp)
+license: public-domain
+contributed_by: unknown (pre-migration corpus)
+date_added: '2026-08-22'
+original_units: US
+notes: 'Provenance carried over mechanically during the corpus migration; the repository''s
+  blanket public-domain dedication applies. Refine if the specific origin is known.
+  reference/legacy.rpt is the report that shipped beside this model in the pre-migration
+  corpus, from an engine and version that were not recorded. It is the evidence behind
+  this case''s surcharge/flooding/flow_instability tags. It is NOT a grading reference:
+  the case is graded as self_consistency.'

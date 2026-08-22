@@ -114,7 +114,11 @@ def run(argv: list[str] | None = None) -> dict | None:
             scoring.save_cell(scores, envelope, {
                 "case": case.id, "solver": eid,
                 "reference_class": case.reference_class,
-                "verdict": "PASS" if info["ok"] else "ERROR",
+                # a launch failure is an environment problem, not a
+                # result: UNAVAILABLE, which does not gate CI
+                "verdict": ("PASS" if info["ok"]
+                            else "ERROR" if info.get("launched", True)
+                            else "UNAVAILABLE"),
                 "wall": info.get("wall"),
                 "continuity_err": info.get("routing_err"),
                 "runoff_err": info.get("runoff_err"),

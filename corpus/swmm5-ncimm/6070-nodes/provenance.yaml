@@ -1,0 +1,7 @@
+source: Legacy benchmarks collection 'swmm5-ncimm' (originally SWMM5_NCIMM/6070_Nodes.inp)
+license: public-domain
+contributed_by: unknown (pre-migration corpus)
+date_added: '2026-08-22'
+original_units: SI
+notes: Provenance carried over mechanically during the corpus migration; the repository's
+  blanket public-domain dedication applies. Refine if the specific origin is known.

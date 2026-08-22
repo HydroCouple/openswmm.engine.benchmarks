@@ -29,6 +29,17 @@ def test_tag_expressions(expr, want):
     assert corpus.matches(TAGS, expr) is want
 
 
+@pytest.mark.parametrize("expr", [
+    "lid AND pollutants\n",                        # YAML `select: >` folded scalar
+    "  lid AND pollutants  ",
+    "lid AND pollutants\n\n",
+])
+def test_tag_expressions_tolerate_surrounding_whitespace(expr):
+    """Manifests write queries as YAML folded scalars, which always end with a
+    newline. Rejecting that would break every manifest."""
+    assert corpus.matches(TAGS, expr) is True
+
+
 @pytest.mark.parametrize("expr", ["lid AND", "(lid", "lid )", "", "AND lid"])
 def test_malformed_tag_expressions_are_rejected(expr):
     """A typo in a manifest must fail loudly — silently selecting nothing would

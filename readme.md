@@ -11,14 +11,15 @@
 [![Models](https://img.shields.io/endpoint?url=https://hydrocouple.github.io/openswmm.engine.benchmarks/badges/models.json)](https://hydrocouple.github.io/openswmm.engine.benchmarks/)
 
 An open, engine-agnostic **benchmarking and regression-testing platform for
-SWMM-compatible engines**. Nearly 1,600 models — EPA and OWA regression
+SWMM-compatible engines**. 1,396 models — EPA and OWA regression
 examples, the EXTRAN manual problems, the EPA QA suite with its original SWMM4
 references, analytical test problems with exact solutions, and real-world
 networks — run automatically against multiple engines and compared along
 dimensions that matter to practitioners.
 
-> **Status: under construction.** The harness is scaffolded and the corpus
-> migration has not run yet. See
+> **Status: under construction.** The harness is scaffolded and the corpus is
+> migrated (1,396 tagged, schema-valid cases). Suite migrations, the published
+> dashboard, and the engine-repo switchover are still to come — see
 > [the platform plan](plans/BENCHMARK_PLATFORM_PLAN_2026-08-22.md) for the full
 > design and implementation order.
 
@@ -38,7 +39,7 @@ Only cases with a genuine exact solution (`reference.class: analytic` or
 `manufactured`) can show an engine is **wrong**; the rest can only show that
 engines **differ**. The platform keeps these apart deliberately — error norms
 are computed for truth-class cases alone, and the `verification` and
-`regression` badges are separate numbers. "1,589 models pass" is a regression
+`regression` badges are separate numbers. "1,396 models pass" is a regression
 claim, not an accuracy claim, and is never presented as one.
 
 ## Quickstart
@@ -72,6 +73,7 @@ suites/           parity · epa_qa · analytical/{swashes,transitions,manufactur
                   · stability · quality · performance
 corpus/           the model library: <collection>/<case>/{model.inp,metadata.yaml,provenance.yaml}
 data/             shared forcing files (rainfall, timeseries)
+legacy/           pre-migration source material (XPSWMM projects, summaries)
 site/             dashboard templates (generated output is never committed)
 plans/            design documents
 ```
@@ -94,6 +96,7 @@ anonymization tool if the network can't be shared as-is.
 
 The Unlicense (see [LICENSE](LICENSE)), matching EPA SWMM5's public-domain
 status. Individual cases declare their own license in `provenance.yaml`;
-anything marked `unverified` is excluded from redistribution claims. A few
-collections — `Greenville`, `Simon_EPA`, `Special` — are contributed or
-special-case models whose provenance is confirmed during corpus migration.
+anything marked `unverified` is excluded from redistribution claims. Three
+collections — `greenville`, `simon-epa`, `special` — are contributed or
+special-case models currently marked `unverified` pending provenance
+confirmation.

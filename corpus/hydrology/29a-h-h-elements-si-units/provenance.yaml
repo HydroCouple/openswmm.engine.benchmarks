@@ -1,0 +1,11 @@
+source: Legacy benchmarks collection 'hydrology' (originally Hydrology/29a_H&H_Elements_SI_Units.inp)
+license: public-domain
+contributed_by: unknown (pre-migration corpus)
+date_added: '2026-08-22'
+original_units: SI
+notes: 'Provenance carried over mechanically during the corpus migration; the repository''s
+  blanket public-domain dedication applies. Refine if the specific origin is known.
+  reference/legacy.rpt is the report that shipped beside this model in the pre-migration
+  corpus, from an engine and version that were not recorded. It is the evidence behind
+  this case''s surcharge/flooding/flow_instability tags. It is NOT a grading reference:
+  the case is graded as self_consistency.'

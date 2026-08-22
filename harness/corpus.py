@@ -88,6 +88,9 @@ _TOKEN = re.compile(r"\s*(\(|\)|\bAND\b|\bOR\b|\bNOT\b|[A-Za-z0-9_.:-]+)",
 def _tokenize(expr: str) -> list[str]:
     pos, out = 0, []
     while pos < len(expr):
+        if not expr[pos:].strip():
+            break                # trailing whitespace: YAML folded scalars
+                                 # (`select: >`) always end with a newline
         m = _TOKEN.match(expr, pos)
         if not m:
             raise ValueError(f"bad tag expression near {expr[pos:pos + 20]!r}")

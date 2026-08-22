@@ -38,6 +38,7 @@ def run(argv: list[str] | None = None) -> dict | None:
     RESULTS.mkdir(parents=True, exist_ok=True)
     envelope = scoring.new_envelope(SUITE, engines.engine_sha())
     scores = RESULTS / "scores.json"
+    print(f"[{SUITE}] writing cells to {scores}", file=sys.stderr)
 
     # for case in cases:
     #     for engine in registry.resolved().values():
