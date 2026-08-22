@@ -15,7 +15,26 @@ __pycache__/
 # Engine run leftovers anywhere in the tree
 *.out
 *.rpt
+*.hsf
+*.HSF
+OUTPUT.MST
+*.rof
+*.ROF
 !corpus/**/reference/*.out
 !corpus/**/reference/*.rpt
 
+# Sweep leftovers from decks that still carry ABSOLUTE Windows paths in their
+# USE/SAVE references (handoff known-issue #5, ~126 models). On Windows those
+# write to D:\; on POSIX the whole path becomes a single literal filename in
+# the working directory. Ignoring them keeps a sweep from dirtying the tree —
+# the fix is to anonymize the decks, not to keep sweeping them under the rug.
+/[A-Za-z]:\\*
+
+# Suite run trees and generated score envelopes (the reports beside them ARE
+# committed; the runs that produced them are not).
+suites/**/runs/
+suites/**/figures/
+suites/**/*_scores.json
+
 .DS_Store
+.vs/
