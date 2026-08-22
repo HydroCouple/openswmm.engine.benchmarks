@@ -1,0 +1,60 @@
+id: bump-transcritical
+title: "Transcritical flow without shock"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.1.4"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases bump-transcritical"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 25.0
+  W1d_m: 1.0
+  W2d_m: 2.0
+  n_manning: 0.0
+  nx: 25
+  dt_routing_s: 0.05
+  report_step_s: 10.0
+  t_end_s: 1800.0
+  compare_times_s: [1800.0]
+  upstream: inflow_q (q=1.53 m2/s)
+  downstream: free
+  interior_mask: [0.0, 1.0]
+  opts_2d: {'FROUDE_MAX': '3'}
+cells:
+  1d-dynwave:
+    mode: baseline
+    tol: {'l1_h': 0.03, 'mass_pct': 6.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "implicit DW cannot establish the transcritical choke at stable resolution (settles near critical flow); analytic tols recorded for FV. Bit-identical to legacy since the fixed-step MINIMUM_STEP floor fix (the 'short-conduit defect' was decks silently marching at 0.5 s; see lake-at-rest _debug/REPRO.md)"
+  1d-dynwave-legacy:
+    mode: baseline
+    tol: {'l1_h': 0.03, 'mass_pct': 6.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "same choke limitation as 1d-dynwave; observed legacy continuity −4.5% on the free-outfall spin-up (gate 6%)"
+  1d-dynwave-vj:
+    mode: baseline
+    tol: {'l1_h': 0.03, 'mass_pct': 6.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "same implicit-DW choke limitation as the junction chain (l1 34% vs 32%) — VJ at parity"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  2d-explicit:
+    mode: baseline
+    tol: {'l1_h': 0.03}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "passes Fr=1; local-inertial neglects convective inertia — FROUDE_MAX raised to 3 (recorded). What that costs: q is EXACT everywhere (1.5300) and mass is 7e-13, so nothing is wrong with the fluxes or areas; only h is wrong, and only upstream (0.5898 vs 1.0144). Critical depth here is (q^2/g)^(1/3)=0.620, so the model sits at Fr 1.08 where the truth is Fr 0.48 — the SUPERCRITICAL BRANCH of the same specific energy, over the whole domain; downstream, where the truth is supercritical too, it matches to 0.2%. Without the advective term the frictionless steady balance reduces to d(eta)/dx=0, and the measured eta is indeed constant at 0.5898 from x=0.5 through the crest, so the upstream pool can never build"
+  2d-explicit-adv:
+    mode: baseline
+    tol: {'l1_h': 0.03}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "passes Fr=1; local-inertial neglects convective inertia — FROUDE_MAX raised to 3 (recorded). What that costs: q is EXACT everywhere (1.5300) and mass is 7e-13, so nothing is wrong with the fluxes or areas; only h is wrong, and only upstream (0.5898 vs 1.0144). Critical depth here is (q^2/g)^(1/3)=0.620, so the model sits at Fr 1.08 where the truth is Fr 0.48 — the SUPERCRITICAL BRANCH of the same specific energy, over the whole domain; downstream, where the truth is supercritical too, it matches to 0.2%. Without the advective term the frictionless steady balance reduces to d(eta)/dx=0, and the measured eta is indeed constant at 0.5898 from x=0.5 through the crest, so the upstream pool can never build"
+  1d-dynwave-semi:
+    mode: baseline
+    tol: {'l1_h': 0.03, 'mass_pct': 6.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "policy mirrored from 1d-dynwave"

@@ -1,0 +1,52 @@
+id: stoker-wet-dam-break
+title: "Stoker dam break on a wet domain"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 4.1.1"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases stoker-wet-dam-break"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 10.0
+  W1d_m: 1.0
+  W2d_m: 1.0
+  n_manning: 0.0
+  nx: 200
+  dt_routing_s: 0.01
+  report_step_s: 1.0
+  t_end_s: 6.0
+  compare_times_s: [2.0, 4.0, 6.0]
+  upstream: wall
+  downstream: wall
+  interior_mask: [0.0, 1.0]
+  opts_2d: {'DRY_DEPTH': '0.0001', 'H_MOVE': '0.0001'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.05}
+    note: "DW MEETS analytic tolerance on the wet dam break (l1 4.8%, mass 0.0%) — bit-identical to legacy since the MINIMUM_STEP floor fix; wet bed: no front metric"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.05}
+    note: "legacy DW MEETS analytic tolerance on the wet dam break (l1 4.8%, mass 0.0%)"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.05}
+  2d-explicit:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "local-inertial; DRY_DEPTH/H_MOVE lowered to 1e-4 (depth scale is mm). TWO separate errors on the star region (exact 0.00254 flat, x 4.8-6.2): a +-4.5% sawtooth, which is what the de Almeida q-centred damping leaves at n=0 (THETA defaults to 0.8 and IS active - at zero friction the friction denominator is identically 1.0 and adds no dissipation); and a plateau 31% high (0.00333) with the shock at x~5.8 vs 6.25, which is the MISSING CONVECTIVE MOMENTUM FLUX giving wrong Rankine-Hugoniot conditions. Lowering THETA addresses only the first"
+  2d-explicit-adv:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "the convective flux the 2d-explicit note names as the cause of the star-plateau error, switched on: l1 6.15% -> 4.83%, i.e. restoring the Rankine-Hugoniot physics recovers about a fifth of the error while the q-centred sawtooth (a damping artefact at n=0) is untouched. Still baseline-graded: first-order upwinding of the new term leaves its own diffusion at this resolution"
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'l1_h': 0.05}
+    note: "policy mirrored from 1d-dynwave"

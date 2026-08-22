@@ -41,7 +41,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "D:\2017\hotStart.HSF"
+SAVE HOTSTART "hotStart.HSF"
 
 [EVAPORATION]
 ;;Data Source    Parameters

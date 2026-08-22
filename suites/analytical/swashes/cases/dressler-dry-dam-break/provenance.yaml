@@ -1,0 +1,54 @@
+id: dressler-dry-dam-break
+title: "Dressler dam break on a dry domain with friction"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 4.1.3"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases dressler-dry-dam-break"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 2000.0
+  W1d_m: 500.0
+  W2d_m: 10.0
+  n_manning: 0.029439796075012025
+  nx: 2000
+  dt_routing_s: 0.01
+  report_step_s: 1.0
+  t_end_s: 40.0
+  compare_times_s: [10.0, 20.0, 40.0]
+  upstream: wall
+  downstream: wall
+  interior_mask: [0.0, 1.0]
+  opts_2d: {'FROUDE_MAX': '3'}
+cells:
+  1d-dynwave:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "dry-bed front precedent (ritter); reference friction is Chézy C=40 — deck carries the equivalent Manning n = (4/9·hl)^(1/6)/C (approximation recorded in provenance)"
+  1d-dynwave-legacy:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.08}
+    note: "graded on l1_h only: Dressler's front is pinned at Ritter's FRICTIONLESS position xB = x0+2t√(ghl) (his first-order correction does not move the front — a stated limit of the solution), so every frictional solver undershoots it (FV: 1300 vs 1580 m at t=40) and front_err cannot gate; body l1 = 3.4% at t=40. Chézy→Manning mismatch also over-damps the shallow tip (n_eq fixed at the star depth)"
+  2d-explicit:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "wet/dry front under local inertia with friction"
+  2d-explicit-adv:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+  1d-dynwave-semi:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'front_err_dx': 3.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "policy mirrored from 1d-dynwave"

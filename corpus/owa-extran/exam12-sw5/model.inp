@@ -40,7 +40,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE RUNOFF "C:\swmm_crada_files\OUTPUT.MST"
+SAVE RUNOFF "OUTPUT.MST"
 
 [EVAPORATION]
 ;;Data Source    Parameters

@@ -41,7 +41,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE RAINFALL "C:\Users\dickinre\Desktop\RIVERANDRAINDATA\PG009Rain 7-28.txt"
+SAVE RAINFALL "PG009Rain 7-28.txt"
 
 [EVAPORATION]
 ;;Data Source    Parameters

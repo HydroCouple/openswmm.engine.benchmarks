@@ -52,7 +52,7 @@ DRY_ONLY         NO
 ;;Name           Format    Interval SCF      Source    
 ;;-------------- --------- ------ ------ ----------
 GAGE1            INTENSITY 0.083333 1.000000 TIMESERIES RAINSERIES1     
-RG02             VOLUME    00:15:00 1        FILE       "C:\NCIMM_Training\Data_Files\RAIN_GW.DAT" RG02       IN   
+RG02             VOLUME    00:15:00 1        FILE       "RAIN_GW.DAT" RG02       IN   
 
 [SUBCATCHMENTS]
 ;;Name           Rain Gage        Outlet           Area     %Imperv  Width    %Slope   CurbLen  SnowPack        

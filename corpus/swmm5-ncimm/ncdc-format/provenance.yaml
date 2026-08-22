@@ -5,3 +5,5 @@ date_added: '2026-08-22'
 original_units: US
 notes: Provenance carried over mechanically during the corpus migration; the repository's
   blanket public-domain dedication applies. Refine if the specific origin is known.
+modifications: 2 referenced input file(s) located elsewhere in the repository and
+  copied beside the model; the reference was shortened to the bare filename.

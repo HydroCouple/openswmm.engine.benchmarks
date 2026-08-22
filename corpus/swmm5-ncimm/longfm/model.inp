@@ -38,7 +38,7 @@ MAX_TRIALS	8
 HEAD_TOLERANCE	0.000010
 
 [FILES]
-SAVE OUTFLOWS	"C:\Users\Robert E Dickinson\Desktop\fileOne.TXT"
+SAVE OUTFLOWS	"fileOne.TXT"
 
 [RAINGAGES]
 

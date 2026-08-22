@@ -38,9 +38,9 @@ FORCE_MAIN_EQUATION  H-W
 LINK_OFFSETS         DEPTH
 
 [FILES]
-SAVE RAINFALL "C:\DATA\ALCOSAN\Models\Input_Files\DMR_Q3_2008\Extnd_Hyb_Sim_Adjusted_SWM_Rain_Q32008.rff"
+SAVE RAINFALL "Extnd_Hyb_Sim_Adjusted_SWM_Rain_Q32008.rff"
 USE INFLOWS "C:\DATA\ALCOSAN\Models\Input_Files\DMR_Q3_2008\Extnd_Hyb_SWM_InflowsQ32008.dat"
-SAVE OUTFLOWS "C:\DATA\ALCOSAN\Models\REGIONAL_SWM\Model_Runs\DMR_Q3_2008\Extnd_Hybrid_Sim\Extnd_Hyb_Q32008Outflows.txt"
+SAVE OUTFLOWS "Extnd_Hyb_Q32008Outflows.txt"
 USE HOTSTART "C:\DATA\ALCOSAN\Models\REGIONAL_SWM\Model_Runs\DMR_Q3_2008\Extnd_Hybrid_Sim\Extnd_Hyb_SWMHot.hsf"
 
 [EVAPORATION]

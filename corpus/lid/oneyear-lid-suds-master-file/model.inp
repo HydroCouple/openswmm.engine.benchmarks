@@ -51,7 +51,7 @@ DRY_ONLY         NO
 [RAINGAGES]
 ;;Name           Format    Interval SCF      Source    
 ;;-------------- --------- ------ ------ ----------
-1                INTENSITY 1:00     1.000000 FILE       "C:\SWMMandSoftware\SWMM5.013_June2018\EPASWMM5.1.013\Swmm5.1.013UpdateTests\DataFiles\RAIN_GW.DAT" RG02       IN   
+1                INTENSITY 1:00     1.000000 FILE       "RAIN_GW.DAT" RG02       IN   
 
 [SUBCATCHMENTS]
 ;;Name           Rain Gage        Outlet           Area     %Imperv  Width    %Slope   CurbLen  SnowPack        

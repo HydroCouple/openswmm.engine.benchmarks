@@ -47,8 +47,8 @@ DRY_ONLY         NO
 [RAINGAGES]
 ;;Name           Format    Interval SCF      Source    
 ;;-------------- --------- ------ ------ ----------
-1  INTENSITY 1:00  1.0  FILE  "D:\SWMMandSoftware\SWMM5.013_June2018\EPASWMM5.1.013\Swmm5.1.013UpdateTests\DataFiles\ncdc_format_old.dat"  *  IN
-2  INTENSITY 1:00  1.0  FILE  "D:\SWMMandSoftware\SWMM5.013_June2018\EPASWMM5.1.013\Swmm5.1.013UpdateTests\DataFiles\ncdc_format_new.dat"  *  IN
+1  INTENSITY 1:00  1.0  FILE  "ncdc_format_old.dat"  *  IN
+2  INTENSITY 1:00  1.0  FILE  "ncdc_format_new.dat"  *  IN
 
 [SUBCATCHMENTS]
 ;;Name           Rain Gage        Outlet           Area     %Imperv  Width    %Slope   CurbLen  SnowPack        

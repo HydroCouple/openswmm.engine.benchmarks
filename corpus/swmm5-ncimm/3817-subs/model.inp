@@ -40,7 +40,7 @@ THREADS              2
 
 [FILES]
 ;;Interfacing Files
-SAVE OUTFLOWS "\\mainfile-van\Projects\Active\3000714_DNV_SWMM\Model\PCSWMM\AdditionalWork_Scen5_ExDSB\Revised_6_6_2017\model_linkage_timeseries\HastingsTribs_FuSc5_DSB_200yr_OUTFLOWS.txt"
+SAVE OUTFLOWS "HastingsTribs_FuSc5_DSB_200yr_OUTFLOWS.txt"
 
 [EVAPORATION]
 ;;Data Source    Parameters

@@ -1,0 +1,45 @@
+id: p2d-jump-short
+title: "Pseudo-2D hydraulic jump at x = 120 m, B1, 200 m"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.5.4"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases p2d-jump-short"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 200.0
+  W1d_m: 10.0
+  W2d_m: 10.0
+  n_manning: 0.03
+  nx: 400
+  dt_routing_s: 0.015
+  report_step_s: 10.0
+  t_end_s: 1800.0
+  compare_times_s: [1800.0]
+  upstream: inflow_q (q=20.0 m2/s)
+  downstream: stage (eta=1.499236193864557 m)
+  interior_mask: [0.05, 1.0]
+  x_shock_m: 120.000000
+cells:
+  1d-dynwave:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "steady shock position precedent (bump-shock); downstream eta is hex(200) of the RH-verified construction (Table-2 hout differs — see provenance); non-prismatic momentum: DW junction chains drop the cross-junction convective + wall-pressure terms — dx-independent deep bias with exact q (see cases_pseudo2d.py header note). FV no longer shares this: the width-step single-flux fix (face_geom) closed it 2026-08-13"
+  1d-dynwave-legacy:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
+    note: "FIXED 2026-08-13 (was a deliberate red at 5.4-16.5%): the width-step single-flux treatment — one shared face section, so the step's wall finally exerts force — brings the family to 0.17-0.60% and the jumps inside half a cell"
+  1d-dynwave-semi:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "policy mirrored from 1d-dynwave"

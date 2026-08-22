@@ -49,7 +49,7 @@ DRY_ONLY         NO
 [RAINGAGES]
 ;;Name           Format    Interval SCF      Source    
 ;;-------------- --------- ------ ------ ----------
-GAGE1            INTENSITY 1.000000 1.000000 FILE       "C:\NCIMM_Training\Data_Files\sta310301.dat" 310301     IN   
+GAGE1            INTENSITY 1.000000 1.000000 FILE       "sta310301.dat" 310301     IN   
 
 [SUBCATCHMENTS]
 ;;Name           Rain Gage        Outlet           Area     %Imperv  Width    %Slope   CurbLen  SnowPack        

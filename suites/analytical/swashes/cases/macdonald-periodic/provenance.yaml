@@ -1,0 +1,46 @@
+id: macdonald-periodic
+title: "MacDonald 5000 m periodic channel, subcritical"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.2.3"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases macdonald-periodic"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 5000.0
+  W1d_m: 500.0
+  W2d_m: 10.0
+  n_manning: 0.03
+  nx: 5000
+  dt_routing_s: 0.04
+  report_step_s: 120.0
+  t_end_s: 12000.0
+  compare_times_s: [12000.0]
+  upstream: inflow_q (q=2.0 m2/s)
+  downstream: stage (eta=1.1249999999999998 m)
+  interior_mask: [0.0, 1.0]
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+    note: "ENGINE FINDING: DW loses ~one velocity head (v²/2g = 0.161 m) to its 5000-junction chain — l1 0.141% at dx=10 vs 15.5% at dx=1, while FV converges normally"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  2d-explicit:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  2d-explicit-adv:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+    note: "policy mirrored from 1d-dynwave"

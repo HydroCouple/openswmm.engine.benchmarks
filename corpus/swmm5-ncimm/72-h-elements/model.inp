@@ -41,7 +41,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "D:\2016PC\Desktop_July2012\NewHS.hsf"
+SAVE HOTSTART "NewHS.hsf"
 USE HOTSTART "D:\2016PC\Desktop_July2012\OldHS.hsf"
 
 [EVAPORATION]

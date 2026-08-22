@@ -1,0 +1,19 @@
+case: rapid-fill
+title: Rapid filling bore, horizontal pipe (analytic front trajectory)
+family: open-channel/pressurized transition
+independent_implementation: true
+citation: >-
+  Vasconcelos, J.G. & Wiggert, D.C. (2005). Numerical simulation of surges in stormwater storage tunnels. J. Hydraul. Eng. 131(10); front speed from mass conservation across the moving pressurization front, w = Q/(A_full - A0).
+parameters:
+  total_length_m: 500
+  pipes: [(500.0, 1.0, 0.01, 0.0, 0.0, 25)]
+  outfall_stage_m: 0.2
+  init_depth_m: 0.2
+  q_grade_m3s: 2
+  inflow_const_m3s: 2.0
+  inflow_ts_min_m3s: None
+  t_end_s: 600
+  routing_step_s: 0.5
+  report_step_s: 5
+notes: >-
+  Ambient column at rest (outfall stage = initial depth); step inflow 2.0 m3/s pressurizes the pipe end-to-end in ~220 s (analytic bore speed 2.97 m/s after formation).

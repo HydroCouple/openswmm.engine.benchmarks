@@ -1,0 +1,52 @@
+id: macdonald-long-sub
+title: "MacDonald 1000 m channel, subcritical"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.2.1 (subcritical)"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases macdonald-long-sub"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 1000.0
+  W1d_m: 500.0
+  W2d_m: 10.0
+  n_manning: 0.033
+  nx: 1000
+  dt_routing_s: 0.04
+  report_step_s: 60.0
+  t_end_s: 6000.0
+  compare_times_s: [6000.0]
+  upstream: inflow_q (q=2.0 m2/s)
+  downstream: stage (eta=0.7483235583183894 m)
+  interior_mask: [0.0, 1.0]
+  opts_1d: {'INERTIAL_DAMPING': 'PARTIAL'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  1d-dynwave-vj:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+    note: "zero-storage VJ chain matches the junction chain on frictional channels (l1 1.7%, mass 0.001%)"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+  2d-explicit:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+    note: "R=h native — no width correction"
+  2d-explicit-adv:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+    note: "R=h native — no width correction"
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'l1_h': 0.03}
+    note: "policy mirrored from 1d-dynwave"

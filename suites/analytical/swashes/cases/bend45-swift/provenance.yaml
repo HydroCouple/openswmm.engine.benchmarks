@@ -1,0 +1,43 @@
+id: bend45-swift
+title: "45-degree miter bend, swift flow (Fr 0.80)"
+verification_class: cross-solver-2d (local-inertial reference — lower-bound bend loss)
+reference:
+  file: reference_2d.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]   # x = centerline arc length s
+  generator: "python run_swashes.py gen-2d-ref --cases bend45-swift --pin"
+  engine_sha: 5a693493
+  inp_sha: 6021b73c39f8e68b
+  cfl_number: 0.3
+  steady_resid: 1.65291e-05
+  mass_pct: -4.637918178719382e-11
+  planform: theta=45 deg, s_bend=60 m, W=4 m
+parameters:
+  L_m: 120.0
+  W1d_m: 4.0
+  W2d_m: 4.0
+  n_manning: 0.025
+  nx: 240
+  dt_routing_s: 0.05
+  report_step_s: 10.0
+  t_end_s: 3600.0
+  compare_times_s: [3600.0]
+  upstream: inflow_q (q=0.6338908423380165 m2/s)
+  downstream: stage (eta=0.4 m)
+  interior_mask: [0.0, 1.0]
+  opts_2d: {'FROUDE_MAX': '3'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.25, 'linf_h': 0.4, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss)"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.25, 'linf_h': 0.4, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss)"
+  1d-dynwave-vj:
+    mode: analytic
+    tol: {'l1_h': 0.25, 'linf_h': 0.4, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss)"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.25, 'linf_h': 0.4, 'mass_pct': 1.0}

@@ -1,0 +1,47 @@
+id: lake-at-rest-immersed
+title: "Lake at rest with an immersed bump"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.1.1"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases lake-at-rest-immersed"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 25.0
+  W1d_m: 1.0
+  W2d_m: 2.0
+  n_manning: 0.0
+  nx: 25
+  dt_routing_s: 0.05
+  report_step_s: 5.0
+  t_end_s: 200.0
+  compare_times_s: [200.0]
+  upstream: none
+  downstream: stage (eta=0.5 m)
+  interior_mask: [0.0, 1.0]
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'linf_h': 0.001, 'l1_q': 0.0001}
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'linf_h': 0.001, 'l1_q': 0.0001}
+  1d-fv:
+    mode: analytic
+    tol: {'linf_h': 0.001, 'l1_q': 0.0001}
+  2d-explicit:
+    mode: analytic
+    tol: {'linf_h': 0.001, 'l1_q': 1e-06}
+    note: "well-balancedness (C-property)"
+  2d-explicit-adv:
+    mode: analytic
+    tol: {'linf_h': 0.001, 'l1_q': 1e-06}
+    note: "well-balancedness (C-property)"
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'linf_h': 0.001, 'l1_q': 0.0001}
+    note: "policy mirrored from 1d-dynwave"

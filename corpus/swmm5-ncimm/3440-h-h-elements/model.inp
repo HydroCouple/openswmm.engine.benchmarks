@@ -41,7 +41,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "C:\ProgramData\Innovyze\Temp\IM1Vdb\HMVDB31\12.19.06_E.hsf"
+SAVE HOTSTART "12.19.06_E.hsf"
 
 [EVAPORATION]
 ;;Data Source    Parameters

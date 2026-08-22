@@ -40,7 +40,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "D:\east_collins.HSF"
+SAVE HOTSTART "east_collins.HSF"
 
 [EVAPORATION]
 ;;Data Source    Parameters

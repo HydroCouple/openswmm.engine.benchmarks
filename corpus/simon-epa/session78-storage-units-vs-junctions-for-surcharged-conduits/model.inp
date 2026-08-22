@@ -45,7 +45,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "C:\Users\dickinre\Desktop\nnn.hsf"
+SAVE HOTSTART "nnn.hsf"
 
 [EVAPORATION]
 ;;Data Source    Parameters

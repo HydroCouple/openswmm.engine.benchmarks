@@ -1,0 +1,54 @@
+id: macdonald-long-sup
+title: "MacDonald 1000 m channel, supercritical"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.2.1 (supercritical)"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases macdonald-long-sup"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 1000.0
+  W1d_m: 500.0
+  W2d_m: 10.0
+  n_manning: 0.04
+  nx: 1000
+  dt_routing_s: 0.035
+  report_step_s: 60.0
+  t_end_s: 6000.0
+  compare_times_s: [6000.0]
+  upstream: inflow_q (q=2.5 m2/s)
+  downstream: free
+  interior_mask: [0.05, 1.0]
+  opts_1d: {'INERTIAL_DAMPING': 'PARTIAL'}
+  opts_2d: {'FROUDE_MAX': '3'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+    note: "upstream q+h cannot both be pinned — graded on x in [0.05L, L]"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+    note: "ENGINE FINDING: SEMI_IMPLICIT loses 1.75% mass under resolved roll waves (explicit: -0.005%); l1 1.78% is fine — the red is the mass gate"
+  1d-dynwave-vj:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+    note: "VJ chain ~matches the junction chain (l1 0.65% vs 0.60%) and is machine-steady (resid 1e-8)"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+  2d-explicit:
+    mode: xfail
+    tol: {'l1_h': 0.04}
+    note: "supercritical throughout; FROUDE_MAX 3. XFAIL: the local-inertial scheme carries no convective advection term, so the fully supercritical profile never steadies (roll-wave-like unsteadiness, drift ~0.9, q spikes with drying cells) — a physics limit, not a defect; requires a full-SWE momentum solver (investigated 2026-08-03: survives the inertial-BC, dt0-refresh and hysteresis fixes)"
+  2d-explicit-adv:
+    mode: xfail
+    tol: {'l1_h': 0.04}
+    note: "supercritical throughout; FROUDE_MAX 3. XFAIL: the local-inertial scheme carries no convective advection term, so the fully supercritical profile never steadies (roll-wave-like unsteadiness, drift ~0.9, q spikes with drying cells) — a physics limit, not a defect; requires a full-SWE momentum solver (investigated 2026-08-03: survives the inertial-BC, dt0-refresh and hysteresis fixes)"

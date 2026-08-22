@@ -40,7 +40,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "D:\2013-2016Desktop\Summer 2015\hanoi.hsf"
+SAVE HOTSTART "hanoi.hsf"
 
 [EVAPORATION]
 ;;Data Source    Parameters

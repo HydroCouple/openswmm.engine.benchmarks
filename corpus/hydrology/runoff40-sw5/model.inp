@@ -40,7 +40,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE RUNOFF "D:\SWMMandSoftware\swmm_crada_files\Other SWMM5 Files\RUNOFF40.INT"
+SAVE RUNOFF "RUNOFF40.INT"
 
 [EVAPORATION]
 ;;Data Source    Parameters

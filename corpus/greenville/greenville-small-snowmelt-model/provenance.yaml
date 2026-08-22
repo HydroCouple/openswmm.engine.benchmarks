@@ -9,3 +9,6 @@ notes: 'Provenance carried over mechanically during the corpus migration. Contri
   engine and version that were not recorded. It is the evidence behind this case''s
   surcharge/flooding/flow_instability tags. It is NOT a grading reference: the case
   is graded as self_consistency.'
+modifications: '2 absolute SAVE path(s) in [FILES] rewritten to the bare filename
+  so the model runs off its authoring machine (and to remove leaked directory names).
+  Non-physical: no parameter, element, or option affecting results was changed.'

@@ -1,0 +1,19 @@
+case: inverted-siphon
+title: Inverted siphon, steady pressurized HGL (energy-balance analytic)
+family: open-channel/pressurized transition
+independent_implementation: true
+citation: >-
+  Standard full-pipe energy balance along an inverted siphon; modeling precedent: EPA SWMM QA model test4 (INVERTED SIPHON EXAMPLE).
+parameters:
+  total_length_m: 460
+  pipes: [(100.0, 0.8, 0.013, 8.0, 7.8, 5), (30.0, 0.8, 0.013, 7.8, 2.0, 2), (200.0, 0.8, 0.013, 2.0, 2.0, 10), (30.0, 0.8, 0.013, 2.0, 7.5, 2), (100.0, 0.8, 0.013, 7.5, 7.3, 5)]
+  outfall_stage_m: 8.6
+  init_depth_m: 0
+  q_grade_m3s: 0.7
+  inflow_const_m3s: 0.7
+  inflow_ts_min_m3s: None
+  t_end_s: 7200
+  routing_step_s: 1
+  report_step_s: 30
+notes: >-
+  Barrel sits 5.8 m below the hydraulic grade line; the whole system runs full once spun up.

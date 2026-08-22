@@ -1,0 +1,56 @@
+id: macdonald-long-jump
+title: "MacDonald 1000 m channel, hydraulic jump at x = 500 m"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.2.1 (super-to-subcritical)"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases macdonald-long-jump"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 1000.0
+  W1d_m: 500.0
+  W2d_m: 10.0
+  n_manning: 0.0218
+  nx: 1000
+  dt_routing_s: 0.04
+  report_step_s: 60.0
+  t_end_s: 6000.0
+  compare_times_s: [6000.0]
+  upstream: inflow_q (q=2.0 m2/s)
+  downstream: stage (eta=1.3347471946106595 m)
+  interior_mask: [0.05, 1.0]
+  x_shock_m: 500.000000
+  opts_1d: {'INERTIAL_DAMPING': 'PARTIAL'}
+  opts_2d: {'FROUDE_MAX': '3'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+    note: "MEETS analytic ON A FRICTIONAL CHANNEL: l1 1.3%, shock error 2.5 m (half a cell) with the recorded INERTIAL_DAMPING PARTIAL deviation — under NONE the shock region carries a stationary sawtooth (l1 3.5%). Contrast bump-shock (frictionless): there the shock position drifts and cells stay baseline"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+  1d-dynwave-vj:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+    note: "l1 0.65%, shock error 2.5 m — the shock-capturing reference column"
+  2d-explicit:
+    mode: baseline
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+    baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
+    note: "MET analytic at dx=2.5 (l1 3.0%, shock 2.5 m); at 1 m edges the jump-toe seiche no longer decays and the time-mean shock smears over x 430-520 (shock_err 69 m, l1 4.5%) — the local-inertial jump limitation resolution re-reveals. Analytic gates stay recorded; a better 2D scheme flips this cell loudly"
+  2d-explicit-adv:
+    mode: xfail
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+    note: "never steadies with ADVECTION on (drift 0.21, shock smeared 55 m): roll-waves on the supercritical upstream half + first-order upwind diffusion — the advection-less columns pass this case exactly"
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'shock_err_m': 25.0}
+    note: "policy mirrored from 1d-dynwave"

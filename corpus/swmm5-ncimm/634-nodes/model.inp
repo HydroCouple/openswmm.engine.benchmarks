@@ -42,7 +42,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE OUTFLOWS "D:\2017\My2016\SEYMOUR_EXIST_10YR_20161003B.ISDB\DS.txt"
+SAVE OUTFLOWS "DS.txt"
 
 [EVAPORATION]
 ;;Data Source    Parameters

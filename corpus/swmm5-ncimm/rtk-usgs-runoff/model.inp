@@ -39,8 +39,8 @@ LAT_FLOW_TOL        	5
 
 [FILES]
 ;;Interfacing Files
-SAVE	RUNOFF	"D:\swmm_crada_files\RUNOFF47.INT"
-SAVE	HOTSTART	"D:\swmm_crada_files\usgs_polluion.HSF"
+SAVE	RUNOFF	"RUNOFF47.INT"
+SAVE	HOTSTART	"usgs_polluion.HSF"
 
 [EVAPORATION]
 ;;Evap Data     	Parameters

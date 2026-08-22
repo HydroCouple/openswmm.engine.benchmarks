@@ -1,0 +1,19 @@
+case: surcharge-cycle
+title: Surcharge onset and relief, sloped chain (peak-hold HGL analytic)
+family: open-channel/pressurized transition
+independent_implementation: true
+citation: >-
+  Standard full-pipe energy balance: fully-pressurized HGL is linear at the Manning friction slope (e.g. SWMM Reference Manual Vol. II, Hydraulics).
+parameters:
+  total_length_m: 600
+  pipes: [(200.0, 1.0, 0.013, 1.2, 0.8, 40), (200.0, 1.0, 0.013, 0.8, 0.4, 40), (200.0, 1.0, 0.013, 0.4, 0.0, 40)]
+  outfall_stage_m: 1
+  init_depth_m: 0
+  q_grade_m3s: 2
+  inflow_const_m3s: None
+  inflow_ts_min_m3s: [(0, 0.3), (10, 0.3), (15, 2.0), (45, 2.0), (50, 0.3), (120, 0.3)]
+  t_end_s: 7200
+  routing_step_s: 1
+  report_step_s: 15
+notes: >-
+  Hydrograph 0.3 -> 2.0 -> 0.3 m3/s; capacity ~1.07 m3/s, so the chain pressurizes on the rise and relieves on the recession.

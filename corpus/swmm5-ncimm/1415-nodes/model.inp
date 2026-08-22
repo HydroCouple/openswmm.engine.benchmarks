@@ -41,7 +41,7 @@ THREADS              2
 
 [FILES]
 ;;Interfacing Files
-SAVE OUTFLOWS "\\mainfile-van\Projects\Active\3000714_DNV_SWMM\Model\PCSWMM\AdditionalWork_Scen5_ExDSB\Revised_6_6_2017\model_linkage_timeseries\Tsleil_Fu5_DSB_200yr_OUTFLOWS.TXT"
+SAVE OUTFLOWS "Tsleil_Fu5_DSB_200yr_OUTFLOWS.TXT"
 
 [EVAPORATION]
 ;;Data Source    Parameters

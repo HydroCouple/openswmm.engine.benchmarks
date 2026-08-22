@@ -1,0 +1,87 @@
+"""The analytical layer, verified without an engine.
+
+These are the platform's only accuracy claims, so the reference data behind
+them has to be trustworthy independently of any build. Each committed
+``reference.csv`` should still be exactly reproducible from the closed-form
+solution its provenance documents — if a formula, a constant, or a unit
+conversion drifts, the reference stops matching and that must be visible
+before anyone grades an engine against it.
+"""
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MANUFACTURED = REPO_ROOT / "suites" / "analytical" / "manufactured" / "cases"
+SWASHES = REPO_ROOT / "suites" / "analytical" / "swashes" / "cases"
+TRANSITIONS = REPO_ROOT / "suites" / "analytical" / "transitions" / "cases"
+
+
+def _generator_cases() -> list[Path]:
+    if not MANUFACTURED.is_dir():
+        return []
+    return [d for d in sorted(MANUFACTURED.iterdir())
+            if (d / "scripts").is_dir() and list((d / "scripts").glob("*.py"))]
+
+
+@pytest.mark.parametrize("case", _generator_cases(),
+                         ids=lambda c: c.name)
+def test_manufactured_reference_is_reproducible(case, tmp_path):
+    """The generator must still produce the committed reference byte for byte."""
+    ref = case / "reference.csv"
+    before = ref.read_bytes()
+    script = sorted((case / "scripts").glob("*.py"))[0]
+    try:
+        proc = subprocess.run([sys.executable, str(script)], cwd=str(case),
+                              capture_output=True, text=True, timeout=300)
+        assert proc.returncode == 0, proc.stderr[-400:]
+        assert ref.read_bytes() == before, (
+            f"{case.name}: the generator no longer reproduces reference.csv")
+    finally:
+        ref.write_bytes(before)          # never leave committed data modified
+
+
+def test_every_analytical_case_has_provenance():
+    """An analytic reference without provenance is an unsourced assertion."""
+    missing = []
+    for root in (MANUFACTURED, SWASHES, TRANSITIONS):
+        if not root.is_dir():
+            continue
+        for case in sorted(root.iterdir()):
+            if case.is_dir() and not (case / "provenance.yaml").exists():
+                missing.append(f"{root.name}/{case.name}")
+    assert not missing, f"cases without provenance.yaml: {missing}"
+
+
+def test_reference_class_is_a_truth_class():
+    """Everything under analytical/ must be gradeable as an accuracy claim.
+
+    This is what separates the verification badge from the regression badge;
+    if a suite here declared a non-truth reference class, error norms computed
+    from it would be meaningless.
+    """
+    from harness import scoring
+    sys.path.insert(0, str(REPO_ROOT))
+    for name in ("swashes", "transitions", "manufactured"):
+        mod_path = REPO_ROOT / "suites" / "analytical" / name / "suite.py"
+        if not mod_path.exists():
+            continue
+        text = mod_path.read_text()
+        assert 'REFERENCE_CLASS = "' in text, f"{name}: no REFERENCE_CLASS declared"
+        cls = text.split('REFERENCE_CLASS = "')[1].split('"')[0]
+        assert scoring.is_truth(cls), (
+            f"{name} declares reference class {cls!r}, which is not ground "
+            "truth — accuracy metrics from it would be unsupportable")
+
+
+@pytest.mark.skipif(not SWASHES.is_dir(), reason="swashes suite not migrated")
+def test_swashes_cases_carry_reference_data():
+    empty = [c.name for c in sorted(SWASHES.iterdir())
+             if c.is_dir() and not (c / "reference.csv").exists()]
+    # the bend cases use engine-generated 2D references, not closed-form ones
+    unexpected = [c for c in empty if not c.startswith("bend")]
+    assert not unexpected, f"cases missing reference.csv: {unexpected}"

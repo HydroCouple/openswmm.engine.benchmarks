@@ -100,7 +100,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "D:\2016PC\Desktop\jan2010\July96-fullupdate.HSF"
+SAVE HOTSTART "July96-fullupdate.HSF"
 
 [EVAPORATION]
 ;;Data Source    Parameters

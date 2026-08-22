@@ -1,0 +1,43 @@
+id: bend00-swift
+title: "Straight control, swift flow (Fr 0.80)"
+verification_class: cross-solver-2d (local-inertial reference — lower-bound bend loss)
+reference:
+  file: reference_2d.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]   # x = centerline arc length s
+  generator: "python run_swashes.py gen-2d-ref --cases bend00-swift --pin"
+  engine_sha: 5a693493
+  inp_sha: 4fbb35347914d274
+  cfl_number: 0.3
+  steady_resid: 1.95679e-14
+  mass_pct: -1.0326180141544615e-11
+  planform: theta=0 deg, s_bend=60 m, W=4 m
+parameters:
+  L_m: 120.0
+  W1d_m: 4.0
+  W2d_m: 4.0
+  n_manning: 0.025
+  nx: 240
+  dt_routing_s: 0.05
+  report_step_s: 10.0
+  t_end_s: 3600.0
+  compare_times_s: [3600.0]
+  upstream: inflow_q (q=0.6338908423380165 m2/s)
+  downstream: stage (eta=0.4 m)
+  interior_mask: [0.0, 1.0]
+  opts_2d: {'FROUDE_MAX': '3'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss); theta=0 control for the swift regime"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss); theta=0 control for the swift regime"
+  1d-dynwave-vj:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss); theta=0 control for the swift regime"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}

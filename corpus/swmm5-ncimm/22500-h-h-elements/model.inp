@@ -44,7 +44,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-USE HOTSTART "D:\NovDec2009\HOTSTART.HSF"
+USE HOTSTART "HOTSTART.HSF"
 
 [EVAPORATION]
 ;;Data Source    Parameters

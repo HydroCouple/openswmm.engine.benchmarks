@@ -14,4 +14,13 @@ paraboloid cases. Solvers: `1d-dynwave`, `1d-dynwave-legacy`, `1d-kinwave`,
 Pinned baselines (`pin-baseline`) are graded separately as regression, never as
 accuracy.
 
-**Not yet migrated** — source `epaswmm5_qa/suites/swashes/`, plan step 2.
+**Migrated** (2026-08-22) from `epaswmm5_qa/suites/swashes/`; `core.*` imports
+rewritten to `harness.*`.
+
+Verified engine-free: all 27 closed-form cases regenerate their committed
+`reference.csv` with max deviation `0.00e+00`. The 6 `bend*` cases use
+engine-generated 2D references and are excluded from that check.
+
+```bash
+python -c "from suites.analytical.swashes import suite; suite.gen_refs(check=True)"
+```

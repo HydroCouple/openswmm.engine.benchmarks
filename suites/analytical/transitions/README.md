@@ -15,4 +15,6 @@ transition-heavy and transient force-main models: contributed real-world cases
 land in the corpus tagged `transition_pressurized` / `transient`, while the
 analytic cases here stay the accuracy reference.
 
-**Not yet migrated** — source `epaswmm5_qa/suites/transitions/`, plan step 2.
+**Migrated** (2026-08-22) from `epaswmm5_qa/suites/transitions/`; `core.*`
+imports rewritten to `harness.*`. All 3 cases regenerate their analytic
+references without an engine.

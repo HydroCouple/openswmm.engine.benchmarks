@@ -40,7 +40,7 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE RAINFALL "C:\Users\RVolkwein\Desktop\rain.RFF"
+SAVE RAINFALL "rain.RFF"
 
 [EVAPORATION]
 ;;Data Source    Parameters

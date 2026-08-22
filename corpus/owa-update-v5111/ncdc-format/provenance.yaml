@@ -9,3 +9,5 @@ notes: 'Provenance carried over mechanically during the corpus migration; the re
   corpus, from an engine and version that were not recorded. It is the evidence behind
   this case''s surcharge/flooding/flow_instability tags. It is NOT a grading reference:
   the case is graded as self_consistency.'
+modifications: 2 referenced input file(s) located elsewhere in the repository and
+  copied beside the model; the reference was shortened to the bare filename.

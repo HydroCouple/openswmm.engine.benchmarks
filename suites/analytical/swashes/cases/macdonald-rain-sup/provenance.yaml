@@ -1,0 +1,42 @@
+id: macdonald-rain-sup
+title: "MacDonald 1000 m channel, supercritical with rain"
+verification_class: analytical
+source:
+  citation: "Delestre et al. (2013), SWASHES: a compilation of shallow water analytic solutions..., IJNMF"
+  doi: 10.1002/fld.3741
+  section: "SWASHES 3.3.2"
+reference:
+  file: reference.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]
+  generator: "python run_swashes.py gen-refs --cases macdonald-rain-sup"
+  independent_implementation: true   # no CeCILL-V2 SWASHES-tool output vendored
+parameters:
+  L_m: 1000.0
+  W1d_m: 500.0
+  W2d_m: 10.0
+  n_manning: 0.04
+  nx: 1000
+  dt_routing_s: 0.03
+  report_step_s: 60.0
+  t_end_s: 12000.0
+  compare_times_s: [12000.0]
+  upstream: inflow_q (q=2.5 m2/s)
+  downstream: free
+  interior_mask: [0.05, 1.0]
+  opts_1d: {'INERTIAL_DAMPING': 'PARTIAL'}
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+    note: "rain steps on at tR = 1500 s (unit time series riding each node's Sfactor); graded on the final rained state. 0.8% with the recorded PARTIAL deviation — under NONE a 0.16 m stationary sawtooth pushes l1 to 11% (q exact)"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+  1d-dynwave-semi:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+    note: "ENGINE FINDING: SEMI_IMPLICIT loses 2.10% mass under resolved roll waves (explicit: -0.003%); l1 2.36% is fine — the red is the mass gate (replicates macdonald-long-sup)"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.04}
+    note: "ENGINE FINDING (deliberate red, 2026-08-12): 25% deep with exact q — the FV junction lateral-inflow momentum defect (see macdonald-rain-sub)"

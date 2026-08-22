@@ -43,9 +43,9 @@ THREADS              1
 
 [FILES]
 ;;Interfacing Files
-SAVE HOTSTART "C:\Users\dickinre\Desktop\greenville.rff.hsf"
-SAVE RAINFALL "C:\Users\dickinre\Desktop\greenville.rff"
-SAVE RUNOFF "C:\Users\dickinre\Desktop\runoff.rof"
+SAVE HOTSTART "greenville.rff.hsf"
+SAVE RAINFALL "greenville.rff"
+SAVE RUNOFF "runoff.rof"
 
 [EVAPORATION]
 ;;Data Source    Parameters

@@ -1,0 +1,42 @@
+id: bend00-gentle
+title: "Straight control, gentle flow (Fr 0.30)"
+verification_class: cross-solver-2d (local-inertial reference — lower-bound bend loss)
+reference:
+  file: reference_2d.csv
+  columns: [t_s, x_m, h_m, q_m2_per_s]   # x = centerline arc length s
+  generator: "python run_swashes.py gen-2d-ref --cases bend00-gentle --pin"
+  engine_sha: 5a693493
+  inp_sha: 1ad3f16463507a0e
+  cfl_number: 0.3
+  steady_resid: 2.36367e-05
+  mass_pct: 1.871127899896166e-12
+  planform: theta=0 deg, s_bend=60 m, W=4 m
+parameters:
+  L_m: 120.0
+  W1d_m: 4.0
+  W2d_m: 4.0
+  n_manning: 0.025
+  nx: 240
+  dt_routing_s: 0.05
+  report_step_s: 10.0
+  t_end_s: 3600.0
+  compare_times_s: [3600.0]
+  upstream: inflow_q (q=0.9396275858019495 m2/s)
+  downstream: stage (eta=1.0 m)
+  interior_mask: [0.0, 1.0]
+cells:
+  1d-dynwave:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss); theta=0 control — generic 1D-vs-2D bias incl. sidewall friction"
+  1d-dynwave-legacy:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss); theta=0 control — generic 1D-vs-2D bias incl. sidewall friction"
+  1d-dynwave-vj:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
+    note: "graded against the pinned 2D bent-geometry reference (local-inertial — lower-bound bend loss); theta=0 control — generic 1D-vs-2D bias incl. sidewall friction"
+  1d-fv:
+    mode: analytic
+    tol: {'l1_h': 0.05, 'mass_pct': 1.0}
