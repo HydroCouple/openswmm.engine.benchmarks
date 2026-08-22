@@ -10,10 +10,11 @@ Modules:
   suites     suite discovery (suites/<name>/suite.py exposing run/report)
   validate   corpus metadata/provenance schema validation
   anonymize  best-effort model anonymization for contributed models
-  report     dashboard/site generation
+  report     job summaries; delegates site rendering to harness.site
+  site       static dashboard (scoreboard, per-run pages, tag facets)
 
 See plans/BENCHMARK_PLATFORM_PLAN_2026-08-22.md.
 """
 
 __all__ = ["engines", "runner", "readers", "rptparse", "compare", "scoring",
-           "suites", "validate", "anonymize", "report"]
+           "suites", "validate", "anonymize", "report", "site", "corpus"]

@@ -95,7 +95,7 @@ tags: [hydraulics, dynamic_wave, surcharge, transition_pressurized,
 size_class: S                    # XS(<10 elem) S(<100) M(<1k) L(<10k) XL(10k+)
 runtime_class: fast              # fast(<30s) medium(<5min) slow | skip-list candidates
 units: US                        # US | SI
-routing: DYNWAVE                 # DYNWAVE | KINWAVE | STEADY
+routing: DYNWAVE                 # DYNWAVE | KINWAVE | STEADY | FV
 tiers: [pr, nightly]             # which CI tiers include it
 reference:                       # see § Reference classes — verification vs regression
   class: external_reference      # analytic|manufactured|external_reference|observed|
@@ -113,7 +113,10 @@ are flat:
 - *Domain:* `hydrology`, `hydraulics`, `quality`, `lid`, `groundwater`, `snowmelt`,
   `controls`, `2d`, `interop`
 - *Purpose:* `regression`, `analytical`, `stability`, `performance`, `calibration`
-- *Features* (grows with the corpus): `dynamic_wave`, `kinematic_wave`, `surcharge`,
+- *Features* (grows with the corpus): `dynamic_wave`, `kinematic_wave`, `steady_flow`,
+  `finite_volume` (1D FV — `FLOW_ROUTING FV`, explicit Godunov HLL/HLLC),
+  `finite_volume_2d` (2D shallow-water FV, declared by the `[2D_*]` sections rather than by
+  `FLOW_ROUTING`, so a model may be 1D-FV, 2D, or coupled), `virtual_junctions`, `surcharge`,
   `transition_pressurized`, `force_main`, `transient`, `pump`, `weir`, `orifice`, `rtc`,
   `pollutants`, `treatment`, `buildup_washoff`, `lid_pollutants`, `rdii`, `dual_drainage`, …
 - *Provenance:* `real_world`, `synthetic`, `textbook`, `converted_xpswmm`, `converted_icm`

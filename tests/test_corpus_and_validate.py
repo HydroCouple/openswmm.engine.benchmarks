@@ -48,6 +48,32 @@ def test_malformed_tag_expressions_are_rejected(expr):
         corpus.matches(TAGS, expr)
 
 
+def test_tag_vocabulary_parses_and_is_wellformed():
+    """A tags.yaml that does not parse fails every validation at once.
+
+    It broke once because a description beginning with "[" was read as a YAML
+    flow sequence — descriptions are prose and must be quoted when they start
+    with a structural character.
+    """
+    import yaml
+    doc = yaml.safe_load(
+        (validate.SCHEMA_DIR / "tags.yaml").read_text())
+    tags = doc["tags"]
+    assert len(tags) > 40
+    for name, desc in tags.items():
+        assert isinstance(name, str) and name == name.lower(), name
+        assert isinstance(desc, str) and desc.strip(), f"{name}: bad description"
+
+
+def test_finite_volume_solvers_are_in_the_vocabulary():
+    """The engine implements 1D FV (FLOW_ROUTING FV) and 2D shallow-water FV;
+    both are benchmarked by the swashes solver matrix, so both need tags."""
+    vocab = validate.load_tags()
+    assert "finite_volume" in vocab
+    assert "finite_volume_2d" in vocab
+    assert "FV" in validate.VALID_ROUTING
+
+
 def _make_case(root, case_id="smoke-case", **overrides):
     """A minimal valid case built from the shipped template."""
     import yaml
@@ -183,7 +209,9 @@ def test_verification_badge_counts_only_truth_cases():
         {"case": "d", "reference_class": "self_consistency", "verdict": "PASS"},
     ]}
     badges = scoring.badges([env], corpus_count=1589)
-    assert badges["verification"]["message"] == "1/2 cases"
+    # "checked", not "cases": skipped work is excluded from the ratio and
+    # disclosed separately (see tests/test_site.py).
+    assert badges["verification"]["message"] == "1/2 checked"
     assert badges["verification"]["color"] == scoring.BADGE_RED
     assert badges["regression"]["message"] == "passing"
     assert badges["models"]["message"] == "1,589"

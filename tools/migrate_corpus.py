@@ -154,6 +154,8 @@ def derive_tags(sections: dict[str, list[str]], opts: dict[str, str],
         add("kinematic_wave", "OPTIONS FLOW_ROUTING KINWAVE")
     elif routing.startswith("STEADY"):
         add("steady_flow", "OPTIONS FLOW_ROUTING STEADY")
+    elif routing.startswith("FV"):
+        add("finite_volume", "OPTIONS FLOW_ROUTING FV")
 
     if has("CONDUITS") or has("PUMPS") or has("WEIRS") or has("ORIFICES"):
         add("hydraulics", "conveyance elements present")
@@ -208,6 +210,14 @@ def derive_tags(sections: dict[str, list[str]], opts: dict[str, str],
     outfalls = " ".join(sections.get("OUTFALLS", [])).upper()
     if "TIDAL" in outfalls or "TIMESERIES" in outfalls:
         add("outfall_bc", "non-trivial outfall boundary condition")
+
+    # 2D surface routing is declared by its own sections, not by FLOW_ROUTING,
+    # so a model can be 1D-FV, 2D, or coupled.
+    if any(k.startswith("2D_") for k in sections):
+        add("2d", "[2D_*] sections present")
+        add("finite_volume_2d", "2D shallow-water finite-volume surface routing")
+    if sections.get("VIRTUAL_JUNCTIONS"):
+        add("virtual_junctions", "[VIRTUAL_JUNCTIONS] non-empty")
 
     if any(k.startswith("INNOVYZE") for k in sections):
         add("interop", "Innovyze supplementary sections present")

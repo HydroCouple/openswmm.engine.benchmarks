@@ -19,7 +19,7 @@ tags:
   groundwater:        Groundwater / aquifer interaction
   snowmelt:           Snow accumulation and melt
   controls:           Control rules / real-time control
-  2d:                 2D overland flow or 1D-2D coupling
+  2d:                 Has a 2D surface-routing component or 1D-2D coupling
   interop:            Converted from or compared against another modeling tool
 
   # ── purpose ───────────────────────────────────────────────────────────────
@@ -30,9 +30,19 @@ tags:
   calibration:        Carries observed data for goodness-of-fit assessment
 
   # ── features ──────────────────────────────────────────────────────────────
-  dynamic_wave:       FLOW_ROUTING DYNWAVE
+  dynamic_wave:       FLOW_ROUTING DYNWAVE (full Saint-Venant, implicit Picard)
   kinematic_wave:     FLOW_ROUTING KINWAVE
   steady_flow:        FLOW_ROUTING STEADY
+  finite_volume: >-
+    FLOW_ROUTING FV — 1D explicit conservative finite volume (Godunov,
+    HLL/HLLC). Shock-capturing, so it is the 1D solver most relevant to
+    transitions and dam-break cases.
+  finite_volume_2d: >-
+    2D shallow-water finite-volume surface routing, declared by the [2D_*]
+    sections ([2D_OPTIONS], [2D_MESH_FILE], [2D_VERTICES]) rather than by
+    FLOW_ROUTING — a model may be 1D-FV, 2D, or coupled.
+  virtual_junctions: >-
+    [VIRTUAL_JUNCTIONS] — pass-through nodes fused so FV cell chains span them
   surcharge:          Conduits surcharge during the simulation
   flooding:           Nodes flood during the simulation
   flow_instability:   Engine reports flow instability indexes

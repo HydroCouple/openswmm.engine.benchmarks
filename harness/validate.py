@@ -32,7 +32,7 @@ REQUIRED_METADATA = ("id", "title", "tags", "units", "reference")
 REQUIRED_PROVENANCE = ("source", "license", "contributed_by")
 
 VALID_UNITS = {"US", "SI"}
-VALID_ROUTING = {"DYNWAVE", "KINWAVE", "STEADY"}
+VALID_ROUTING = {"DYNWAVE", "KINWAVE", "STEADY", "FV"}
 VALID_SIZE = {"XS", "S", "M", "L", "XL"}
 VALID_RUNTIME = {"fast", "medium", "slow"}
 VALID_TIERS = {"pr", "nightly", "weekly"}

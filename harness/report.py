@@ -51,23 +51,32 @@ def job_summary(envelopes: list[dict]) -> str:
 
 
 def build_site(envelopes: list[dict], dest: Path) -> list[Path]:
-    """Render the static dashboard — STUB (plan step 5).
+    """Render the static dashboard (implemented in harness.site).
 
-    Target layout:
-        /                          latest scoreboard + badges
-        /runs/<date>_<engine>@<sha>/   immutable per-run reports
-        /tags/<tag>/               per-tag facets + corpus census
-        /dev/bench/                perf trends (github-action-benchmark)
+    Layout:
+        /                              scoreboard + badges
+        /runs/<stamp>_<suite>@<sha>/   immutable per-run reports + raw JSON
+        /tags/<tag>/                   per-tag facets over the corpus
+        /badges/*.json                 shields.io endpoints
     """
-    raise NotImplementedError(
-        "harness.report.build_site is a scaffold stub — see plan step 5.")
+    from . import site
+    return site.build_site(envelopes, dest)
 
 
 def load_envelopes(paths: list[Path]) -> list[dict]:
+    """Collect scores envelopes, skipping generated site output.
+
+    The dashboard writes a copy of each envelope into its per-run page. If the
+    site is built underneath the directory being scanned, those copies are
+    read back as if they were additional runs and every count doubles.
+    """
     out = []
     for p in paths:
         p = Path(p)
-        for f in ([p] if p.is_file() else sorted(p.rglob("*scores*.json"))):
+        files = [p] if p.is_file() else sorted(p.rglob("*scores*.json"))
+        for f in files:
+            if "site" in f.parts or "runs" in f.parts:
+                continue                     # generated copies, not new runs
             try:
                 out.append(json.loads(f.read_text()))
             except (OSError, json.JSONDecodeError):
@@ -82,7 +91,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="scores JSON files or directories (default: results/)")
     ap.add_argument("--summary", action="store_true", help="write job summary")
     ap.add_argument("--badges", type=Path, help="directory for badge JSON")
-    ap.add_argument("--site", type=Path, help="build the static site into DIR")
+    ap.add_argument("--site", type=Path, nargs="?", const=Path("site/build"),
+                    help="build the static site into DIR (default site/build)")
     args = ap.parse_args(argv)
 
     envs = load_envelopes(args.envelopes)

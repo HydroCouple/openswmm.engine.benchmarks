@@ -37,7 +37,12 @@ properties:
     enum: [US, SI]
 
   routing:
-    enum: [DYNWAVE, KINWAVE, STEADY]
+    enum: [DYNWAVE, KINWAVE, STEADY, FV]
+    description: >
+      OPTIONS FLOW_ROUTING. FV is the 1D explicit conservative finite-volume
+      solver (Godunov, HLL/HLLC). 2D surface routing is not a FLOW_ROUTING
+      value — it is declared by the [2D_*] sections and carried by the
+      finite_volume_2d tag, and a model may use both.
 
   size_class:
     enum: [XS, S, M, L, XL]

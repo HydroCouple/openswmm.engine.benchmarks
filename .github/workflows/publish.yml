@@ -33,18 +33,11 @@ jobs:
           merge-multiple: true
         continue-on-error: true
 
-      # STUB (plan step 5): harness.report.build_site renders
-      #   /                            latest scoreboard + badges
-      #   /runs/<date>_<engine>@<sha>/ immutable per-run reports
-      #   /tags/<tag>/                 per-tag facets + corpus census
-      #   /dev/bench/                  perf trends
+      # Renders the scoreboard, immutable per-run pages keyed by engine SHA,
+      # per-tag facets over the corpus, and the shields.io badge endpoints.
+      # Self-contained HTML: no external hosts, so it survives a CDN outage.
       - name: Build site
-        run: |
-          mkdir -p site/build
-          python -m harness.report results/ --badges site/build/badges \
-            || echo "site build is a scaffold stub — see plan step 5"
-          echo "<!doctype html><title>OpenSWMM Benchmarks</title><h1>OpenSWMM Benchmarks</h1><p>Dashboard under construction.</p>" \
-            > site/build/index.html
+        run: python -m harness.report results/ --site site/build
 
       - uses: actions/upload-pages-artifact@v3
         with:

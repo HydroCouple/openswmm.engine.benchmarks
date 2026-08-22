@@ -141,11 +141,27 @@ def badges(envelopes: list[dict], *, corpus_count: int | None = None) -> dict[st
 
     ver = _cells(envelopes, lambda c: is_truth(c.get("reference_class", "")))
     if ver:
-        ok = sum(1 for c in ver if c.get("verdict") in ("PASS", "BASELINE-PASS",
-                                                        "XFAIL", "SKIP"))
-        out["verification"] = badge(
-            "verification", f"{ok}/{len(ver)} cases",
-            BADGE_GREEN if ok == len(ver) else BADGE_RED)
+        # A skipped case is NOT a verified case. Counting SKIP toward the
+        # numerator would report "17/17" for a suite that actually checked 6 —
+        # the exact overclaim the verification/regression split exists to
+        # prevent. Skips are excluded from the ratio and disclosed alongside it.
+        unchecked = [c for c in ver
+                     if c.get("verdict") in ("SKIP", "UNAVAILABLE")]
+        checked = [c for c in ver if c not in unchecked]
+        ok = sum(1 for c in checked
+                 if c.get("verdict") in ("PASS", "BASELINE-PASS", "XFAIL"))
+        msg = f"{ok}/{len(checked)} checked" if checked else "none checked"
+        if unchecked:
+            msg += f" · {len(unchecked)} unchecked"
+        if not checked:
+            color = BADGE_GREY
+        elif ok < len(checked):
+            color = BADGE_RED
+        elif unchecked:
+            color = BADGE_YELLOW      # all checks pass, but coverage is partial
+        else:
+            color = BADGE_GREEN
+        out["verification"] = badge("verification", msg, color)
 
     reg = _cells(envelopes, lambda c: not is_truth(c.get("reference_class", "")))
     if reg:
