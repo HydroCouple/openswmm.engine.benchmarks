@@ -19,6 +19,8 @@ Cases are selected by TAG QUERY from manifests/tier_*.yaml, never by path.
 from __future__ import annotations
 
 import argparse
+import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -51,6 +53,93 @@ def _skip_list() -> set[str]:
             for e in (doc.get("skip") or [])}
 
 
+#: Free bytes that must remain after a case's outputs are written. A sweep of
+#: the whole corpus writes ~167 GiB of .out across two engines, and a single
+#: 500k-element case writes >11 GiB per engine — enough to fill a disk before
+#: the first comparison runs. The sweep degrades to UNAVAILABLE (an environment
+#: limit, not a result) rather than filling the volume it is running on.
+DISK_FLOOR_BYTES = 3 * 1024 ** 3
+
+
+def _free_bytes(path: Path) -> int:
+    return shutil.disk_usage(path).free
+
+
+def _est_out_bytes(case: corpus.Case) -> int:
+    """Upper-bound .out size for one engine, from the deck's own geometry.
+
+    period record = 8-byte datetime + 4 bytes per saved variable, where the
+    saved-variable count is the .out format invariant used by harness.readers:
+    (8+P) per subcatchment, (6+P) per node, (5+P) per link, plus 15 system
+    variables. Reporting periods come from the simulation span / REPORT_STEP.
+    """
+    import datetime as _dt
+    try:
+        text = case.inp.read_text(errors="replace")
+    except OSError:
+        return 0
+
+    def section(name: str) -> str:
+        marker = f"[{name}]"
+        upper = text.upper()
+        i = upper.find(marker)
+        if i < 0:
+            return ""
+        body = text[i + len(marker):]
+        j = body.find("\n[")
+        return body if j < 0 else body[:j]
+
+    def count(name: str) -> int:
+        return sum(1 for ln in section(name).splitlines()
+                   if ln.strip() and not ln.strip().startswith(";"))
+
+    opts = dict(re.findall(r"^\s*([A-Z_]+)\s+(\S.*?)\s*$", section("OPTIONS"), re.M))
+
+    def hms(v: str, default: float) -> float:
+        try:
+            parts = [float(x) for x in v.split(":")] + [0.0, 0.0]
+            return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        except ValueError:
+            return default
+
+    try:
+        start = _dt.datetime.strptime(
+            f"{opts.get('START_DATE', '1/1/2000')} {opts.get('START_TIME', '0:00:00')}",
+            "%m/%d/%Y %H:%M:%S")
+        end = _dt.datetime.strptime(
+            f"{opts.get('END_DATE', opts.get('START_DATE', '1/1/2000'))} "
+            f"{opts.get('END_TIME', '24:00:00')}", "%m/%d/%Y %H:%M:%S")
+        span = (end - start).total_seconds()
+    except ValueError:
+        return 0
+    step = hms(opts.get("REPORT_STEP", "0:15:00"), 900.0) or 900.0
+    periods = max(int(span / step), 1)
+
+    npoll = count("POLLUTANTS")
+    nsub = count("SUBCATCHMENTS")
+    nnode = sum(count(s) for s in ("JUNCTIONS", "OUTFALLS", "STORAGE", "DIVIDERS"))
+    nlink = sum(count(s) for s in ("CONDUITS", "PUMPS", "ORIFICES", "WEIRS", "OUTLETS"))
+    per_period = (nsub * (8 + npoll) + nnode * (6 + npoll)
+                  + nlink * (5 + npoll) + 15)
+    return periods * (per_period * 4 + 8)
+
+
+def _prune_outputs(runs: dict, keep: str, failed: bool) -> None:
+    """Drop the bulk .out files a sweep no longer needs.
+
+    keep='fail'  retain them only where a comparison did not pass — those are
+                 the ones a human drills into. keep='all' retains everything;
+                 keep='none' always drops. The .rpt is always kept: it is small
+                 and it is the mass-balance and stability evidence.
+    """
+    if keep == "all" or (keep == "fail" and failed):
+        return
+    for info in runs.values():
+        out = info.get("out")
+        if out and Path(out).exists():
+            Path(out).unlink()
+
+
 def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
               timeout: float | None) -> dict:
     """Run one case through one engine; return run info + .rpt metrics."""
@@ -72,6 +161,14 @@ def run(argv: list[str] | None = None) -> dict | None:
     ap.add_argument("--tier", default="pr")
     ap.add_argument("--only", help="comma-separated case ids")
     ap.add_argument("--engines", help="comma-separated engine ids to resolve")
+    ap.add_argument("--keep-out", choices=("fail", "all", "none"), default="fail",
+                    help="retain bulk .out files: only where a comparison did "
+                         "not pass (default), always, or never. .rpt is always "
+                         "kept.")
+    ap.add_argument("--skip-list", dest="use_skip_list",
+                    action=argparse.BooleanOptionalAction, default=True,
+                    help="honour manifests/skip_list.yaml (--no-skip-list runs "
+                         "the skipped cases, to confirm the listed reason)")
     args, _ = ap.parse_known_args(argv or [])
 
     manifest = _manifest(args.tier)
@@ -87,7 +184,7 @@ def run(argv: list[str] | None = None) -> dict | None:
     if args.only:
         wanted = set(args.only.split(","))
         cases = [c for c in cases if c.id in wanted]
-    skip = _skip_list()
+    skip = _skip_list() if args.use_skip_list else set()
 
     resolved = reg.resolved()
     if not resolved:
@@ -106,8 +203,22 @@ def run(argv: list[str] | None = None) -> dict | None:
                                "verdict": "SKIP", "note": "skip-list"})
             continue
 
+        # Disk guard: refuse a case whose outputs would not fit rather than
+        # filling the volume. This is an environment limit, so UNAVAILABLE.
+        need = _est_out_bytes(case) * max(len(resolved), 1)
+        free = _free_bytes(RESULTS)
+        if resolved and free - need < DISK_FLOOR_BYTES:
+            scoring.save_cell(scores, envelope, {
+                "case": case.id, "solver": "-",
+                "reference_class": case.reference_class,
+                "verdict": "UNAVAILABLE",
+                "note": f"insufficient disk: needs ~{need / 2**30:.1f} GiB, "
+                        f"{free / 2**30:.1f} GiB free"})
+            continue
+
         timeout = float(case.meta.get("timeout_s", default_timeout))
         runs: dict[str, dict] = {}
+        case_failed = False
         for eid, engine in resolved.items():
             info = _run_case(case, engine, RESULTS / case.id / eid, timeout)
             runs[eid] = info
@@ -124,6 +235,11 @@ def run(argv: list[str] | None = None) -> dict | None:
                 "runoff_err": info.get("runoff_err"),
                 "quality_err": info.get("worst_quality_err"),
                 "pct_not_converging": info.get("pct_not_converging"),
+                # Carried onto the cell so the published mass-balance badge can
+                # exclude models that never conserved mass in the first place
+                # (see the tag's definition in harness/schemas/tags.yaml).
+                "expected_high_continuity":
+                    "expected_high_continuity" in case.tags,
                 "note": info.get("stderr", "")[:200]})
 
         for pair in reg.active_comparisons():
@@ -134,11 +250,14 @@ def run(argv: list[str] | None = None) -> dict | None:
                     "reference_class": case.reference_class,
                     "verdict": "UNAVAILABLE",
                     "note": "one or both engines did not produce output"})
+                case_failed = True
                 continue
             rtol, atol = case.tolerances(pair.rtol, pair.atol)
             res = compare.compare_full(a["out"], b["out"], rtol=rtol, atol=atol)
             gate = (case.meta.get("tolerances") or {}).get("gate", pair.gate)
             verdict = res["verdict"]
+            if verdict != "PASS":
+                case_failed = True
             if verdict == "FAIL" and gate != "fail":
                 verdict = "BASELINE-PASS"     # differences recorded, not gated
             worst = res["worst_offenders"][0] if res["worst_offenders"] else {}
@@ -154,6 +273,8 @@ def run(argv: list[str] | None = None) -> dict | None:
                 "total_over_tol": res["total_over_tol"],
                 "dialects": res["dialects"],
                 "note": "; ".join(res["fault"])})
+
+        _prune_outputs(runs, args.keep_out, case_failed)
 
     print(scoring.summary(envelope))
     return envelope

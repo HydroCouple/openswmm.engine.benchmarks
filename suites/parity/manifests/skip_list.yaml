@@ -19,9 +19,6 @@ skip:
 - case: 1000yearsimulation-case2
   reason: 'missing input file(s) never present in the repository: 1001_Year_Rainfall.rff'
   revisit: when the data files are recovered and committed under data/
-- case: 1000yearsimulation-case3
-  reason: 'missing input file(s) never present in the repository: 1001_Year_Rainfall.rff'
-  revisit: when the data files are recovered and committed under data/
 - case: 10133299-upstream-downstream-rules-for-swmm5
   reason: 'missing input file(s) never present in the repository: D:\swmm_crada_files\sample_rainfall_for_swmm5.dat'
   revisit: when the data files are recovered and committed under data/
@@ -302,9 +299,6 @@ skip:
   reason: 'missing input file(s) never present in the repository: K:\Projects\101001 - Halifax Water Regional
     Wastewater Functional Plan\Sewer Models\Halifax-PierA_Model\CBCL_Roof_5min_9Sept-17Dec_2008.dat, K:\Projects\101001
     - Halifax Water Regional Wastewater Functional Plan\Sewer Models\Halifax-PierA_Model\TIDES_CHS_SEPT_2008-FEB_2009.dat'
-  revisit: when the data files are recovered and committed under data/
-- case: test7-continuous
-  reason: 'missing input file(s) never present in the repository: IDS_2005_V2_Mod.rff'
   revisit: when the data files are recovered and committed under data/
 - case: trans13a-sw5
   reason: 'missing input file(s) never present in the repository: C:\swmm_crada_files\TRANS21.INT'
