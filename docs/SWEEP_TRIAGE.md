@@ -570,3 +570,34 @@ The root is now only the platform: `corpus/ data/ docs/ harness/ legacy/ plans/
 results/ site/ suites/ tests/ tools/` plus `README.md`, `LICENSE`,
 `CONTRIBUTING.md`, `pytest.ini`, `requirements.txt`, `run_regression.py`.
 `python -m harness.validate --quiet` still reports **1396 ok, 0 failed**.
+
+
+---
+
+## F17 — the harness test suite could never have passed in CI · **FIXED**
+
+`validate.yml`'s `harness` job runs `python -m pytest` on a fresh checkout across
+three runners. It would have failed on its first run, on all three.
+
+`test_manufactured_reference_is_reproducible` asserts that a case's generator
+still reproduces its committed `reference.csv` **byte for byte**. The generators
+write with `csv.writer`, whose default `lineterminator` is **CRLF**; the repo's
+`* text=auto` then normalises the committed blob to **LF**. A clone checks out
+LF, the generator re-emits CRLF, and the comparison fails on the first line
+ending — six cases, and at the pre-existing commit `495f8e3` it was six of
+seventeen.
+
+What made this invisible: running the generator once leaves CRLF on disk, so the
+test passes locally afterwards — and because `text=auto` makes git compare the
+*normalised* form, the working tree still reports clean. Every signal available
+without cloning says the repo is fine.
+
+**Fix:** `.gitattributes` marks the analytical reference data `-text`, so those
+exact bytes are stored and restored on every platform, and the six blobs are
+re-added with their true content. That is what "byte-exact" has to mean for a
+file whose entire purpose is to be compared byte-exactly.
+
+**Verified by cloning the repository and running the suite from the clone** —
+139 passed — rather than from the working tree. Worth doing for anything whose
+correctness depends on what is *committed*: see also
+`registered/referenced source never git-added`, the same class of trap.
