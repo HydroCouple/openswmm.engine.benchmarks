@@ -64,7 +64,7 @@ metrics:
     threshold: 0.5
     initial_target: false
   dam_station_rel_error:
-    description: |h(xi=0,t) - 4h0/9| / h0
+    description: "|h(xi=0,t) - 4h0/9| / h0"
     threshold: 0.10
     initial_target: true
   l1_h_ft:
@@ -72,6 +72,6 @@ metrics:
     threshold: 0.05
     initial_target: true
   front_position_error_ft:
-    description: |xi_front_solver - 2*c0*t|
+    description: "|xi_front_solver - 2*c0*t|"
     threshold: 15.0
     initial_target: true

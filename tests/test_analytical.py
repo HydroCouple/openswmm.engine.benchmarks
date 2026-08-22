@@ -85,3 +85,41 @@ def test_swashes_cases_carry_reference_data():
     # the bend cases use engine-generated 2D references, not closed-form ones
     unexpected = [c for c in empty if not c.startswith("bend")]
     assert not unexpected, f"cases missing reference.csv: {unexpected}"
+
+
+def test_every_yaml_in_the_repository_parses():
+    """One unparseable YAML file breaks every consumer at once.
+
+    Three shipped broken during this work: a tag description beginning with
+    "[" (read as a flow sequence), a provenance description beginning with "|"
+    (absolute-value notation read as a block scalar), and a list item
+    containing a colon. None of them failed loudly at the point of authorship
+    — they failed later, in whatever tool happened to load the file first.
+    """
+    import yaml
+
+    bad = []
+    for p in sorted(REPO_ROOT.rglob("*.yaml")):
+        if ".git" in p.parts or "legacy" in p.parts:
+            continue
+        try:
+            yaml.safe_load(p.read_text())
+        except yaml.YAMLError as exc:
+            bad.append(f"{p.relative_to(REPO_ROOT)}: "
+                       f"{str(exc).splitlines()[0]}")
+    assert not bad, "unparseable YAML:\n  " + "\n  ".join(bad)
+
+
+def test_every_analytical_provenance_is_a_mapping():
+    """Provenance must be structured data, not an accidental string."""
+    import yaml
+
+    for root in (MANUFACTURED, SWASHES, TRANSITIONS):
+        if not root.is_dir():
+            continue
+        for case in sorted(root.iterdir()):
+            prov = case / "provenance.yaml"
+            if not prov.exists():
+                continue
+            doc = yaml.safe_load(prov.read_text())
+            assert isinstance(doc, dict), f"{case.name}: provenance is not a mapping"

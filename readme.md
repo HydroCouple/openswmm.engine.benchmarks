@@ -19,8 +19,13 @@ dimensions that matter to practitioners.
 
 > **Status: under construction.** The harness is scaffolded and the corpus is
 > migrated (1,396 tagged, schema-valid cases). Suite migrations, the published
-> dashboard, and the engine-repo switchover are still to come — see
-> [the platform plan](plans/BENCHMARK_PLATFORM_PLAN_2026-08-22.md) for the full
+> dashboard, and the engine-repo switchover are still to come.
+>
+> **No engine has been run through the harness yet** — everything verifiable
+> without one is verified, and the rest is not. See
+> [the agent handoff](plans/AGENT_HANDOFF_2026-08-22.md) for exactly what is
+> and is not proven, and
+> [the platform plan](plans/BENCHMARK_PLATFORM_PLAN_2026-08-22.md) for the
 > design and implementation order.
 
 ## What gets measured

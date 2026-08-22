@@ -17,9 +17,9 @@ schedule:
   wet_steps_2: 5  # t=960..1260
 
 notable_events:
-  - step: 10 (t=540→600): Fmh cap triggers; f capped to (Fmax-Fmh)/dt
-  - step: 17 (t=960→1020): dry-recovery values used as initial condition
-  - step: 18 (t=1020→1080): Fmh saturates again after partial recovery
+  - "step: 10 (t=540→600): Fmh cap triggers; f capped to (Fmax-Fmh)/dt"
+  - "step: 17 (t=960→1020): dry-recovery values used as initial condition"
+  - "step: 18 (t=1020→1080): Fmh saturates again after partial recovery"
 
 precision: double (IEEE 754)
 tolerance_ft: 1.0e-9

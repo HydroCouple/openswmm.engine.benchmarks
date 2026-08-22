@@ -1,6 +1,10 @@
 # OpenSWMM Benchmarks — First-Class Platform Plan — 2026-08-22
 
-**Status:** Draft for review — no implementation yet.
+**Status:** Partially implemented (steps 1–3 done, 2 done, 4 skeleton).
+Execution status and the ordered remaining tasks live in
+[`AGENT_HANDOFF_2026-08-22.md`](AGENT_HANDOFF_2026-08-22.md). **No engine has
+been run through the harness yet** — everything below that needs one is
+designed and wired but unproven.
 
 ## Vision
 
@@ -349,6 +353,11 @@ workflows/endpoints. Model-sweep perf publishing moves here; engine micro-benchm
 08-16 plan §D.3 arrangement on the engine repo's own gh-pages.
 
 ## Implementation order & verification
+
+> **Execution status is tracked in [`AGENT_HANDOFF_2026-08-22.md`](AGENT_HANDOFF_2026-08-22.md)**,
+> which records what has been verified without an engine, what has not been run
+> at all, and the ordered tasks with acceptance criteria for whoever picks this
+> up on a machine that can build the engines.
 
 ```
 0. PREREQ (parallel, unblocking 5.2.4 only): ENGINE_524_BUILD_MODERNIZATION_PLAN.
