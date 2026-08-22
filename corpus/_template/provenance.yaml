@@ -1,0 +1,36 @@
+# Template — copy alongside metadata.yaml.
+# Schema: harness/schemas/provenance.schema.yaml
+#
+# Provenance answers a different question than metadata: not what the model is,
+# but where it came from and whether it may be redistributed.
+
+source: >
+  Where this model came from. Be specific enough that someone could trace it —
+  a publication, an agency, a software distribution, or "original work".
+
+# citation: Author, A. (Year). Title. Journal/Publisher.
+# doi: 10.xxxx/xxxxx
+# url: https://...
+
+license: CC0-1.0                  # SPDX id, "public-domain", or "unverified"
+
+contributed_by: Your Name (or organization)
+# contact: you@example.org
+date_added: 2026-08-22
+
+original_units: US
+
+# Present only if the model went through harness/anonymize.py. This records
+# what was applied — it is not a guarantee of anonymity; no tool can give one.
+# anonymized:
+#   transforms: [rename-ids, coords-offset, scrub-text]
+#   verified_bit_identical: true
+#   reviewed_by: Your Name
+#   note: Coordinates offset to a neutral origin; element IDs renumbered.
+
+# modifications: >
+#   Any change from the model as received — unit conversion, shortened
+#   simulation period, removed proprietary sections.
+
+notes: >
+  Optional additional context about the source.

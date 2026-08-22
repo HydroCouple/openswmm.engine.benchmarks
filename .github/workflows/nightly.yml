@@ -1,0 +1,73 @@
+# Full sweep across the whole corpus and every registered engine, publishing
+# reports, badges, and performance trends.
+name: Nightly
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: CI tier to run
+        default: nightly
+        type: choice
+        options: [pr, nightly, weekly]
+      engines:
+        description: Comma-separated engine ids (blank = all registered)
+        required: false
+
+env:
+  OMP_NUM_THREADS: 1
+
+jobs:
+  sweep:
+    name: Sweep (${{ matrix.alias }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, alias: Linux-x64}
+          - {os: windows-latest, alias: Windows-x64}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      # STUB (plan step 5): check out and build openswmm.engine (in-tree
+      # engines), resolve git-ref engines from cache, then run the sweep.
+      - name: Build engines
+        run: echo "Engine build step is a scaffold stub — see plan step 5."
+
+      - name: Run suites
+        run: |
+          python run_regression.py --suite all \
+            --tier ${{ inputs.tier || 'nightly' }} \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            --badges badges/
+        shell: bash
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-${{ matrix.alias }}
+          path: |
+            results/
+            badges/
+          retention-days: 30
+
+  publish:
+    name: Publish dashboard
+    needs: sweep
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/publish.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

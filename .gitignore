@@ -1,0 +1,21 @@
+# Generated results are NEVER committed — see the plan's
+# "Reporting, artifacts & publishing" section. They live in CI artifacts and
+# the Pages deployment instead.
+results/
+badges/
+site/build/
+.engine-cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Engine run leftovers anywhere in the tree
+*.out
+*.rpt
+!corpus/**/reference/*.out
+!corpus/**/reference/*.rpt
+
+.DS_Store

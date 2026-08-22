@@ -1,0 +1,15 @@
+# PR tier — the curated subset run on every pull request and push.
+# Target: < ~20 minutes per OS. Cases are chosen for feature coverage x speed;
+# curation happens in plan step 7 from full-sweep timing data, and each entry's
+# rationale is recorded here.
+#
+# Selection is a TAG QUERY, not a file list — see harness/corpus.py.
+tier: pr
+timeout_s: 120
+select: >
+  (hydraulics OR hydrology OR quality OR lid) AND NOT performance AND NOT long_term
+rationale: >
+  Broad feature coverage across the four core domains, excluding anything
+  built for runtime measurement or multi-year continuous simulation. Cases
+  additionally opt in via `tiers: [pr]` in their metadata, so this query is an
+  upper bound, not the final list.

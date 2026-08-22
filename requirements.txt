@@ -1,0 +1,7 @@
+# Harness dependencies. Kept deliberately small: the .out/.rpt readers depend
+# only on the stdlib + numpy, so any SWMM-compatible engine can be graded
+# without the openswmm Python binding installed.
+numpy>=1.24
+pyyaml>=6.0
+matplotlib>=3.7     # report figures
+h5py>=3.8           # 2D UGRID output reader (lazy import)

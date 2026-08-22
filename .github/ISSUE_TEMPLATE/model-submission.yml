@@ -1,0 +1,116 @@
+name: Model submission
+description: Submit a SWMM model for the benchmark corpus (no git required)
+title: "[model] "
+labels: [model-submission]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing a model. Attach your `.inp` file below and fill
+        in the fields — they mirror `metadata.yaml`, so a maintainer can convert
+        this into a corpus case directly.
+
+        If you'd rather submit a pull request, see
+        [CONTRIBUTING.md](../blob/dev/CONTRIBUTING.md).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What is this model?
+      description: What it represents and what makes it interesting or difficult.
+      placeholder: >
+        A 40-node combined interceptor that surcharges during the design storm
+        and oscillates under dynamic wave routing.
+    validations: {required: true}
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Model files
+      description: >
+        Drag and drop the `.inp` and any required data files (rainfall,
+        timeseries) here. Zip them if there are several.
+    validations: {required: true}
+
+  - type: checkboxes
+    id: tags
+    attributes:
+      label: Tags
+      description: >
+        Select every tag that applies — models carry multiple. Full vocabulary
+        in harness/schemas/tags.yaml.
+      options:
+        - {label: hydrology}
+        - {label: hydraulics}
+        - {label: quality (pollutants)}
+        - {label: lid}
+        - {label: lid_pollutants}
+        - {label: groundwater}
+        - {label: snowmelt}
+        - {label: controls / rtc}
+        - {label: surcharge}
+        - {label: transition_pressurized (open-channel to pressurized)}
+        - {label: force_main}
+        - {label: transient (pump/valve/gate operation, filling bores)}
+        - {label: dual_drainage / street_inlet}
+        - {label: 2d}
+        - {label: real_world}
+        - {label: stability (it breaks solvers)}
+
+  - type: dropdown
+    id: units
+    attributes:
+      label: Units
+      options: [US, SI]
+    validations: {required: true}
+
+  - type: dropdown
+    id: reference
+    attributes:
+      label: What reference does this model have?
+      description: >
+        Be honest — "none" is the normal answer for a real network and is
+        exactly what we expect.
+      options:
+        - "none — validate by mass balance, stability, and engine agreement"
+        - "results from another tool (ICM, XPSWMM, an EPA release, ...)"
+        - "field measurements / observed data"
+        - "an exact analytical solution"
+    validations: {required: true}
+
+  - type: input
+    id: source
+    attributes:
+      label: Where did this model come from?
+      placeholder: Original work / agency name / publication / software distribution
+    validations: {required: true}
+
+  - type: dropdown
+    id: license
+    attributes:
+      label: License
+      options:
+        - "CC0-1.0 (public domain dedication)"
+        - "public-domain"
+        - "other (describe below)"
+        - "unsure"
+    validations: {required: true}
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I have the right to share this model publicly.
+          required: true
+        - label: >
+            It contains no sensitive data, or I have anonymized it and reviewed
+            the result myself.
+          required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: >
+        Known quirks, engines it behaves differently on, expected runtime.

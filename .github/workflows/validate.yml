@@ -1,0 +1,64 @@
+# PR validation: schema-check submissions and prove they actually run.
+# Fast by design — this gates every contribution, including from people who
+# have never built the engine.
+name: Validate
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+env:
+  OMP_NUM_THREADS: 1
+
+jobs:
+  harness:
+    name: Harness tests
+    # No engine required: .out fixtures are synthesized and .rpt fixtures are
+    # inline text, so this job gates every PR including corpus-only ones.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt pytest
+      - run: python -m pytest
+
+  schema:
+    name: Schema and corpus validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # --changed needs history to diff against dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Validate changed cases
+        run: python -m harness.validate --changed
+      - name: Harness self-check
+        run: |
+          python run_regression.py --list
+          python -m harness.engines || true      # reports UNAVAILABLE, never fails
+          python -m harness.corpus --census
+
+  smoke:
+    name: Run submitted models
+    runs-on: ubuntu-latest
+    # STUB (plan step 5): build the reference engines (or fetch a cached
+    # build), run every changed case with a timeout, check continuity sanity,
+    # and comment runtime + size class back on the PR.
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Model smoke-run job is a scaffold stub — see plan step 5."

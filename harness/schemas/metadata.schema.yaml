@@ -1,0 +1,124 @@
+# JSON Schema (YAML-encoded) for corpus/<collection>/<case>/metadata.yaml
+# Enforced by harness/validate.py. See corpus/_template/metadata.yaml.
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://github.com/HydroCouple/openswmm.engine.benchmarks/harness/schemas/metadata.schema.yaml"
+title: Benchmark case metadata
+type: object
+additionalProperties: false
+required: [id, title, tags, units, reference]
+
+properties:
+
+  id:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9._-]*$"
+    description: Unique case id; must match the directory name.
+
+  title:
+    type: string
+    minLength: 3
+    description: One-line human-readable name.
+
+  model:
+    type: string
+    default: model.inp
+    description: Model file within the case directory.
+
+  tags:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items: {type: string}
+    description: >
+      Multiple tags from harness/schemas/tags.yaml. Tags are the canonical
+      classification — directory placement carries no semantic weight.
+
+  units:
+    enum: [US, SI]
+
+  routing:
+    enum: [DYNWAVE, KINWAVE, STEADY]
+
+  size_class:
+    enum: [XS, S, M, L, XL]
+    description: XS <10 elements, S <100, M <1k, L <10k, XL 10k+
+
+  runtime_class:
+    enum: [fast, medium, slow]
+    description: fast <30 s, medium <5 min, slow beyond (skip-list candidate)
+
+  tiers:
+    type: array
+    uniqueItems: true
+    items: {enum: [pr, nightly, weekly]}
+    default: [nightly]
+    description: >
+      CI tiers that include this case. Submissions land as [nightly];
+      promotion to pr is a maintainer decision recorded in the manifest.
+
+  timeout_s:
+    type: number
+    exclusiveMinimum: 0
+    description: Per-run timeout override.
+
+  reference:
+    type: object
+    additionalProperties: false
+    required: [class]
+    properties:
+      class:
+        enum: [analytic, manufactured, external_reference, observed,
+               blessed_baseline, self_consistency]
+        description: >
+          What truth the case is graded against. Only analytic and
+          manufactured are ground truth — error norms and convergence order
+          may be computed for those alone, and only those count toward the
+          verification badge. self_consistency means no external reference:
+          graded by mass-balance/stability invariants plus cross-engine parity.
+      source:
+        type: string
+        description: e.g. swmm4_dat, delestre2013, field_gauge, epa_release
+      files:
+        type: array
+        items: {type: string}
+        description: Relative paths within the case directory.
+      blessed_by:
+        type: object
+        description: Required when class is blessed_baseline.
+        required: [engine, sha, reviewer, date]
+        properties:
+          engine: {type: string}
+          sha: {type: string}
+          reviewer: {type: string}
+          date: {type: string, format: date}
+          note: {type: string}
+
+  tolerances:
+    type: object
+    additionalProperties: false
+    description: Per-case override of the comparison pair's defaults.
+    properties:
+      rtol: {type: number, exclusiveMinimum: 0}
+      atol: {type: number, minimum: 0}
+      gate: {enum: [fail, report, parity]}
+      continuity_warn_pct: {type: number, default: 1}
+      continuity_fail_pct: {type: number, default: 5}
+
+  expected_failures:
+    type: array
+    description: Known-failing (engine, reason) pairs; graded XFAIL, not FAIL.
+    items:
+      type: object
+      required: [engine, reason]
+      properties:
+        engine: {type: string}
+        reason: {type: string}
+        issue: {type: string}
+
+  data_files:
+    type: array
+    items: {type: string}
+    description: Shared forcing files this model needs, relative to data/.
+
+  notes:
+    type: string

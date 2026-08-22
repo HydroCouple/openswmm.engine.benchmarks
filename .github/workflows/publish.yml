@@ -1,0 +1,61 @@
+# Static dashboard deployment. Artifact-based Pages deploy (no gh-pages branch
+# bloat); perf history lives on a separate benchmark-data branch that the site
+# build ingests.
+name: Publish
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: results/
+          merge-multiple: true
+        continue-on-error: true
+
+      # STUB (plan step 5): harness.report.build_site renders
+      #   /                            latest scoreboard + badges
+      #   /runs/<date>_<engine>@<sha>/ immutable per-run reports
+      #   /tags/<tag>/                 per-tag facets + corpus census
+      #   /dev/bench/                  perf trends
+      - name: Build site
+        run: |
+          mkdir -p site/build
+          python -m harness.report results/ --badges site/build/badges \
+            || echo "site build is a scaffold stub — see plan step 5"
+          echo "<!doctype html><title>OpenSWMM Benchmarks</title><h1>OpenSWMM Benchmarks</h1><p>Dashboard under construction.</p>" \
+            > site/build/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

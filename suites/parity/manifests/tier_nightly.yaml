@@ -1,0 +1,7 @@
+# Nightly tier — the full sweep across the whole corpus, all registered engines.
+tier: nightly
+timeout_s: 600
+select: null          # null = every case whose metadata lists the nightly tier
+rationale: >
+  Everything. Long-running models are bounded by timeout_s and by per-case
+  overrides; genuine stragglers move to skip_list.yaml with a reason.

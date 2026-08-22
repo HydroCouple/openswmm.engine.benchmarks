@@ -1,60 +1,99 @@
-# Repository Overview: 1729-SWMM5-Models
+# OpenSWMM Benchmarks
 
-This repository contains a wide range of SWMM5 input files and related documents for simulating hydrology and hydraulics across various projects. Below is a summary of the key directories:
+[![Validate](https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/workflows/validate.yml/badge.svg)](https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/workflows/validate.yml)
+[![Nightly](https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/workflows/nightly.yml/badge.svg)](https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/workflows/nightly.yml)
+<!-- Endpoint badges are published by the nightly run; they render once the
+     Pages site is live (plan step 5). -->
+[![Verification](https://img.shields.io/endpoint?url=https://hydrocouple.github.io/openswmm.engine.benchmarks/badges/verification.json)](https://hydrocouple.github.io/openswmm.engine.benchmarks/)
+[![Regression](https://img.shields.io/endpoint?url=https://hydrocouple.github.io/openswmm.engine.benchmarks/badges/regression.json)](https://hydrocouple.github.io/openswmm.engine.benchmarks/)
+[![Mass balance](https://img.shields.io/endpoint?url=https://hydrocouple.github.io/openswmm.engine.benchmarks/badges/mass-balance.json)](https://hydrocouple.github.io/openswmm.engine.benchmarks/)
+[![Stability](https://img.shields.io/endpoint?url=https://hydrocouple.github.io/openswmm.engine.benchmarks/badges/stability.json)](https://hydrocouple.github.io/openswmm.engine.benchmarks/)
+[![Models](https://img.shields.io/endpoint?url=https://hydrocouple.github.io/openswmm.engine.benchmarks/badges/models.json)](https://hydrocouple.github.io/openswmm.engine.benchmarks/)
 
-## Directories
+An open, engine-agnostic **benchmarking and regression-testing platform for
+SWMM-compatible engines**. Nearly 1,600 models — EPA and OWA regression
+examples, the EXTRAN manual problems, the EPA QA suite with its original SWMM4
+references, analytical test problems with exact solutions, and real-world
+networks — run automatically against multiple engines and compared along
+dimensions that matter to practitioners.
 
-- **1000Years**  
-  Contains long-term simulation models (e.g., `1000yearSimulation_Case0_wq.inp`) and supporting files for extended period analyses.
+> **Status: under construction.** The harness is scaffolded and the corpus
+> migration has not run yet. See
+> [the platform plan](plans/BENCHMARK_PLATFORM_PLAN_2026-08-22.md) for the full
+> design and implementation order.
 
-- **Hydraulics**  
-  Includes hydraulic model input files and configuration documents used in SWMM5 hydraulic simulations.
+## What gets measured
 
-- **Hydrology**  
-  Contains hydrologic model input files, rainfall data, runoff models, and analysis reports.
+| dimension | what it answers |
+|---|---|
+| **Stability** | Does the solver converge? Does the timestep collapse? Does it crash? |
+| **Mass balance** | Runoff, routing, and quality continuity error |
+| **Result parity** | Every subcatchment, node, link, and system variable — including pollutants — at every reported timestep |
+| **Analytical accuracy** | L1/L2/L∞ error norms and observed convergence order against exact solutions |
+| **Performance** | Wall-clock per model per engine, tracked historically |
 
-- **SWMM5_NCIMM**  
-  Hosts SWMM5 models for NCIMM projects, featuring example files ranging from small-scale tests to large-scale simulations.
+### Verification is not the same as regression
 
-- **EPA**  
-  Includes model files and documentation associated with EPA projects, as well as Extran Manual examples.
+Only cases with a genuine exact solution (`reference.class: analytic` or
+`manufactured`) can show an engine is **wrong**; the rest can only show that
+engines **differ**. The platform keeps these apart deliberately — error norms
+are computed for truth-class cases alone, and the `verification` and
+`regression` badges are separate numbers. "1,589 models pass" is a regression
+claim, not an accuracy claim, and is never presented as one.
 
-- **OWA_USER**  
-  Contains user-specific simulation files and generated reports (e.g., files named with `user1`, `user2`, etc.).
+## Quickstart
 
-- **LID**  
-  Contains Low Impact Development (LID) simulation files and supporting documentation.
+```bash
+pip install -r requirements.txt
 
-- **NCIMM_ROUTING**  
-  Comprises routing model files and documentation used in advanced NCIMM routing analyses.
+python -m pytest                                    # harness tests (no engine needed)
+python run_regression.py --list                     # available suites
+python run_regression.py --suite parity --tier pr   # the PR-tier sweep
+python run_regression.py --suite all                # everything + reports
 
-- **LEW_CHI_SWMM5.2**  
-  Contains test cases and examples for the LEW/CHI SWMM5.2 implementation.
+python -m harness.engines                           # what resolved, and where
+python -m harness.corpus --census                   # models per tag
+python -m harness.corpus "lid AND pollutants"       # tag query
+python -m harness.validate                          # validate the corpus
+```
 
-- **Special**  
-  Contains special case models and scenarios, such as files addressing many isolated nodes or other unusual configurations.
+Engines are located through environment variables — `OPENSWMM_ENGINE_DIR`,
+`OPENSWMM_BUILD_DIR`, `OPENSWMM_EXE`, `OPENSWMM_LEGACY_EXE` — so the same
+command runs locally and in CI. A missing engine degrades to `UNAVAILABLE`,
+never a crash.
 
-- **DataFiles**  
-  Houses external data files (e.g., rainfall data in `.dat` and `.rff` formats) that models use as input.
+## Layout
 
-## Root Directory Content
+```
+harness/          engines · runner · readers · rptparse · compare · scoring · corpus · validate
+  engines.yaml    THE engine registry — engines are data, not code
+  schemas/        metadata + provenance schemas, tag vocabulary
+suites/           parity · epa_qa · analytical/{swashes,transitions,manufactured}
+                  · stability · quality · performance
+corpus/           the model library: <collection>/<case>/{model.inp,metadata.yaml,provenance.yaml}
+data/             shared forcing files (rainfall, timeseries)
+site/             dashboard templates (generated output is never committed)
+plans/            design documents
+```
 
-In addition to the above directories, the root folder includes:
+## Adding an engine
 
-- Session files such as `Session1_user1.*`, `Session29_292_Storage_Nodes_200_Subs.md`, etc.
-- Configuration files like `.gitattributes` and `LICENSE`.
-- Batch files like `generate_summaries.bat` for automating summary generation and other tasks.
+Engines are declared in [`harness/engines.yaml`](harness/engines.yaml), not in
+code. Three source types: `in-tree` (a local build), `git-ref` (built from a
+ref, cached), and `external-binary` (any SWMM-compatible CLI). External engines
+are **report-only** — never gating — and are excluded from cross-engine
+performance claims unless their build configuration is asserted comparable.
 
-## How to Use
+## Contributing models
 
-- Open any of the input files (for instance, [1000yearSimulation_Case0_wq.inp](1000Years/1000yearSimulation_Case0_wq.inp)) to review project settings defined in sections like `[OPTIONS]`, `[SUBCATCHMENTS]`, and others.
-- Use the provided batch files to generate reports or summaries.
-- Detailed project documentation can be found within each directory’s files.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Models are classified by **multiple
+tags**, carry provenance and a license, and can be run through an
+anonymization tool if the network can't be shared as-is.
 
----
+## License
 
-For more detailed information on individual files or directories, please refer to the corresponding documents in each folder.
-
-## License and provenance
-
-This repository is dedicated to the public domain under The Unlicense (see LICENSE), matching EPA SWMM5's own public-domain status. Most models here are OWA SWMM5 example and regression models, EPA public-domain examples, or Bob's own XPSWMM-to-SWMM5 conversions. A handful of folders, including Greenville, Simon_EPA, and Special, are contributed or special-case models from colleagues; confirm provenance before assuming the same public-domain terms apply if you plan to redistribute those specifically
+The Unlicense (see [LICENSE](LICENSE)), matching EPA SWMM5's public-domain
+status. Individual cases declare their own license in `provenance.yaml`;
+anything marked `unverified` is excluded from redistribution claims. A few
+collections — `Greenville`, `Simon_EPA`, `Special` — are contributed or
+special-case models whose provenance is confirmed during corpus migration.

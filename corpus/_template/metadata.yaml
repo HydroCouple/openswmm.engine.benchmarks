@@ -1,0 +1,50 @@
+# Template — copy this directory to corpus/contributed/<your-case-id>/
+# Schema: harness/schemas/metadata.schema.yaml
+# Validate: python -m harness.validate corpus/contributed/<your-case-id>
+
+id: my-case-id                    # must match the directory name
+title: One-line description of what this model is
+
+model: model.inp                  # file within this directory
+
+# Tags are the canonical classification — use as many as apply.
+# Vocabulary: harness/schemas/tags.yaml (unknown tags fail validation; adding
+# a genuinely new tag is a one-line PR to that file).
+tags:
+  - hydraulics
+  - dynamic_wave
+  - regression
+
+units: US                         # US | SI
+routing: DYNWAVE                  # DYNWAVE | KINWAVE | STEADY
+size_class: S                     # XS <10 elem, S <100, M <1k, L <10k, XL 10k+
+runtime_class: fast               # fast <30s, medium <5min, slow
+
+tiers: [nightly]                  # submissions land here; pr is by promotion
+
+# What truth is this case graded against? This determines what may be
+# computed from it and what a failure means. See the plan's "Reference
+# classes" section. If you have no external reference — which is the normal
+# case for a real-world model — use self_consistency.
+reference:
+  class: self_consistency
+  # For a case WITH a reference, e.g.:
+  # class: external_reference
+  # source: swmm4_dat
+  # files: [reference/mycase_q.dat]
+
+# Optional: override the comparison pair's default tolerances.
+# tolerances:
+#   rtol: 1.0e-9
+#   atol: 1.0e-12
+#   gate: fail
+#   continuity_warn_pct: 1
+#   continuity_fail_pct: 5
+
+# Optional: shared forcing files this model needs, relative to data/
+# data_files:
+#   - rainfall/sta_1234.dat
+
+notes: >
+  Anything a future reader should know — what makes this model interesting,
+  known quirks, which engine behavior it exposed.

@@ -1,0 +1,62 @@
+# Engine registry — every engine the platform can benchmark is declared here.
+# Engines are DATA: adding a historical or third-party engine is a stanza, not
+# code. See harness/engines.py for how each source type is resolved.
+#
+# out_dialect selects the system-variable namespace used when comparing files
+# written by different SWMM generations (swmm52 = 14 system vars,
+# swmm53 = 15, adds PET_RATE). Variables are matched by NAME, so a comparison
+# across dialects runs over the intersection.
+
+engines:
+
+  openswmm-v6:
+    description: OpenSWMM 6.x refactored C++20 engine (the engine under test)
+    source: {type: in-tree, target: openswmm, env: OPENSWMM_EXE}
+    out_dialect: swmm53
+
+  swmm-5.3.0:
+    description: Vendored legacy EPA SWMM 5.3 engine, built from the same tree
+    source: {type: in-tree, target: openswmm-legacy, env: OPENSWMM_LEGACY_EXE}
+    out_dialect: swmm53
+
+  # BLOCKED on openswmm.engine/plans/ENGINE_524_BUILD_MODERNIZATION_PLAN_2026-08-16.md
+  # — the build-v5.2.4 branch does not build multiplatform yet. Declared now so
+  # the registry shape is settled; resolves to UNAVAILABLE until that lands.
+  swmm-5.2.4:
+    description: EPA SWMM 5.2.4 historical baseline, built from source in CI
+    source: {type: git-ref, ref: build-v5.2.4, target: runswmm, preset: "{os}"}
+    out_dialect: swmm52
+
+  # ── external engines ──────────────────────────────────────────────────────
+  # Report-only by policy (harness/engines.py downgrades any `gate: fail`
+  # comparison involving them) and excluded from performance claims unless
+  # comparable_build is asserted — an engine built with unknown flags is
+  # neither numerically nor performance-comparable.
+  #
+  # Example, commented out until a binary is registered locally:
+  # epa-swmm-5.2.4-release:
+  #   description: Official EPA SWMM 5.2.4 release binary
+  #   source: {type: external-binary, env: EPA_SWMM_EXE, command: runswmm}
+  #   out_dialect: swmm52
+  #   comparable_build: false
+
+comparisons:
+
+  # THE parity gate: the refactored engine must reproduce the legacy engine to
+  # near-bit precision on every element, variable, and period.
+  - a: swmm-5.3.0
+    b: openswmm-v6
+    rtol: 1.0e-9
+    atol: 1.0e-12
+    gate: fail
+    note: near-bit parity; failures fail the job
+
+  # Historical drift: differences are EXPECTED (5.3 added SYS_PET etc.) and are
+  # summarized, not failed. Individual models can be promoted to gating via
+  # their metadata.yaml tolerances once vetted.
+  - a: swmm-5.2.4
+    b: swmm-5.3.0
+    rtol: 1.0e-4
+    atol: 1.0e-6
+    gate: report
+    note: report-only until vetted per-model

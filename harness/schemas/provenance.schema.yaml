@@ -1,0 +1,82 @@
+# JSON Schema (YAML-encoded) for corpus/<collection>/<case>/provenance.yaml
+# Enforced by harness/validate.py. See corpus/_template/provenance.yaml.
+#
+# Provenance is separate from metadata because it answers a different question:
+# metadata says what the model IS, provenance says where it CAME FROM and
+# whether it may be redistributed.
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://github.com/HydroCouple/openswmm.engine.benchmarks/harness/schemas/provenance.schema.yaml"
+title: Benchmark case provenance
+type: object
+additionalProperties: false
+required: [source, license, contributed_by]
+
+properties:
+
+  source:
+    type: string
+    description: >
+      Where the model came from — publication, agency, software distribution,
+      or "original". Be specific enough that someone could trace it.
+
+  citation:
+    type: string
+    description: Full citation when the model comes from published work.
+
+  doi:
+    type: string
+
+  url:
+    type: string
+
+  license:
+    type: string
+    description: >
+      SPDX identifier, "public-domain", "CC0-1.0", or "unverified".
+      Unverified cases are flagged by the validator and excluded from
+      redistribution claims.
+
+  contributed_by:
+    type: string
+    description: Name or handle of the contributor (or "EPA", "OWA", etc.).
+
+  contact:
+    type: string
+
+  date_added:
+    type: string
+    format: date
+
+  anonymized:
+    type: object
+    additionalProperties: false
+    description: >
+      Present when the model passed through harness/anonymize.py. No tool
+      guarantees anonymity — this records what was applied, not a guarantee.
+    required: [transforms, verified_bit_identical]
+    properties:
+      transforms:
+        type: array
+        items:
+          enum: [rename-ids, coords-offset, coords-strip, scrub-text,
+                 relocate-data]
+      verified_bit_identical:
+        type: boolean
+        description: Results confirmed unchanged before/after anonymization.
+      reviewed_by:
+        type: string
+        description: Who confirmed the model is safe to publish.
+      note:
+        type: string
+
+  original_units:
+    enum: [US, SI]
+
+  modifications:
+    type: string
+    description: >
+      Any change made to the model as received (unit conversion, truncated
+      simulation period, removed proprietary sections).
+
+  notes:
+    type: string

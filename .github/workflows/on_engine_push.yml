@@ -1,0 +1,54 @@
+# repository_dispatch receiver: openswmm.engine fires this after a gated push
+# to develop/main, carrying the engine SHA. This repo builds that SHA, runs the
+# fuller tier, and publishes to its own Pages — which is why the engine repo
+# needs only dispatch permission and never a Pages credential here.
+name: Engine push
+
+permissions:
+  contents: read
+
+on:
+  repository_dispatch:
+    types: [engine-push]
+
+env:
+  OMP_NUM_THREADS: 1
+
+jobs:
+  sweep:
+    name: Sweep engine ${{ github.event.client_payload.sha }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      # STUB (plan step 6): check out openswmm.engine at
+      # ${{ github.event.client_payload.sha }}, build, then sweep.
+      - name: Build dispatched engine
+        run: |
+          echo "ref:  ${{ github.event.client_payload.ref }}"
+          echo "sha:  ${{ github.event.client_payload.sha }}"
+          echo "Engine build step is a scaffold stub — see plan step 6."
+
+      - name: Run suites
+        run: |
+          python run_regression.py --suite all \
+            --summary "$GITHUB_STEP_SUMMARY" --badges badges/
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-engine-${{ github.event.client_payload.sha }}
+          path: [results/, badges/]
+
+  publish:
+    needs: sweep
+    uses: ./.github/workflows/publish.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

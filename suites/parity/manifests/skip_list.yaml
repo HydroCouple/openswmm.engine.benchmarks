@@ -1,0 +1,9 @@
+# Cases excluded from sweeps, with a reason each. A skip is a decision, not a
+# convenience: every entry states why and what would let it come back.
+skip: []
+
+# Example:
+# skip:
+#   - case: 1000yearsimulation-case0-wq
+#     reason: multi-hour continuous run; belongs in the weekly tier
+#     revisit: when a weekly tier exists (plan open question 3)

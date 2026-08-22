@@ -1,0 +1,71 @@
+# Tag vocabulary — the canonical classification for every corpus case.
+#
+# Tags are FLAT and a case carries as many as apply; the groups below are for
+# documentation only. Directory placement under corpus/<collection>/ is
+# organizational convenience and carries no semantic weight — suites,
+# manifests, and reports select cases by tag query, never by path.
+#
+# The vocabulary is controlled (harness/validate.py rejects unknown tags, which
+# keeps search and census meaningful) but cheap to extend: adding a tag is a
+# one-line PR with a description.
+
+tags:
+
+  # ── domain ────────────────────────────────────────────────────────────────
+  hydrology:          Runoff generation, infiltration, and catchment processes
+  hydraulics:         Conduit routing, structures, and network hydraulics
+  quality:            Water quality — pollutant generation, transport, treatment
+  lid:                Low Impact Development controls of any type
+  groundwater:        Groundwater / aquifer interaction
+  snowmelt:           Snow accumulation and melt
+  controls:           Control rules / real-time control
+  2d:                 2D overland flow or 1D-2D coupling
+  interop:            Converted from or compared against another modeling tool
+
+  # ── purpose ───────────────────────────────────────────────────────────────
+  regression:         Guards against unintended behavior change between engines
+  analytical:         Graded against an exact or manufactured solution
+  stability:          Stresses solver robustness (convergence, timestep, shocks)
+  performance:        Exists to measure runtime, not correctness
+  calibration:        Carries observed data for goodness-of-fit assessment
+
+  # ── features ──────────────────────────────────────────────────────────────
+  dynamic_wave:       FLOW_ROUTING DYNWAVE
+  kinematic_wave:     FLOW_ROUTING KINWAVE
+  steady_flow:        FLOW_ROUTING STEADY
+  surcharge:          Conduits surcharge during the simulation
+  transition_pressurized: Open-channel <-> pressurized flow transition
+  force_main:         Force main conduits
+  transient:          Rapid transients — pump starts/stops, valve/gate operation
+  pump:               Pump links
+  weir:               Weir links
+  orifice:            Orifice links
+  outlet:             Outlet links
+  storage:            Storage nodes
+  divider:            Flow divider nodes
+  outfall_bc:         Non-trivial outfall boundary condition (tidal, timeseries)
+  irregular_xsect:    Irregular / transect cross sections
+  circular_xsect:     Circular cross sections
+  street_inlet:       Streets and inlets (dual drainage)
+  dual_drainage:      Coupled surface and subsurface drainage
+  rdii:               Rainfall-derived infiltration and inflow
+  dwf:                Dry weather flow
+  evaporation:        Evaporation processes
+  infiltration:       Soil infiltration (Horton, Green-Ampt, Curve Number)
+  pollutants:         One or more pollutants defined
+  buildup_washoff:    Land-use buildup / washoff functions
+  treatment:          Treatment expressions at nodes
+  lid_pollutants:     LID controls acting on pollutant loads
+  street_sweeping:    Street sweeping removal
+  rtc:                Real-time control rules driving structures
+  hotstart:           Uses or produces hot-start files
+  long_term:          Continuous / multi-year simulation
+
+  # ── provenance ────────────────────────────────────────────────────────────
+  real_world:         Derived from an actual drainage system
+  synthetic:          Constructed for testing, not a real system
+  textbook:           From published documentation or a manual
+  contributed:        Submitted by a community contributor
+  converted_xpswmm:   Converted from XPSWMM
+  converted_icm:      Converted from InfoWorks ICM
+  anonymized:         Passed through harness/anonymize.py
