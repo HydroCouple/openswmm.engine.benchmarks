@@ -73,11 +73,25 @@ def available(exe: Path | None) -> bool:
 
 
 def git_sha(repo: Path) -> str:
-    """Short git SHA of a checkout ('' if unavailable)."""
+    """Short git SHA of a checkout, suffixed '-dirty' if the tree is modified.
+
+    Results are published keyed by this string, so it has to describe the
+    BUILD, not merely the branch tip. A checkout with uncommitted changes
+    produces a binary that no commit describes; reporting the bare SHA would
+    attribute those results to a commit that cannot reproduce them. This is not
+    hypothetical — the engine tree carried uncommitted work throughout the
+    first real sweep, and a concurrent commit moved HEAD mid-run.
+    """
     try:
-        return subprocess.run(
+        sha = subprocess.run(
             ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
             capture_output=True, text=True, timeout=30).stdout.strip()
+        if not sha:
+            return ""
+        dirty = subprocess.run(
+            ["git", "-C", str(repo), "status", "--porcelain", "--untracked-files=no"],
+            capture_output=True, text=True, timeout=60).stdout.strip()
+        return f"{sha}-dirty" if dirty else sha
     except Exception:
         return ""
 
@@ -230,6 +244,38 @@ def _resolve_git_ref(source: dict) -> Path | None:
     exe_name = target + (".exe" if platform.system() == "Windows" else "")
     cached = CACHE_DIR / f"{ref}-{platform.system().lower()}" / exe_name
     return cached if cached.exists() else None
+
+
+# ── convenience names for the two in-tree engines ──────────────────────────
+# The analytical suites (swashes, transitions) were written against a
+# pre-registry engines module and address the two in-tree engines directly.
+# Rather than duplicate resolution logic in each suite, expose them here as
+# registry-derived attributes so the registry stays the single source of
+# truth. Resolved lazily (PEP 562) so importing this module costs nothing and
+# so a caller that sets OPENSWMM_EXE after import still sees it.
+
+#: Registry ids of the engine under test and its legacy reference.
+REFACT_ENGINE_ID = "openswmm-v6"
+LEGACY_ENGINE_ID = "swmm-5.3.0"
+
+
+def exe_for(engine_id: str) -> Path | None:
+    """Executable path for a registry engine id (may not exist; see available())."""
+    reg = load()
+    engine = reg.engines.get(engine_id)
+    if engine is None:
+        raise KeyError(f"no engine {engine_id!r} in {REGISTRY_PATH}")
+    return resolve(engine).exe
+
+
+def __getattr__(name: str):
+    if name == "REFACT_EXE":
+        return exe_for(REFACT_ENGINE_ID)
+    if name == "LEGACY_EXE":
+        return exe_for(LEGACY_ENGINE_ID)
+    if name == "ENGINE":
+        return REFACT_ENGINE_ID
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def resolve_all(reg: Registry, only: list[str] | None = None) -> Registry:

@@ -155,19 +155,43 @@ class Out:
     # ── series ───────────────────────────────────────────────────────────
     def datetimes(self) -> np.ndarray:
         """SWMM datetime (days since 1899-12-30) at each reporting period."""
-        out = np.empty(self.n_periods, dtype=np.float64)
-        for p in range(self.n_periods):
-            (out[p],) = struct.unpack_from(
-                "<d", self._b, self.result_pos + p * self.bytes_per_period)
-        return out
+        n, bpp = self.n_periods, self.bytes_per_period
+        if n <= 0:
+            return np.empty(0, dtype=np.float64)
+        u8 = np.frombuffer(self._b, dtype=np.uint8)
+        take = (self.result_pos + np.arange(n, dtype=np.int64) * bpp)[:, None] \
+            + np.arange(8, dtype=np.int64)
+        return u8[take].reshape(-1).view("<f8").astype(np.float64)
+
+    def _strided(self, off0: int) -> np.ndarray:
+        """One float32 per period, read at `off0` + k * bytes_per_period.
+
+        The .out layout interleaves every element's variables inside a period
+        record, so one element-variable series is a strided gather, not a
+        contiguous slice. Doing that with `struct.unpack_from` in a Python loop
+        costs one interpreter round-trip per period per variable per element:
+        a full-corpus sweep compares ~22 billion cells, and at ~270k cells/s
+        that is a day of pure comparison — longer than the nightly window and
+        far longer than a CI job may run. Gathering the bytes with numpy and
+        viewing them as float32 is the same arithmetic, vectorised.
+        """
+        n, bpp = self.n_periods, self.bytes_per_period
+        if n <= 0:
+            return np.empty(0, dtype=np.float64)
+        last = off0 + (n - 1) * bpp + 4
+        if last > len(self._b):
+            raise ValueError(
+                f"{self.path}: result block ends at {last} but the file is "
+                f"{len(self._b)} bytes — truncated or mis-declared header")
+        u8 = np.frombuffer(self._b, dtype=np.uint8)
+        # (n, 4) byte offsets -> gather -> reinterpret as little-endian float32
+        take = (off0 + np.arange(n, dtype=np.int64) * bpp)[:, None] \
+            + np.arange(4, dtype=np.int64)
+        return u8[take].reshape(-1).view("<f4").astype(np.float64)
 
     def _series(self, base_off: int, idx: int, var: int, nvars: int) -> np.ndarray:
-        out = np.empty(self.n_periods, dtype=np.float64)
-        off0 = self.result_pos + 8 + base_off + (idx * nvars + var) * 4
-        bpp = self.bytes_per_period
-        for p in range(self.n_periods):
-            (out[p],) = struct.unpack_from("<f", self._b, off0 + p * bpp)
-        return out
+        return self._strided(
+            self.result_pos + 8 + base_off + (idx * nvars + var) * 4)
 
     def node_series(self, node_id: str, var: int) -> np.ndarray:
         return self._series(self._node_off, self._node_ix[node_id], var,
@@ -185,12 +209,7 @@ class Out:
         """System-level result series by storage index (see sys_var_names())."""
         if not 0 <= var < self.sys_vars:
             raise IndexError(f"system var {var} out of range (0..{self.sys_vars - 1})")
-        out = np.empty(self.n_periods, dtype=np.float64)
-        off0 = self.result_pos + 8 + self._sys_off + var * 4
-        for p in range(self.n_periods):
-            (out[p],) = struct.unpack_from("<f", self._b,
-                                           off0 + p * self.bytes_per_period)
-        return out
+        return self._strided(self.result_pos + 8 + self._sys_off + var * 4)
 
     # ── generic accessors (element kind as a string) ──────────────────────
     def ids(self, kind: str) -> list[str]:

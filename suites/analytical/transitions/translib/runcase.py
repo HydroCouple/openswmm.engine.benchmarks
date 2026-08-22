@@ -16,7 +16,7 @@ from . import analytic, config, extract, gen
 from .cases import CASES, Case, case_by_id
 from .solvers import SOLVERS, SolverSpec
 
-from harness import engines, runner, scoring
+from harness import engines, rptparse, runner, scoring
 
 
 def _cell_dir(case_id: str, solver_id: str):
@@ -149,7 +149,7 @@ def run_cell(case: Case, solver: SolverSpec, *, force: bool = False) -> dict:
             return cell
     cell["inp_sha"] = runner.inp_sha(inp)
 
-    rpt = runner.parse_rpt(d / "model.rpt")
+    rpt = rptparse.parse(d / "model.rpt")
     cell["mass_pct"] = rpt.get("routing_err")
     try:
         res = extract.read_run(d / "model.out", case)

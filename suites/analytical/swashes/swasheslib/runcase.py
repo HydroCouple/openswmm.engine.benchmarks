@@ -23,7 +23,7 @@ from .genrefs import (MissingReferenceError, all_cases, case_by_id,
                       reference_blocks)
 from .solvers import SOLVERS
 
-from harness import engines, runner, scoring
+from harness import engines, rptparse, runner, scoring
 
 MASS_GATE_PCT = 0.5
 STEADY_GATE = 0.02   # relative drift of the window-MEAN (residual seiche wobble)
@@ -156,7 +156,7 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
             return cell
     cell["inp_sha"] = sha
 
-    rpt = runner.parse_rpt(d / "model.rpt")
+    rpt = rptparse.parse(d / "model.rpt")
     mass_pct = rpt.get("routing_err")
     cell["mass_pct"] = mass_pct
 
