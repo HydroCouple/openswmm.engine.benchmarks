@@ -180,10 +180,25 @@ def badges(envelopes: list[dict], *, corpus_count: int | None = None) -> dict[st
 
     mb = [c for c in _cells(envelopes, lambda c: "continuity_err" in c)]
     if mb:
-        worst = max(abs(float(c.get("continuity_err") or 0.0)) for c in mb)
-        out["mass-balance"] = badge(
-            "mass balance", f"worst {worst:.2f}%",
-            BADGE_GREEN if worst <= 1 else BADGE_YELLOW if worst <= 5 else BADGE_RED)
+        # This badge reports the WORST continuity error in the corpus, so it is
+        # set by whichever model is most pathological — and some models are
+        # pathological on purpose. A case tagged `expected_high_continuity` has
+        # a committed legacy report, written by an earlier engine, already
+        # showing >10% error: its mass balance is a property of the model and
+        # says nothing about this engine. Those are excluded and the count is
+        # DISCLOSED, never silently dropped.
+        excluded = [c for c in mb if c.get("expected_high_continuity")]
+        graded = [c for c in mb if not c.get("expected_high_continuity")]
+        if graded:
+            worst = max(abs(float(c.get("continuity_err") or 0.0)) for c in graded)
+            msg = f"worst {worst:.2f}%"
+            color = (BADGE_GREEN if worst <= 1
+                     else BADGE_YELLOW if worst <= 5 else BADGE_RED)
+        else:
+            worst, msg, color = 0.0, "none graded", BADGE_GREY
+        if excluded:
+            msg += f" · {len(excluded)} by design"
+        out["mass-balance"] = badge("mass balance", msg, color)
 
     st = [c for c in _cells(envelopes, lambda c: "pct_not_converging" in c)]
     if st:

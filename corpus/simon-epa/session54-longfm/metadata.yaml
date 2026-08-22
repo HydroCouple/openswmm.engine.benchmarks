@@ -4,6 +4,7 @@ model: model.inp
 tags:
 - dynamic_wave
 - evaporation
+- expected_high_continuity
 - force_main
 - hydraulics
 - pump

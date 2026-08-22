@@ -4,6 +4,7 @@ model: model.inp
 tags:
 - circular_xsect
 - evaporation
+- expected_high_continuity
 - hydraulics
 - kinematic_wave
 - regression

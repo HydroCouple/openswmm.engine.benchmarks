@@ -46,6 +46,18 @@ tags:
   surcharge:          Conduits surcharge during the simulation
   flooding:           Nodes flood during the simulation
   flow_instability:   Engine reports flow instability indexes
+  expected_high_continuity: >-
+    The model does not conserve mass, and that is a property of the MODEL, not
+    of any engine: the committed reference/legacy.rpt — written by an earlier,
+    unrecorded engine, long before the current one existed — already reports a
+    routing continuity error worse than 10%. Applied ONLY on that evidence.
+    Such a case is still run and still gated on parity; what the tag buys is
+    that it is excluded from the published mass-balance badge, which otherwise
+    reports the worst number in the corpus and is therefore set by whichever
+    deck is most pathological by design (allow-ponding-high-ce, at -104835% in
+    its own committed legacy report). The excluded count is disclosed on the
+    badge rather than hidden, the same way the verification badge discloses
+    its unchecked cases.
   transition_pressurized: Open-channel <-> pressurized flow transition
   force_main:         Force main conduits
   transient:          Rapid transients — pump starts/stops, valve/gate operation
