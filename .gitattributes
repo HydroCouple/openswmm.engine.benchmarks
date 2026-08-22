@@ -1,2 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# ...but NOT the analytical reference data. Those files are asserted
+# BYTE-FOR-BYTE against their generator's output (tests/test_analytical.py,
+# test_manufactured_reference_is_reproducible), and the generators write them
+# with csv.writer, whose default lineterminator is CRLF. Under `text=auto` git
+# normalises the committed blob to LF, so a fresh clone checks out LF, the
+# generator re-emits CRLF, and the byte-exactness test fails — in CI, on every
+# run, while passing on any machine that happens to have run the generator
+# locally. `-text` stores and restores the exact bytes on every platform.
+suites/analytical/**/reference.csv -text
+suites/analytical/**/reference/** -text
