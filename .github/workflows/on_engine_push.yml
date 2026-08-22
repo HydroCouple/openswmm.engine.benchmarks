@@ -25,13 +25,13 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
 
-      # STUB (plan step 6): check out openswmm.engine at
-      # ${{ github.event.client_payload.sha }}, build, then sweep.
+      # Build the exact SHA the engine repo dispatched, so the published
+      # results are keyed to that commit rather than to whatever `develop`
+      # happens to be when this job starts.
       - name: Build dispatched engine
-        run: |
-          echo "ref:  ${{ github.event.client_payload.ref }}"
-          echo "sha:  ${{ github.event.client_payload.sha }}"
-          echo "Engine build step is a scaffold stub — see plan step 6."
+        uses: ./.github/actions/build-engine
+        with:
+          ref: ${{ github.event.client_payload.sha }}
 
       - name: Run suites
         run: |
@@ -43,7 +43,9 @@ jobs:
         if: always()
         with:
           name: results-engine-${{ github.event.client_payload.sha }}
-          path: [results/, badges/]
+          path: |
+            results/
+            badges/
 
   publish:
     needs: sweep

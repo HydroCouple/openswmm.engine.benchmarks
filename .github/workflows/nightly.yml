@@ -18,6 +18,10 @@ on:
       engines:
         description: Comma-separated engine ids (blank = all registered)
         required: false
+      engine_ref:
+        description: openswmm.engine ref to build
+        default: develop
+        required: false
 
 env:
   OMP_NUM_THREADS: 1
@@ -39,10 +43,13 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
 
-      # STUB (plan step 5): check out and build openswmm.engine (in-tree
-      # engines), resolve git-ref engines from cache, then run the sweep.
+      # git-ref engines (swmm-5.2.4) resolve from OPENSWMM_BENCH_CACHE when a
+      # cached artifact exists and degrade to UNAVAILABLE otherwise — they are
+      # never gating, so a missing cache cannot fail this job.
       - name: Build engines
-        run: echo "Engine build step is a scaffold stub — see plan step 5."
+        uses: ./.github/actions/build-engine
+        with:
+          ref: ${{ inputs.engine_ref || 'develop' }}
 
       - name: Run suites
         run: |

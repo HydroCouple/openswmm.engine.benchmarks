@@ -1,0 +1,161 @@
+# Build the in-tree engines (openswmm + openswmm-legacy) and point the harness
+# at them. Shared by validate.yml, nightly.yml, and on_engine_push.yml so the
+# build recipe lives in ONE place — it mirrors the engine repo's own
+# unit_testing.yml (vcpkg pin, OpenMP, MSVC environment, preset names), and a
+# drift there is a single edit here.
+#
+# Only the two CLI targets are built: the suites drive engines through the
+# `exe input.inp out.rpt out.out` convention, so tests, the GPU plugin, and
+# HYPRE are all switched off — they roughly double the build with no effect on
+# a parity sweep.
+name: Build OpenSWMM engines
+description: Check out and build openswmm-v6 + swmm-5.3.0, exporting harness env vars.
+
+inputs:
+  repository:
+    description: Engine repository (owner/name).
+    required: false
+    default: HydroCouple/Stormwater-Management-Model
+  ref:
+    description: Engine ref (branch, tag, or SHA) to build.
+    required: false
+    default: develop
+  vcpkg-ref:
+    description: Pinned vcpkg release, kept in step with the engine repo's CI.
+    required: false
+    default: 2026.07.29
+  path:
+    description: Directory to check the engine out into.
+    required: false
+    default: engine
+
+outputs:
+  engine-sha:
+    description: Full SHA of the engine commit that was built.
+    value: ${{ steps.sha.outputs.sha }}
+  build-dir:
+    description: Build tree containing bin/Release.
+    value: ${{ steps.paths.outputs.build_dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve platform settings
+      id: paths
+      shell: bash
+      run: |
+        case "${{ runner.os }}" in
+          Linux)   preset=Linux;   triplet=x64-linux   ;;
+          macOS)   preset=Darwin;  triplet=arm64-osx   ;;
+          Windows) preset=Windows; triplet=x64-windows ;;
+          *) echo "unsupported runner OS ${{ runner.os }}" >&2; exit 1 ;;
+        esac
+        echo "preset=$preset"   >> "$GITHUB_OUTPUT"
+        echo "triplet=$triplet" >> "$GITHUB_OUTPUT"
+        echo "build_dir=${{ github.workspace }}/${{ inputs.path }}/build-bench" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout engine
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.ref }}
+        path: ${{ inputs.path }}
+        fetch-depth: 0
+
+    - name: Record engine SHA
+      id: sha
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout vcpkg
+      uses: actions/checkout@v4
+      with:
+        repository: microsoft/vcpkg
+        ref: ${{ inputs.vcpkg-ref }}
+        path: vcpkg
+
+    - name: Install OpenMP (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: brew install libomp
+
+    - name: Install Ninja (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+    - name: Bootstrap vcpkg (Unix)
+      if: runner.os != 'Windows'
+      shell: bash
+      working-directory: ${{ github.workspace }}/vcpkg
+      run: ./bootstrap-vcpkg.sh && chmod +x vcpkg
+
+    - name: Bootstrap vcpkg (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      working-directory: ${{ github.workspace }}/vcpkg
+      run: .\bootstrap-vcpkg.bat
+
+    - name: Cache vcpkg downloads
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/vcpkg/downloads
+        key: vcpkg-downloads-${{ runner.os }}-${{ steps.paths.outputs.triplet }}-${{ hashFiles(format('{0}/vcpkg.json', inputs.path)) }}
+        restore-keys: |
+          vcpkg-downloads-${{ runner.os }}-${{ steps.paths.outputs.triplet }}-
+          vcpkg-downloads-${{ runner.os }}-
+
+    # The Windows preset uses Ninja Multi-Config, which needs cl.exe/link.exe
+    # on PATH. vcvars64 also exports its own VCPKG_ROOT, which would silently
+    # override the pinned checkout — so re-pin it afterwards, exactly as the
+    # engine repo's CI does.
+    - name: Set up MSVC environment (Windows)
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure
+      shell: bash
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      working-directory: ${{ inputs.path }}
+      run: >
+        cmake
+        --preset=${{ steps.paths.outputs.preset }}
+        -B build-bench
+        -DVCPKG_MANIFEST_FEATURES="geopackage"
+        -DCMAKE_BUILD_TYPE=Release
+        -DOPENSWMM_BUILD_TESTS=OFF
+        -DOPENSWMM_BUILD_UNIT_TESTS=OFF
+        -DOPENSWMM_BUILD_GPU_PLUGIN=OFF
+        -DOPENSWMM_WITH_HYPRE=OFF
+        -DOPENSWMM_WITH_GEOPACKAGE=ON
+
+    - name: Build engine CLIs
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: cmake --build build-bench --config Release --target openswmm openswmm-legacy
+
+    - name: Export harness environment
+      shell: bash
+      run: |
+        echo "OPENSWMM_ENGINE_DIR=${{ github.workspace }}/${{ inputs.path }}" >> "$GITHUB_ENV"
+        echo "OPENSWMM_BUILD_DIR=${{ steps.paths.outputs.build_dir }}" >> "$GITHUB_ENV"
+
+    - name: Verify the harness resolves both engines
+      shell: bash
+      run: |
+        python -m harness.engines
+        python - <<'PY'
+        import sys
+        from harness import engines
+        reg = engines.resolve_all(engines.load())
+        missing = [i for i in ("openswmm-v6", "swmm-5.3.0")
+                   if not reg.engines[i].ok]
+        if missing:
+            sys.exit(f"engine(s) did not resolve after build: {missing}")
+        print("both in-tree engines RESOLVED")
+        PY

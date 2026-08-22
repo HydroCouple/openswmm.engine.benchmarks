@@ -56,9 +56,72 @@ jobs:
   smoke:
     name: Run submitted models
     runs-on: ubuntu-latest
-    # STUB (plan step 5): build the reference engines (or fetch a cached
-    # build), run every changed case with a timeout, check continuity sanity,
-    # and comment runtime + size class back on the PR.
+    permissions:
+      contents: read
+      pull-requests: write       # the results comment
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Model smoke-run job is a scaffold stub — see plan step 5."
+        with:
+          fetch-depth: 0          # changed-case detection diffs against the base
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      - name: List changed cases
+        id: changed
+        run: python tools/changed_cases.py --github-output
+
+      - name: Build engines
+        if: steps.changed.outputs.cases != ''
+        uses: ./.github/actions/build-engine
+
+      - name: Run changed cases
+        if: steps.changed.outputs.cases != ''
+        run: |
+          python -m suites.parity.suite --tier nightly \
+            --only "${{ steps.changed.outputs.cases }}" \
+            --keep-out none | tee smoke.log
+        continue-on-error: true
+
+      - name: Build the PR comment
+        if: always() && steps.changed.outputs.cases != ''
+        run: |
+          {
+            echo "### Model smoke run"
+            echo
+            echo "Ran ${{ steps.changed.outputs.count }} changed case(s) through"
+            echo "\`openswmm-v6\` and \`swmm-5.3.0\`."
+            if [ "${{ steps.changed.outputs.truncated }}" = "true" ]; then
+              echo
+              echo "> Only the first 40 changed cases ran here; the nightly sweep covers the rest."
+            fi
+            echo
+            python tools/triage_sweep.py results/parity/scores_nightly.json --markdown
+          } > smoke_comment.md
+        continue-on-error: true
+
+      - name: Comment results on the PR
+        if: github.event_name == 'pull_request' && steps.changed.outputs.cases != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.existsSync('smoke_comment.md')
+              ? fs.readFileSync('smoke_comment.md', 'utf8')
+              : 'Smoke run produced no summary.';
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.changed.outputs.cases != ''
+        with:
+          name: smoke-results
+          path: |
+            results/
+            smoke.log
+          retention-days: 14
