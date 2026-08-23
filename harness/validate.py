@@ -58,7 +58,7 @@ class Result:
 
 def load_tags() -> dict:
     import yaml
-    doc = yaml.safe_load((SCHEMA_DIR / "tags.yaml").read_text()) or {}
+    doc = yaml.safe_load((SCHEMA_DIR / "tags.yaml").read_text(encoding="utf-8")) or {}
     return doc.get("tags", {})
 
 
@@ -95,7 +95,7 @@ def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
         r.errors.append("provenance.yaml missing")
 
     try:
-        meta = yaml.safe_load(meta_path.read_text()) or {}
+        meta = yaml.safe_load(meta_path.read_text(encoding="utf-8")) or {}
     except yaml.YAMLError as exc:
         r.errors.append(f"metadata.yaml does not parse: {exc}")
         return r
@@ -150,7 +150,7 @@ def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
 
     if prov_path.exists():
         try:
-            prov = yaml.safe_load(prov_path.read_text()) or {}
+            prov = yaml.safe_load(prov_path.read_text(encoding="utf-8")) or {}
             for key in REQUIRED_PROVENANCE:
                 if key not in prov:
                     r.errors.append(
@@ -168,7 +168,7 @@ def scan_inp(path: Path) -> list[str]:
     """Advisory scan of a model for portability and identifying content."""
     warnings: list[str] = []
     try:
-        text = path.read_text(errors="replace")
+        text = path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
         return [f"could not read {path.name}: {exc}"]
 
@@ -266,4 +266,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

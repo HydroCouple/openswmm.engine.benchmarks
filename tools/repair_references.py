@@ -148,7 +148,7 @@ def _handle_input(case: Path, ref: str, index, result, lines, i,
 def _record(case: Path, result: dict) -> None:
     import yaml
     p = case / "provenance.yaml"
-    doc = yaml.safe_load(p.read_text()) or {}
+    doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     notes = []
     if result["saves_rewritten"]:
         notes.append(
@@ -167,7 +167,7 @@ def _record(case: Path, result: dict) -> None:
         doc["modifications"] = (prev + " " if prev else "") + " ".join(notes)
         p.write_text(yaml.safe_dump(doc, sort_keys=False,
                                     default_flow_style=False,
-                                    allow_unicode=True))
+                                    allow_unicode=True), encoding="utf-8")
 
 
 def rebuild_skip_list(broken: dict[str, list[str]]) -> int:
@@ -176,7 +176,7 @@ def rebuild_skip_list(broken: dict[str, list[str]]) -> int:
     path = REPO_ROOT / "suites" / "parity" / "manifests" / "skip_list.yaml"
     manual = []
     if path.exists():
-        for e in (yaml.safe_load(path.read_text()) or {}).get("skip") or []:
+        for e in (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("skip") or []:
             if "not a runnable model" in str(e.get("reason", "")):
                 manual.append(e)                 # keep non-reference skips
 
@@ -196,7 +196,7 @@ def rebuild_skip_list(broken: dict[str, list[str]]) -> int:
         "# path were repaired, not skipped.\n")
     path.write_text(header + yaml.safe_dump({"skip": entries}, sort_keys=False,
                                             default_flow_style=False,
-                                            allow_unicode=True, width=100))
+                                            allow_unicode=True, width=100), encoding="utf-8")
     return len(entries)
 
 

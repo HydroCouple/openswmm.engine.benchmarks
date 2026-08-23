@@ -89,7 +89,7 @@ def write_reference(case) -> str:
         for xi, hi, qi in zip(x, h, q):
             rows.append(f"{t:.6g},{xi:.8g},{hi:.10g},{qi:.10g}")
     path = d / "reference.csv"
-    path.write_text("\n".join(rows) + "\n")
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
     return str(path)
 
 
@@ -163,7 +163,7 @@ def write_provenance(case, verification_class: str = "analytical",
         if pol.note:
             lines.append(f"    note: \"{pol.note}\"")
     path = d / "provenance.yaml"
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return str(path)
 
 

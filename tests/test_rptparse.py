@@ -79,7 +79,7 @@ LID = """\
 
 def test_continuity_and_stability_scalars(tmp_path):
     p = tmp_path / "m.rpt"
-    p.write_text(CONTINUITY)
+    p.write_text(CONTINUITY, encoding="utf-8")
     got = rptparse.parse(p)
     assert got["routing_err"] == -4.052
     assert got["runoff_err"] == 0.114
@@ -94,7 +94,7 @@ def test_continuity_and_stability_scalars(tmp_path):
 
 def test_single_pollutant_continuity(tmp_path):
     p = tmp_path / "m.rpt"
-    p.write_text(QUALITY_ONE)
+    p.write_text(QUALITY_ONE, encoding="utf-8")
     got = rptparse.parse(p)
     assert got["quality_err"] == {"TSS": -2.140}
     assert got["worst_quality_err"] == pytest.approx(2.140)
@@ -103,7 +103,7 @@ def test_single_pollutant_continuity(tmp_path):
 def test_multi_pollutant_continuity(tmp_path):
     """One column per pollutant; names sit on the line ABOVE the section title."""
     p = tmp_path / "m.rpt"
-    p.write_text(QUALITY_MULTI)
+    p.write_text(QUALITY_MULTI, encoding="utf-8")
     got = rptparse.parse(p)
     assert got["quality_err"] == {"TN": 0.102, "Lead": -1.750, "BOD": 0.004}
     assert got["worst_quality_err"] == pytest.approx(1.750)
@@ -133,7 +133,7 @@ def test_quality_regex_does_not_wander_to_an_earlier_banner():
 
 def test_no_quality_section(tmp_path):
     p = tmp_path / "m.rpt"
-    p.write_text(CONTINUITY)
+    p.write_text(CONTINUITY, encoding="utf-8")
     assert rptparse.quality_continuity(CONTINUITY) == {}
     assert "quality_err" not in rptparse.parse(p)
 
@@ -159,7 +159,7 @@ def test_errors_and_warnings_are_collected(tmp_path):
     p = tmp_path / "m.rpt"
     p.write_text("ERROR 138: node N1 has invalid elevation.\n"
                  "WARNING 04: minimum elevation drop used for Conduit C1\n"
-                 "WARNING 04: minimum elevation drop used for Conduit C1\n")
+                 "WARNING 04: minimum elevation drop used for Conduit C1\n", encoding="utf-8")
     got = rptparse.parse(p)
     assert got["had_error"] is True
     assert len(got["errors"]) == 2          # deduplicated, order preserved
@@ -174,7 +174,7 @@ def test_undefined_continuity_dash_is_omitted_not_zero(tmp_path):
     p.write_text("  Runoff Quantity Continuity        acre-feet\n"
                  "  Continuity Error (%) .....             -\n\n\n"
                  "  Flow Routing Continuity           acre-feet\n"
-                 "  Continuity Error (%) .....        -0.500\n")
+                 "  Continuity Error (%) .....        -0.500\n", encoding="utf-8")
     got = rptparse.parse(p)
     assert "runoff_err" not in got
     assert got["routing_err"] == -0.500
@@ -186,7 +186,7 @@ def test_missing_file_is_not_an_exception(tmp_path):
 
 def test_truncated_report_degrades_gracefully(tmp_path):
     p = tmp_path / "m.rpt"
-    p.write_text("  Flow Routing Continuity\n  Dry Weather Inflow ..\n")
+    p.write_text("  Flow Routing Continuity\n  Dry Weather Inflow ..\n", encoding="utf-8")
     got = rptparse.parse(p)
     assert "routing_err" not in got         # absent, not zero
     assert got["had_error"] is False

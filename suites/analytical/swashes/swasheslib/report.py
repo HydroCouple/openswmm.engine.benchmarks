@@ -439,5 +439,5 @@ def _build(envelope):
                "in this column, as it must be (bend_k is a 1D `[LOSSES]` "
                "row the 2D deck never sees).")
     doc.append("")
-    config.REPORT_FILE.write_text("\n".join(doc) + "\n")
+    config.REPORT_FILE.write_text("\n".join(doc) + "\n", encoding="utf-8")
     return str(config.REPORT_FILE)

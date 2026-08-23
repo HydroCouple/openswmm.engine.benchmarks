@@ -55,7 +55,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     doc = yaml.safe_load(
-        (REPO_ROOT / "suites/parity/manifests/skip_list.yaml").read_text())
+        (REPO_ROOT / "suites/parity/manifests/skip_list.yaml").read_text(encoding="utf-8"))
     entries = doc.get("skip") or []
     if args.limit:
         entries = entries[:args.limit]
@@ -81,7 +81,7 @@ def main(argv=None) -> int:
             rpt = work / f"{cid}.rpt"
             r = runner.run(engine.exe, case.inp, rpt, work / f"{cid}.out",
                            timeout=args.timeout)
-            text = rpt.read_text(errors="replace") if rpt.exists() else ""
+            text = rpt.read_text(encoding="utf-8", errors="replace") if rpt.exists() else ""
             errs = [ln.strip() for ln in text.splitlines() if "ERROR" in ln]
             detail = (errs[0] if errs else r.get("stderr") or
                       f"rc={r['returncode']}")[:160]
@@ -102,10 +102,12 @@ def main(argv=None) -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(
         {"engine": args.engine, "engine_sha": engines.engine_sha(),
-         "counts": counts, "cases": rows}, indent=2))
+         "counts": counts, "cases": rows}, indent=2), encoding="utf-8")
     print(f"\n{counts}\nwrote {OUT}")
     return 0
 
 
 if __name__ == "__main__":
+    from harness import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

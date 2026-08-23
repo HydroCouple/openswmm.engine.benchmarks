@@ -309,7 +309,7 @@ class ScannedCase:
 
 
 def scan_one(path: Path, collection: str) -> ScannedCase:
-    text = path.read_text(errors="replace")
+    text = path.read_text(encoding="utf-8", errors="replace")
     sections = parse_sections(text)
     opts = options(sections)
 
@@ -585,7 +585,7 @@ def write_skip_list(cases: list[ScannedCase], migrated: set[Path]) -> Path:
         "# regenerated.\n")
     path.write_text(header + yaml.safe_dump({"skip": entries}, sort_keys=False,
                                             default_flow_style=False,
-                                            allow_unicode=True, width=100))
+                                            allow_unicode=True, width=100), encoding="utf-8")
     return path
 
 
@@ -635,15 +635,15 @@ def apply(cases: list[ScannedCase], skip_duplicates: bool = True) -> dict:
                 shutil.copy2(srcfile, target)
                 stats["data_files_copied"] += 1
         git_mv(c.src, dest / "model.inp")
-        (dest / "metadata.yaml").write_text(metadata_doc(c))
-        (dest / "provenance.yaml").write_text(provenance_doc(c))
+        (dest / "metadata.yaml").write_text(metadata_doc(c), encoding="utf-8")
+        (dest / "provenance.yaml").write_text(provenance_doc(c), encoding="utf-8")
         migrated.add(c.src)
         stats["migrated"] += 1
 
     skip_path = write_skip_list(cases, migrated)
     import yaml
     stats["skip_list_entries"] = len(
-        (yaml.safe_load(skip_path.read_text()) or {}).get("skip") or [])
+        (yaml.safe_load(skip_path.read_text(encoding="utf-8")) or {}).get("skip") or [])
     return dict(stats)
 
 
@@ -661,7 +661,7 @@ def main(argv: list[str] | None = None) -> int:
     text = report(cases, empty)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
-        args.report.write_text(text)
+        args.report.write_text(text, encoding="utf-8")
         print(f"report written to {args.report}")
     else:
         print(text)

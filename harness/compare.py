@@ -388,6 +388,8 @@ def drilldown(legacy_out, refact_out, kind: str, var_name: str,
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     import sys, json
     if len(sys.argv) >= 5 and sys.argv[1] == "drill":
         # drill <legacy.out> <refact.out> <link|node> <VAR> [eid] [limit]

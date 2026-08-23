@@ -47,7 +47,7 @@ def claims_reproducible(case: Path) -> bool:
     """Does this case's provenance assert that its reference is reproducible?"""
     import yaml
     try:
-        doc = yaml.safe_load((case / "provenance.yaml").read_text()) or {}
+        doc = yaml.safe_load((case / "provenance.yaml").read_text(encoding="utf-8")) or {}
     except Exception:
         return False
     return bool((doc.get("provenance") or {}).get("reproducible"))

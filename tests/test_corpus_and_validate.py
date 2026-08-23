@@ -57,7 +57,7 @@ def test_tag_vocabulary_parses_and_is_wellformed():
     """
     import yaml
     doc = yaml.safe_load(
-        (validate.SCHEMA_DIR / "tags.yaml").read_text())
+        (validate.SCHEMA_DIR / "tags.yaml").read_text(encoding="utf-8"))
     tags = doc["tags"]
     assert len(tags) > 40
     for name, desc in tags.items():
@@ -82,11 +82,11 @@ def _make_case(root, case_id="smoke-case", **overrides):
     dst.mkdir(parents=True)
     for name in ("metadata.yaml", "provenance.yaml"):
         shutil.copy(src / name, dst / name)
-    (dst / "model.inp").write_text("[TITLE]\ntest\n")
-    meta = yaml.safe_load((dst / "metadata.yaml").read_text())
+    (dst / "model.inp").write_text("[TITLE]\ntest\n", encoding="utf-8")
+    meta = yaml.safe_load((dst / "metadata.yaml").read_text(encoding="utf-8"))
     meta["id"] = case_id
     meta.update(overrides)
-    (dst / "metadata.yaml").write_text(yaml.safe_dump(meta))
+    (dst / "metadata.yaml").write_text(yaml.safe_dump(meta), encoding="utf-8")
     return dst
 
 
@@ -176,7 +176,7 @@ def test_inp_scan_flags_latlong_coordinates(tmp_path):
     automatic and never guaranteed."""
     case = _make_case(tmp_path)
     (case / "model.inp").write_text(
-        "[COORDINATES]\nN1  -111.891050  40.760780\nN2  -111.892000  40.761000\n")
+        "[COORDINATES]\nN1  -111.891050  40.760780\nN2  -111.892000  40.761000\n", encoding="utf-8")
     r = validate.validate_case(case)
     assert r.ok                                    # advisory only
     assert any("lat/long" in w for w in r.warnings)
@@ -192,7 +192,7 @@ def test_inp_scan_flags_absolute_paths(tmp_path, line):
     """Absolute paths break the moment a model runs on another machine, and
     they routinely leak usernames and project names."""
     case = _make_case(tmp_path)
-    (case / "model.inp").write_text(f"[FILES]\n{line}\n")
+    (case / "model.inp").write_text(f"[FILES]\n{line}\n", encoding="utf-8")
     r = validate.validate_case(case)
     assert any("absolute path" in w for w in r.warnings), r.warnings
 
@@ -202,7 +202,7 @@ def test_inp_scan_does_not_flag_urls(tmp_path):
     normal and flagging it would train contributors to ignore the warnings."""
     case = _make_case(tmp_path)
     (case / "model.inp").write_text(
-        "[TITLE]\n; see https://www.openswmm.org/Thread/9869/comparison\n")
+        "[TITLE]\n; see https://www.openswmm.org/Thread/9869/comparison\n", encoding="utf-8")
     r = validate.validate_case(case)
     assert not any("absolute path" in w for w in r.warnings), r.warnings
 

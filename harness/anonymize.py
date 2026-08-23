@@ -329,7 +329,7 @@ def main(argv: list[str] | None = None) -> int:
     for n in res.notes:
         print(f"  {n}")
     if args.map and res.id_map:
-        args.map.write_text(json.dumps(res.id_map, indent=2))
+        args.map.write_text(json.dumps(res.id_map, indent=2), encoding="utf-8")
         print(f"  id map -> {args.map}  (keep this private; it reverses the rename)")
 
     if args.verify:
@@ -346,4 +346,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

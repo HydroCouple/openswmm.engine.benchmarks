@@ -67,12 +67,12 @@ def load(root: Path | None = None) -> list[Case]:
         if meta_path.parent.name == "_template":
             continue
         try:
-            meta = yaml.safe_load(meta_path.read_text()) or {}
+            meta = yaml.safe_load(meta_path.read_text(encoding="utf-8")) or {}
         except yaml.YAMLError:
             continue
         prov_path = meta_path.parent / "provenance.yaml"
         try:
-            prov = yaml.safe_load(prov_path.read_text()) or {} \
+            prov = yaml.safe_load(prov_path.read_text(encoding="utf-8")) or {} \
                 if prov_path.exists() else {}
         except yaml.YAMLError:
             prov = {}
@@ -204,4 +204,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

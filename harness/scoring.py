@@ -85,7 +85,7 @@ def load(path: Path) -> dict | None:
     if not path.exists():
         return None
     try:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return None
 
@@ -96,7 +96,7 @@ def save_cell(path: Path, envelope: dict, cell: dict) -> None:
     envelope["cells"] = [c for c in envelope["cells"]
                          if (c.get("case"), c.get("solver")) != key]
     envelope["cells"].append(cell)
-    Path(path).write_text(json.dumps(envelope, indent=2, default=str))
+    Path(path).write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
 
 
 def exit_code(envelope: dict) -> int:
@@ -222,6 +222,6 @@ def write_badges(dest: Path, badge_map: dict[str, dict]) -> list[Path]:
     written = []
     for name, payload in badge_map.items():
         p = dest / f"{name}.json"
-        p.write_text(json.dumps(payload))
+        p.write_text(json.dumps(payload), encoding="utf-8")
         written.append(p)
     return written

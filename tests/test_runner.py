@@ -24,10 +24,10 @@ def _fake_engine(tmp_path, *, posix: str, windows: str, name: str = "engine"):
     """
     if sys.platform == "win32":
         exe = tmp_path / f"{name}.bat"
-        exe.write_text("@echo off\r\n" + windows)
+        exe.write_text("@echo off\r\n" + windows, encoding="utf-8")
     else:
         exe = tmp_path / f"{name}.sh"
-        exe.write_text("#!/bin/sh\n" + posix)
+        exe.write_text("#!/bin/sh\n" + posix, encoding="utf-8")
         exe.chmod(0o755)
     return exe
 
@@ -54,7 +54,7 @@ def test_wrong_architecture_binary_returns_not_ok(tmp_path):
 def test_nonzero_exit_is_reported(tmp_path):
     """An engine that RAN and failed is a result: its exit code must survive."""
     script = tmp_path / "engine.py"
-    script.write_text("import sys; sys.stderr.write('boom'); sys.exit(3)\n")
+    script.write_text("import sys; sys.stderr.write('boom'); sys.exit(3)\n", encoding="utf-8")
     exe = _fake_engine(
         tmp_path,
         posix=f'"{sys.executable}" "{script}" "$@"\n',
@@ -88,8 +88,8 @@ def test_timeout_is_reported_not_raised(tmp_path):
 
 def test_inp_sha_is_content_addressed(tmp_path):
     a, b, c = tmp_path / "a.inp", tmp_path / "b.inp", tmp_path / "c.inp"
-    a.write_text("[TITLE]\nx\n")
-    b.write_text("[TITLE]\nx\n")
-    c.write_text("[TITLE]\ny\n")
+    a.write_text("[TITLE]\nx\n", encoding="utf-8")
+    b.write_text("[TITLE]\nx\n", encoding="utf-8")
+    c.write_text("[TITLE]\ny\n", encoding="utf-8")
     assert runner.inp_sha(a) == runner.inp_sha(b)
     assert runner.inp_sha(a) != runner.inp_sha(c)

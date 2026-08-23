@@ -239,8 +239,8 @@ def test_verify_reports_unchecked_when_no_engine(tmp_path, monkeypatch):
 
     monkeypatch.setattr(engines, "resolve_all", no_engines)
     a, b = tmp_path / "a.inp", tmp_path / "b.inp"
-    a.write_text(MODEL)
-    b.write_text(MODEL)
+    a.write_text(MODEL, encoding="utf-8")
+    b.write_text(MODEL, encoding="utf-8")
     v = A.verify(a, b)
     assert v["checked"] is False
     assert v["identical"] is False

@@ -36,9 +36,9 @@ def _candidate(case, *, force: bool) -> dict:
     h5 = d / "surface.h5"
     text = gen2d.build_inp(case, BY_ID["2d-explicit"], "surface.h5")
     ran = False
-    if not (inp.exists() and inp.read_text() == text and h5.exists()
+    if not (inp.exists() and inp.read_text(encoding="utf-8") == text and h5.exists()
             and not force):
-        inp.write_text(text)
+        inp.write_text(text, encoding="utf-8")
         r = runner.run(engines.REFACT_EXE, inp, d / "model.rpt",
                        d / "model.out", cwd=d, timeout=3600.0)
         if not r["ok"]:
@@ -60,7 +60,8 @@ def _candidate(case, *, force: bool) -> dict:
             "inp_sha": runner.inp_sha(inp), "steady_resid": resid,
             "mass_pct": mass_pct, "ran": ran, "candidate": cand}
     (d / "candidate_meta.txt").write_text(
-        "\n".join(f"{k}: {v}" for k, v in meta.items()) + "\n")
+        "\n".join(f"{k}: {v}" for k, v in meta.items()) + "\n",
+        encoding="utf-8")
     return meta
 
 

@@ -92,10 +92,10 @@ def gen_refs() -> list[str]:
             h = pressurized_hgl(case)
             lines = ["node_x_m,head_pressurized_m"]
             lines += [f"{xi:g},{hi:.4f}" for xi, hi in zip(x, h)]
-        ref.write_text("\n".join(lines) + "\n")
+        ref.write_text("\n".join(lines) + "\n", encoding="utf-8")
         written.append(str(ref))
         prov = d / "provenance.yaml"
-        prov.write_text(_provenance(case))
+        prov.write_text(_provenance(case), encoding="utf-8")
         written.append(str(prov))
     return written
 

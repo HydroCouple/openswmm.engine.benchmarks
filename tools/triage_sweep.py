@@ -67,7 +67,7 @@ def main(argv=None) -> int:
                     help="example cases listed per bucket")
     args = ap.parse_args(argv)
 
-    env = json.loads(args.scores.read_text())
+    env = json.loads(args.scores.read_text(encoding="utf-8"))
     cells = env.get("cells", [])
     buckets: dict[str, list[tuple[str, str]]] = defaultdict(list)
     for c in cells:
@@ -99,4 +99,6 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
+    from harness import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

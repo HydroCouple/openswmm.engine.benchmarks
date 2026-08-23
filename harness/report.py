@@ -78,7 +78,7 @@ def load_envelopes(paths: list[Path]) -> list[dict]:
             if "site" in f.parts or "runs" in f.parts:
                 continue                     # generated copies, not new runs
             try:
-                out.append(json.loads(f.read_text()))
+                out.append(json.loads(f.read_text(encoding="utf-8")))
             except (OSError, json.JSONDecodeError):
                 pass
     return out
@@ -111,4 +111,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

@@ -40,7 +40,7 @@ def _manifest(tier: str) -> dict:
     path = MANIFESTS / f"tier_{tier}.yaml"
     if not path.exists():
         raise SystemExit(f"no manifest for tier {tier!r} ({path})")
-    return yaml.safe_load(path.read_text()) or {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def _skip_list() -> set[str]:
@@ -48,7 +48,7 @@ def _skip_list() -> set[str]:
     path = MANIFESTS / "skip_list.yaml"
     if not path.exists():
         return set()
-    doc = yaml.safe_load(path.read_text()) or {}
+    doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     return {e["case"] if isinstance(e, dict) else e
             for e in (doc.get("skip") or [])}
 
@@ -75,7 +75,7 @@ def _est_out_bytes(case: corpus.Case) -> int:
     """
     import datetime as _dt
     try:
-        text = case.inp.read_text(errors="replace")
+        text = case.inp.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return 0
 

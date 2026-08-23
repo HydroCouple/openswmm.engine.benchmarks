@@ -418,6 +418,6 @@ def build() -> str:
     for case in CASES:
         L += _case_section(case, env, figs)
     L.append(FINDINGS)
-    config.REPORT_FILE.write_text("\n".join(L) + "\n")
+    config.REPORT_FILE.write_text("\n".join(L) + "\n", encoding="utf-8")
     print(f"wrote {config.REPORT_FILE}")
     return str(config.REPORT_FILE)

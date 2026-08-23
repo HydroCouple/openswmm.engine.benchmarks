@@ -56,7 +56,7 @@ def parse(path: str | Path) -> dict:
     path = Path(path)
     if not path.exists():
         return out
-    text = path.read_text(errors="replace")
+    text = path.read_text(encoding="utf-8", errors="replace")
 
     for label, key in _CONTINUITY:
         m = re.search(re.escape(label)
@@ -214,6 +214,8 @@ def errors(text: str) -> list[str]:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     import json
     import sys
     print(json.dumps(parse(sys.argv[1]), indent=2))

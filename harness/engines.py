@@ -149,7 +149,7 @@ def load(path: Path | None = None) -> Registry:
     """Parse engines.yaml into a Registry (engines not yet resolved)."""
     import yaml
     path = Path(path or REGISTRY_PATH)
-    doc = yaml.safe_load(path.read_text()) or {}
+    doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     reg = Registry()
     for eid, spec in (doc.get("engines") or {}).items():
         spec = spec or {}
@@ -289,6 +289,8 @@ def resolve_all(reg: Registry, only: list[str] | None = None) -> Registry:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     reg = resolve_all(load())
     for eid, e in reg.engines.items():
         print(f"{eid:20s} {e.status:12s} dialect={e.out_dialect:8s} "

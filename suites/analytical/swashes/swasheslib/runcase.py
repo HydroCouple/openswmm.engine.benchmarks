@@ -138,11 +138,11 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
     inp = d / "model.inp"
     text = gen1d.build_inp(case, solver, nx)
     sha = None
-    if inp.exists() and inp.read_text() == text and not force \
+    if inp.exists() and inp.read_text(encoding="utf-8") == text and not force \
             and (d / "model.out").exists():
         sha = runner.inp_sha(inp)
     else:
-        inp.write_text(text)
+        inp.write_text(text, encoding="utf-8")
         sha = runner.inp_sha(inp)
         r = runner.run(exe, inp, d / "model.rpt", d / "model.out",
                        # macdonald-periodic at dx=1 (nx=5000, dt=0.04,

@@ -76,7 +76,7 @@ def main(argv: list[str] | None = None) -> int:
         from harness import report as report_mod
         if args.summary:
             args.summary.parent.mkdir(parents=True, exist_ok=True)
-            with args.summary.open("a") as fh:
+            with args.summary.open("a", encoding="utf-8") as fh:
                 fh.write(report_mod.job_summary(envelopes) + "\n")
         if args.badges:
             written = scoring.write_badges(args.badges, scoring.badges(envelopes))
@@ -86,4 +86,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    from harness import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

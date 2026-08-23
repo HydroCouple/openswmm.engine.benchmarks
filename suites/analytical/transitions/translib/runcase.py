@@ -136,10 +136,10 @@ def run_cell(case: Case, solver: SolverSpec, *, force: bool = False) -> dict:
     d = _cell_dir(case.id, solver.id)
     inp = d / "model.inp"
     text = gen.build_inp(case, solver)
-    cached = (inp.exists() and inp.read_text() == text and not force
+    cached = (inp.exists() and inp.read_text(encoding="utf-8") == text and not force
               and (d / "model.out").exists())
     if not cached:
-        inp.write_text(text)
+        inp.write_text(text, encoding="utf-8")
         r = runner.run(exe, inp, d / "model.rpt", d / "model.out",
                        reps=case.timing_reps, timeout=600.0)
         cell["wall"] = r["wall"]

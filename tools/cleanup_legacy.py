@@ -65,7 +65,7 @@ def case_origins() -> dict[Path, Path]:
         if prov.parent.name == "_template":
             continue
         try:
-            doc = yaml.safe_load(prov.read_text()) or {}
+            doc = yaml.safe_load(prov.read_text(encoding="utf-8")) or {}
         except yaml.YAMLError:
             continue
         m = re.search(r"originally (.+?)\)", str(doc.get("source", "")))
@@ -135,7 +135,7 @@ def _note_evidence(case_dir: Path, origin: Path) -> None:
     """Record in provenance what reference/legacy.rpt is, and is not."""
     import yaml
     prov_path = case_dir / "provenance.yaml"
-    doc = yaml.safe_load(prov_path.read_text()) or {}
+    doc = yaml.safe_load(prov_path.read_text(encoding="utf-8")) or {}
     doc["notes"] = (str(doc.get("notes", "")).rstrip() + " "
                     "reference/legacy.rpt is the report that shipped beside "
                     "this model in the pre-migration corpus, from an engine "
@@ -145,7 +145,7 @@ def _note_evidence(case_dir: Path, origin: Path) -> None:
                     "as self_consistency.").strip()
     prov_path.write_text(yaml.safe_dump(doc, sort_keys=False,
                                         default_flow_style=False,
-                                        allow_unicode=True))
+                                        allow_unicode=True), encoding="utf-8")
 
 
 def _prune_empty(root: Path) -> None:

@@ -31,7 +31,7 @@ def changed_case_ids() -> list[str]:
     ids = []
     for d in validate.changed_paths():
         try:
-            meta = yaml.safe_load((d / "metadata.yaml").read_text()) or {}
+            meta = yaml.safe_load((d / "metadata.yaml").read_text(encoding="utf-8")) or {}
         except (OSError, yaml.YAMLError):
             continue
         ids.append(meta.get("id", d.name))
@@ -55,7 +55,7 @@ def main(argv=None) -> int:
     line = ",".join(ids)
     print(line)
     if args.github_output and os.environ.get("GITHUB_OUTPUT"):
-        with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
             fh.write(f"cases={line}\n")
             fh.write(f"count={len(ids)}\n")
             fh.write(f"truncated={'true' if truncated else 'false'}\n")
@@ -63,4 +63,6 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
+    from harness import use_utf8_stdio
+    use_utf8_stdio()
     sys.exit(main())

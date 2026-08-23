@@ -51,10 +51,10 @@ def run_cell_2d(case: CaseSpec, solver: SolverSpec, policy: CellPolicy,
     inp = d / "model.inp"
     h5 = d / "surface.h5"
     text = gen2d.build_inp(case, solver, "surface.h5")
-    if inp.exists() and inp.read_text() == text and h5.exists() and not force:
+    if inp.exists() and inp.read_text(encoding="utf-8") == text and h5.exists() and not force:
         pass
     else:
-        inp.write_text(text)
+        inp.write_text(text, encoding="utf-8")
         r = runner.run(exe, inp, d / "model.rpt", d / "model.out",
                        # periodic 2D strip at 1 m edges (~50k cells, CFL dt)
                        # runs multi-hour (2026-08-13 hires sweep)

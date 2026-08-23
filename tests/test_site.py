@@ -23,7 +23,7 @@ def envelope(suite, cells, sha="abc1234"):
 
 def text_of(path):
     """Visible text of a page, tags and styles removed."""
-    s = path.read_text()
+    s = path.read_text(encoding="utf-8")
     s = re.sub(r"<style.*?</style>", " ", s, flags=re.S)
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s))
 
@@ -102,7 +102,7 @@ def test_site_is_self_contained(built):
     """No external hosts: the page must render from a plain artifact deploy."""
     root, _ = built
     for page in root.rglob("*.html"):
-        s = page.read_text()
+        s = page.read_text(encoding="utf-8")
         assert "http://" not in s and "https://" not in s, f"{page} loads remote content"
         assert "<script" not in s.lower(), f"{page} carries script"
 
@@ -127,7 +127,7 @@ def test_badges_and_run_pages_are_written(built):
     for name in ("verification", "regression", "models"):
         p = root / "badges" / f"{name}.json"
         if p.exists():
-            assert json.loads(p.read_text())["schemaVersion"] == 1
+            assert json.loads(p.read_text(encoding="utf-8"))["schemaVersion"] == 1
     runs = list((root / "runs").iterdir())
     assert len(runs) == 2, "each envelope needs its own immutable run page"
     for r in runs:
@@ -147,6 +147,6 @@ def test_html_is_escaped(tmp_path):
                                  "verdict": "FAIL",
                                  "note": "<b>bold</b> & 'quoted'"}])]
     site.build_site(envs, tmp_path)
-    s = (tmp_path / "index.html").read_text()
+    s = (tmp_path / "index.html").read_text(encoding="utf-8")
     assert "<img src=x" not in s
     assert "&lt;img" in s

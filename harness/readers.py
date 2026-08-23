@@ -309,6 +309,8 @@ class Surface2DOutput:
 
 
 if __name__ == "__main__":
+    from . import use_utf8_stdio
+    use_utf8_stdio()
     import sys
     o = Out(sys.argv[1])
     print(f"{o.path.name}: v{o.version} units={o.flow_units} "

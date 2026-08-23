@@ -130,8 +130,8 @@ def _dx025_sensitivity() -> str:
     inp = d / "model.inp"
     h5 = d / "surface.h5"
     text = gen2d.build_inp(fine, BY_ID["2d-explicit"], "surface.h5")
-    if not (inp.exists() and inp.read_text() == text and h5.exists()):
-        inp.write_text(text)
+    if not (inp.exists() and inp.read_text(encoding="utf-8") == text and h5.exists()):
+        inp.write_text(text, encoding="utf-8")
         r = runner.run(engines.REFACT_EXE, inp, d / "model.rpt",
                        d / "model.out", cwd=d, timeout=7200.0)
         if not r["ok"]:
@@ -386,5 +386,5 @@ def build() -> str:
              "`figures/bend45-swift__mesh.png`.")
     L.append("")
     path = OUT / "BEND_FINDINGS.md"
-    path.write_text("\n".join(L))
+    path.write_text("\n".join(L), encoding="utf-8")
     return str(path)

@@ -70,7 +70,7 @@ def test_reference_class_is_a_truth_class():
         mod_path = REPO_ROOT / "suites" / "analytical" / name / "suite.py"
         if not mod_path.exists():
             continue
-        text = mod_path.read_text()
+        text = mod_path.read_text(encoding="utf-8")
         assert 'REFERENCE_CLASS = "' in text, f"{name}: no REFERENCE_CLASS declared"
         cls = text.split('REFERENCE_CLASS = "')[1].split('"')[0]
         assert scoring.is_truth(cls), (
@@ -103,7 +103,7 @@ def test_every_yaml_in_the_repository_parses():
         if ".git" in p.parts or "legacy" in p.parts:
             continue
         try:
-            yaml.safe_load(p.read_text())
+            yaml.safe_load(p.read_text(encoding="utf-8"))
         except yaml.YAMLError as exc:
             bad.append(f"{p.relative_to(REPO_ROOT)}: "
                        f"{str(exc).splitlines()[0]}")
@@ -121,14 +121,14 @@ def test_every_analytical_provenance_is_a_mapping():
             prov = case / "provenance.yaml"
             if not prov.exists():
                 continue
-            doc = yaml.safe_load(prov.read_text())
+            doc = yaml.safe_load(prov.read_text(encoding="utf-8"))
             assert isinstance(doc, dict), f"{case.name}: provenance is not a mapping"
 
 
 def test_generators_declare_an_output_encoding():
     """A generator that writes non-ASCII must not depend on the locale.
 
-    reference.csv headers carry '≈', '—', '²'. `open(..., "w")` without an
+    reference.csv headers carry '≈', '—', '²'. `open(..., "w", encoding="utf-8")` without an
     encoding uses the platform default, which is cp1252 on a Windows runner —
     so the generator dies with UnicodeEncodeError before writing a byte, and
     the byte-exactness test above reports the unmet claim rather than the real

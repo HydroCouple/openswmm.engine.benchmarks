@@ -201,7 +201,8 @@ def build_site(envelopes: list[dict], dest: Path) -> list[Path]:
             f"<code>{html.escape(s)}</code>" for s in engines_seen) + "</p>")
 
     index = dest / "index.html"
-    index.write_text(_page("OpenSWMM Benchmarks", "".join(body)))
+    index.write_text(_page("OpenSWMM Benchmarks", "".join(body)),
+                     encoding="utf-8")
     written.append(index)
 
     written += _write_run_pages(envelopes, dest)
@@ -228,10 +229,10 @@ def _write_run_pages(envelopes: list[dict], dest: Path) -> list[Path]:
         ]
         p = d / "index.html"
         p.write_text(_page(f"{env.get('suite','run')} — {stamp}",
-                           "".join(body), depth=2))
+                           "".join(body), depth=2), encoding="utf-8")
         written.append(p)
         raw = d / "scores.json"
-        raw.write_text(json.dumps(env, indent=2, default=str))
+        raw.write_text(json.dumps(env, indent=2, default=str), encoding="utf-8")
         written.append(raw)
     return written
 
@@ -269,6 +270,7 @@ def _write_tag_pages(tag_counts: Counter, cells: list[dict],
                 f"<div class=scroll><table><tr><th>case</th><th>reference</th>"
                 f"<th>tags</th><th>latest verdicts</th></tr>{rows}</table></div>"]
         p = d / "index.html"
-        p.write_text(_page(f"tag: {tag}", "".join(body), depth=2))
+        p.write_text(_page(f"tag: {tag}", "".join(body), depth=2),
+                     encoding="utf-8")
         written.append(p)
     return written
