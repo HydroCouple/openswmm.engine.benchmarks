@@ -137,7 +137,14 @@ runs:
     - name: Build engine CLIs
       shell: bash
       working-directory: ${{ inputs.path }}
-      run: cmake --build build-bench --config Release --target openswmm openswmm-legacy
+      # `openswmm_legacy` is the CMake TARGET; `openswmm-legacy` is only its
+      # OUTPUT_NAME (src/legacy/cli/CMakeLists.txt). Plain Ninja on Linux
+      # happened to accept the output path, but Ninja Multi-Config on Windows
+      # rejected it outright:
+      #   ninja: error: unknown target 'openswmm-legacy',
+      #                 did you mean 'openswmm_legacy'?
+      # The target name is generator-independent, so use it everywhere.
+      run: cmake --build build-bench --config Release --target openswmm openswmm_legacy
 
     - name: Export harness environment
       shell: bash

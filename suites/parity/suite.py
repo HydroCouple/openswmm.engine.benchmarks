@@ -27,7 +27,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from harness import compare, corpus, engines, rptparse, runner, scoring  # noqa: E402
+from harness import compare, corpus, engines, readers, rptparse, runner, scoring  # noqa: E402
 
 SUITE = "parity"
 SUITE_DIR = Path(__file__).resolve().parent
@@ -140,19 +140,83 @@ def _prune_outputs(runs: dict, keep: str, failed: bool) -> None:
             Path(out).unlink()
 
 
+#: Files that describe a case rather than feed the engine.
+_NON_MODEL = {"metadata.yaml", "provenance.yaml", "README.md"}
+
+
+def _seed_run_dir(case: corpus.Case, run_dir: Path) -> Path:
+    """Copy the model and its colocated data into an isolated run directory.
+
+    Two problems solved at once:
+
+    * **Relative references resolve.** Models write and read files by bare
+      name (``SAVE RAINFALL "greenville.rff"``, ``USE RAINFALL "rain.dat"``),
+      which resolve against the process working directory. Running from the
+      repo root sent them somewhere the model never intended.
+    * **The corpus stays read-only.** Running *in* the case directory would
+      make every sweep write engine output into ``corpus/``, mutating the
+      library it is supposed to be measuring.
+
+    ``reference/`` is deliberately not copied: it holds evidence and reference
+    data, never model inputs.
+    """
+    run_dir.mkdir(parents=True, exist_ok=True)
+    for src in case.dir.iterdir():
+        if src.is_dir() or src.name in _NON_MODEL:
+            continue
+        dst = run_dir / src.name
+        if not dst.exists():
+            shutil.copy2(src, dst)
+    return run_dir / case.inp.name
+
+
+def _usable_output(out: Path) -> tuple[bool, str]:
+    """Did the engine actually produce a readable ``.out``?
+
+    A zero exit status is not proof. SWMM can report a fatal input error in
+    the ``.rpt`` and still exit 0, leaving no output file — which is exactly
+    how a nightly sweep died mid-run with a FileNotFoundError deep inside the
+    comparison code, losing every case after it.
+    """
+    if not out.exists():
+        return False, "engine exited 0 but wrote no .out file"
+    if out.stat().st_size < 32:
+        return False, f"engine wrote a truncated .out ({out.stat().st_size} bytes)"
+    try:
+        readers.Out(out)
+    except Exception as exc:
+        return False, f"unreadable .out: {type(exc).__name__}: {exc}"
+    return True, ""
+
+
 def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
               timeout: float | None) -> dict:
     """Run one case through one engine; return run info + .rpt metrics."""
     out_dir.mkdir(parents=True, exist_ok=True)
+    model = _seed_run_dir(case, out_dir)
     rpt = out_dir / f"{case.id}.rpt"
     out = out_dir / f"{case.id}.out"
-    info = runner.run(engine.exe, case.inp, rpt, out, timeout=timeout)
+
+    # cwd is the seeded run directory so the model's own relative paths work.
+    info = runner.run(engine.exe, model, rpt, out, timeout=timeout,
+                      cwd=out_dir)
     info["rpt"] = rpt
     info["out"] = out
-    info.update({k: v for k, v in rptparse.parse(rpt).items()
+
+    parsed = rptparse.parse(rpt)
+    info.update({k: v for k, v in parsed.items()
                  if k in ("runoff_err", "routing_err", "worst_quality_err",
                           "pct_not_converging", "avg_iter", "min_dt",
                           "nodes_flooded", "links_instability", "had_error")})
+
+    produced, why = _usable_output(out) if info["launched"] else (False, "")
+    info["produced_output"] = produced
+    if info["ok"] and not produced:
+        # The engine claimed success and did not deliver. Prefer the engine's
+        # own explanation from the report over our generic one.
+        engine_said = "; ".join(parsed.get("errors", [])[:2])
+        info["ok"] = False
+        info["stderr"] = (engine_said or why)[:500]
     return info
 
 
@@ -234,8 +298,37 @@ def run(argv: list[str] | None = None) -> dict | None:
             continue
 
         timeout = float(case.meta.get("timeout_s", default_timeout))
-        runs: dict[str, dict] = {}
-        case_failed = False
+        try:
+            _sweep_case(case, resolved, reg, scores, envelope,
+                        timeout, args.keep_out)
+        except Exception as exc:
+            # One malformed model, unreadable output, or unforeseen edge case
+            # must not end the sweep. A nightly run died exactly this way and
+            # took every case after it down with it — hours of work lost, and
+            # the surviving partial envelope looked like a completed run.
+            import traceback
+            traceback.print_exc()
+            scoring.save_cell(scores, envelope, {
+                "case": case.id, "solver": "-",
+                "reference_class": case.reference_class,
+                "verdict": "ERROR",
+                "note": f"harness error, sweep continued: "
+                        f"{type(exc).__name__}: {exc}"[:300]})
+
+    print(scoring.summary(envelope))
+    return envelope
+
+
+def _sweep_case(case, resolved, reg, scores, envelope, timeout,
+                keep_out: str) -> bool:
+    """Run one case through every engine and evaluate every pair.
+
+    Returns True if anything about this case failed. Raising is allowed —
+    `run()` isolates each case so a single failure cannot end the sweep.
+    """
+    runs: dict[str, dict] = {}
+    case_failed = False
+    if True:            # noqa: SIM103 — keeps the body's indentation stable
         for eid, engine in resolved.items():
             info = _run_case(case, engine, RESULTS / case.id / eid, timeout)
             runs[eid] = info
@@ -261,12 +354,17 @@ def run(argv: list[str] | None = None) -> dict | None:
 
         for pair in reg.active_comparisons():
             a, b = runs.get(pair.a), runs.get(pair.b)
-            if not (a and b) or not (a["ok"] and b["ok"]):
+            # Require a readable .out from both, not merely a zero exit status
+            # — the comparison reads these files and must never be handed a
+            # path that does not exist.
+            missing = [eid for eid, info in ((pair.a, a), (pair.b, b))
+                       if not info or not info.get("produced_output")]
+            if missing:
                 scoring.save_cell(scores, envelope, {
                     "case": case.id, "pair": f"{pair.a} vs {pair.b}",
                     "reference_class": case.reference_class,
                     "verdict": "UNAVAILABLE",
-                    "note": "one or both engines did not produce output"})
+                    "note": f"no usable output from {', '.join(missing)}"})
                 case_failed = True
                 continue
             rtol, atol = case.tolerances(pair.rtol, pair.atol)
@@ -291,10 +389,8 @@ def run(argv: list[str] | None = None) -> dict | None:
                 "dialects": res["dialects"],
                 "note": "; ".join(res["fault"])})
 
-        _prune_outputs(runs, args.keep_out, case_failed)
-
-    print(scoring.summary(envelope))
-    return envelope
+        _prune_outputs(runs, keep_out, case_failed)
+    return case_failed
 
 
 def report(argv: list[str] | None = None) -> list[Path]:

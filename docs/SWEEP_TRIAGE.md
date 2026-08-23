@@ -655,3 +655,75 @@ failing for a reason unrelated to the corpus it was asked to check.
 
 **Verified** on a fresh clone under both the default locale and `LC_ALL=C`
 (US-ASCII — stricter than any real runner): **155 passed** in each.
+
+---
+
+## F19 — the first scheduled nightly: Windows never built, Linux died mid-sweep · **FIXED**
+
+The 2026-08-23 nightly is the first time the workflow ran on a schedule rather
+than under a human. Both legs failed, for unrelated reasons, and each exposed a
+defect that had been invisible in every prior local run.
+
+### 1. Windows asked ninja for a target that does not exist
+
+```
+ninja: error: unknown target 'openswmm-legacy', did you mean 'openswmm_legacy'?
+```
+
+`openswmm_legacy` is the CMake **target**; `openswmm-legacy` is only its
+`OUTPUT_NAME` (`src/legacy/cli/CMakeLists.txt:28`). The build action passed the
+binary name as a target.
+
+This had never surfaced because the two generators disagree: plain **Ninja**
+(Linux, Darwin presets) resolved the output path, while **Ninja Multi-Config**
+(Windows preset) rejected it outright. The Windows leg therefore never built an
+engine and never ran a case — it failed at 178 ms. The CMake target name is
+generator-independent, so it is now used everywhere.
+
+### 2. Linux exited 0 without writing output, and the sweep died on the spot
+
+```
+FileNotFoundError: .../results/parity/greenville-small-snowmelt-model/
+                   swmm-5.3.0/greenville-small-snowmelt-model.out
+```
+
+raised inside `compare_full` → `readers.Out`. Three separate defects lined up:
+
+**a. The working directory was wrong.** `greenville-small-snowmelt-model`
+contains `SAVE RAINFALL "greenville.rff"` and `SAVE HOTSTART
+"greenville.rff.hsf"` — bare filenames, resolved against the process working
+directory, which was the repository root. This is the exact hazard
+`AGENT_HANDOFF_2026-08-22.md` Task 2 note 1 predicted, and 14 cases with
+colocated data were named as the ones that would expose it.
+
+Fixed by seeding a per-(case, engine) run directory with the model and its
+colocated data and running with `cwd` set there. That also closes a hazard the
+handoff did *not* anticipate: running in the case directory would have made
+every sweep write engine output into `corpus/`, mutating the library the
+platform exists to measure. `reference/` is deliberately not seeded — it holds
+evidence, never model input.
+
+**b. A zero exit status was treated as proof of output.** The pair guard checked
+`a["ok"] and b["ok"]`. SWMM can report a fatal input error in the `.rpt` and
+still exit 0, leaving no `.out` at all. `_usable_output()` now requires the file
+to exist, be non-trivial, and parse as a `.out`; a run that claims success and
+delivers nothing is marked not-ok, and the cell carries **the engine's own
+error text from the report** rather than a generic message.
+
+**c. One bad case ended the entire sweep.** The exception propagated out of the
+per-case loop, out of `run()`, and terminated the process. Every case after
+`greenville-*` was lost — and the partial envelope that survived is
+indistinguishable from a completed run, which is the more dangerous half.
+`run()` now isolates each case: an unexpected exception becomes an `ERROR` cell
+naming the exception, and the sweep continues.
+
+### What this says about the harness
+
+Every one of these is a *first-real-execution* defect. The unit tests were
+green, the local runs were green, and none of that could have caught them:
+the wrong cwd only matters for models with relative references, the exit-0
+assumption only matters when an engine misbehaves, and the isolation gap only
+matters once something raises. `tests/test_parity_robustness.py` now pins all
+three — including a wiring test asserting `run()` actually wraps `_sweep_case`
+in the try/except, because the concept passing while the wiring is absent is
+precisely how this failure would return.
