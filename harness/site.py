@@ -166,6 +166,13 @@ def build_site(envelopes: list[dict], dest: Path) -> list[Path]:
                   if not scoring.is_truth(c.get("reference_class", ""))]
     failing = [c for c in cells if c.get("verdict") in scoring.GATING]
 
+    # A run that produced nothing must never render as a clean run. With no
+    # cells the ordinary layout reads "Failing cells 0 / No failing cells in
+    # this run" — a clean bill of health for work that never happened, which
+    # is the most dangerous page this project could publish. Say so instead.
+    if not cells:
+        return written + _write_empty_state(dest, n_cases)
+
     cards = "".join([
         _card("Corpus", f"{n_cases:,}", "models, tagged and validated"),
         _card("Verification", badge_map.get("verification", {}).get("message", "—"),
@@ -208,6 +215,33 @@ def build_site(envelopes: list[dict], dest: Path) -> list[Path]:
     written += _write_run_pages(envelopes, dest)
     written += _write_tag_pages(tag_counts, cells, dest)
     return written
+
+
+def _write_empty_state(dest: Path, n_cases: int) -> list[Path]:
+    """Publish the fact that the run produced nothing.
+
+    The alternative outcomes are both worse: a failed publish leaves the last
+    good dashboard up, so a broken nightly looks like a healthy one; and the
+    ordinary layout with zero cells reads as an all-clear.
+    """
+    body = [
+        "<h1>OpenSWMM Benchmarks</h1>",
+        "<p class=sub>Engine-agnostic regression and verification for "
+        "SWMM-compatible engines.</p>",
+        "<div class=note style='border-left-color:var(--fail)'>"
+        "<strong style='color:var(--fail)'>This run produced no results.</strong>"
+        "<br>No scores envelope reached the publish step, so there is nothing "
+        "to report — this is <em>not</em> a passing run. The usual causes are a "
+        "sweep that failed before writing any cell, an engine build that never "
+        "completed, or a publish triggered outside the run that holds the "
+        "artifacts. Check the most recent <code>Nightly</code> workflow run.</div>",
+        f"<h2>Corpus</h2><p>{n_cases:,} models are present and schema-valid; "
+        "none of them were graded in this run.</p>",
+    ]
+    index = dest / "index.html"
+    index.write_text(_page("OpenSWMM Benchmarks — no results", "".join(body)),
+                     encoding="utf-8")
+    return [index]
 
 
 def _write_run_pages(envelopes: list[dict], dest: Path) -> list[Path]:

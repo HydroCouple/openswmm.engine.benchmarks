@@ -212,6 +212,13 @@ def badges(envelopes: list[dict], *, corpus_count: int | None = None) -> dict[st
     if corpus_count is not None:
         out["models"] = badge("models", f"{corpus_count:,}", "blue")
 
+    # A run that graded nothing must say so. Without this the only badge left
+    # is a cheerful corpus count, which reads as health for a run that never
+    # happened.
+    total_cells = sum(len(env.get("cells", [])) for env in envelopes)
+    if not total_cells:
+        out["status"] = badge("status", "no results", BADGE_RED)
+
     return out
 
 

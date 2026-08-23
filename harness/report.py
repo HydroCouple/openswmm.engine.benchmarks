@@ -97,6 +97,16 @@ def main(argv: list[str] | None = None) -> int:
 
     envs = load_envelopes(args.envelopes)
     if not envs:
+        # With --site the caller is publishing a dashboard, and refusing to
+        # publish leaves the PREVIOUS run's page standing — so a broken
+        # nightly silently looks like a healthy one. Publish the failure
+        # instead; build_site renders an unmistakable "no results" state.
+        if args.site:
+            print("no scores envelopes found — publishing the empty state",
+                  file=sys.stderr)
+            for p in build_site([], args.site):
+                print(f"  wrote {p}", file=sys.stderr)
+            return 0
         print("no scores envelopes found", file=sys.stderr)
         return 2
 

@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  actions: read          # read artifacts from the last Nightly run on dispatch
   pages: write
   id-token: write
 
@@ -26,16 +27,55 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
 
-      - uses: actions/download-artifact@v4
+      # Called from Nightly (`workflow_call`): the sweep's artifacts belong to
+      # THIS run, so the plain download works.
+      - name: Download results from this run
+        if: github.event_name != 'workflow_dispatch'
+        uses: actions/download-artifact@v4
         with:
           pattern: results-*
           path: results/
           merge-multiple: true
         continue-on-error: true
 
+      # Dispatched on its own: this run has no artifacts of its own — they live
+      # in the Nightly run that produced them. Without this, a manual publish
+      # downloads nothing and reports the misleading "Found 0 artifact(s)".
+      - name: Download results from the last Nightly run
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_id=$(gh run list --workflow Nightly --limit 20 \
+                     --json databaseId,conclusion,status \
+                     --jq '[.[] | select(.status=="completed")][0].databaseId')
+          if [ -z "${run_id:-}" ]; then
+            echo "no completed Nightly run to publish from" >&2
+            exit 0
+          fi
+          echo "publishing results from Nightly run $run_id"
+          mkdir -p results
+          gh run download "$run_id" --pattern 'results-*' --dir results || \
+            echo "that run uploaded no results artifact" >&2
+
+      # An explicit census beats discovering the absence three steps later as
+      # an opaque exit code — the first failed publish said only
+      # "Found 0 artifact(s)" and then died with "no scores envelopes found".
+      - name: Report what was downloaded
+        run: |
+          n=$(find results -name '*scores*.json' 2>/dev/null | wc -l)
+          echo "scores envelopes found: $n"
+          [ "$n" -gt 0 ] || echo "::warning::no results to publish; the \
+          dashboard will render its no-results state"
+
       # Renders the scoreboard, immutable per-run pages keyed by engine SHA,
       # per-tag facets over the corpus, and the shields.io badge endpoints.
       # Self-contained HTML: no external hosts, so it survives a CDN outage.
+      #
+      # This step must NOT fail when there are no results: refusing to publish
+      # leaves the previous run's dashboard standing, so a broken nightly looks
+      # like a healthy one. The page says "no results" instead.
       - name: Build site
         run: python -m harness.report results/ --site site/build
 

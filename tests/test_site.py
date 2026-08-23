@@ -150,3 +150,52 @@ def test_html_is_escaped(tmp_path):
     s = (tmp_path / "index.html").read_text(encoding="utf-8")
     assert "<img src=x" not in s
     assert "&lt;img" in s
+
+
+# ── the empty run ──────────────────────────────────────────────────────────
+
+def test_a_run_with_no_results_does_not_render_as_a_clean_run(tmp_path):
+    """The most dangerous page this project could publish.
+
+    With zero cells the ordinary layout reads "Failing cells 0" and "No
+    failing cells in this run" — a clean bill of health for work that never
+    happened. The first failed publish (2026-08-23) was only saved from this
+    by crashing before it could deploy.
+    """
+    site.build_site([], tmp_path)
+    body = text_of(tmp_path / "index.html")
+    assert "This run produced no results" in body
+    assert "not a passing run" in body
+    assert "No failing cells in this run" not in body
+    assert "Failing cells 0" not in body
+
+
+def test_empty_run_emits_a_red_status_badge():
+    """Otherwise the only badge left is a cheerful corpus count."""
+    b = scoring.badges([], corpus_count=1396)
+    assert b["status"]["message"] == "no results"
+    assert b["status"]["color"] == scoring.BADGE_RED
+    assert "verification" not in b, "nothing was verified"
+    assert "regression" not in b
+
+
+def test_status_badge_absent_when_there_are_results():
+    b = scoring.badges([envelope("parity", [
+        {"case": "a", "reference_class": "self_consistency", "verdict": "PASS"}])])
+    assert "status" not in b
+
+
+def test_publishing_an_empty_run_succeeds_rather_than_leaving_a_stale_page(tmp_path):
+    """Refusing to publish leaves the PREVIOUS dashboard up, so a broken
+    nightly looks healthy. Publish the failure instead."""
+    from harness import report
+    rc = report.main([str(tmp_path / "absent"), "--site", str(tmp_path / "site")])
+    assert rc == 0
+    assert (tmp_path / "site" / "index.html").exists()
+    assert "no results" in text_of(tmp_path / "site" / "index.html").lower()
+
+
+def test_report_without_site_still_signals_empty(tmp_path, capsys):
+    """A human running the CLI wants a nonzero exit, not a silent no-op."""
+    from harness import report
+    assert report.main([str(tmp_path / "absent")]) == 2

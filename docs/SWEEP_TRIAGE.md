@@ -727,3 +727,66 @@ matters once something raises. `tests/test_parity_robustness.py` now pins all
 three — including a wiring test asserting `run()` actually wraps `_sweep_case`
 in the try/except, because the concept passing while the wiring is absent is
 precisely how this failure would return.
+
+---
+
+## F20 — publish failed, and would have been more dangerous if it had succeeded · **FIXED**
+
+The publish job of the same 2026-08-23 nightly ended:
+
+```
+Found 0 artifact(s)
+Total of 0 artifact(s) downloaded
+no scores envelopes found
+##[error]Process completed with exit code 2.
+```
+
+Three defects, and they compound in an unpleasant order.
+
+### 1. The publish ran in a different workflow run than the sweep
+
+The Linux leg **did** upload results — `results-Linux-x64`, 1,219,208,003 bytes,
+artifact ID 9489879065, in run **32626019890**. The publish looked for artifacts
+in run **32629588763**. `actions/download-artifact` only sees artifacts from its
+own run, so a `workflow_dispatch` publish can never find a sweep's output.
+
+`publish.yml` declares both `workflow_call` and `workflow_dispatch`. Called from
+Nightly the plain download is correct; dispatched alone it is guaranteed to find
+nothing. The dispatch path now resolves the most recent completed Nightly run
+with `gh run list` and downloads from there, and a census step prints how many
+envelopes were actually found rather than leaving it to be inferred from an exit
+code three steps later.
+
+### 2. Refusing to publish leaves the previous dashboard standing
+
+`harness.report` returned 2 on an empty result set, which failed the job and
+deployed nothing. That is the wrong instinct for a dashboard: the last good page
+stays up, so a nightly that failed completely is indistinguishable — from the
+outside — from one that passed. With `--site`, an empty result set now publishes
+the failure and exits 0. Without `--site` the CLI still exits 2, because a human
+running it wants to be told.
+
+### 3. The empty dashboard read as a clean run — the real hazard
+
+This is the one worth dwelling on. Rendering the ordinary layout with zero cells
+produced:
+
+> **Failing cells 0** — across all suites
+> *No failing cells in this run.*
+
+A clean bill of health for work that never happened. The exit-2 crash was the
+only thing preventing that page from being published; fixing (2) without fixing
+this would have turned a visible failure into an invisible one.
+
+`build_site` now detects the empty state and renders an explicit red banner —
+"This run produced no results… this is *not* a passing run" — and `badges()`
+emits `status: no results` in red, so the shields endpoints cannot show nothing
+but a cheerful corpus count either.
+
+### Also observed
+
+The Linux artifact is **1.2 GB**, which is `.out` files surviving because the
+sweep died before `_prune_outputs` ran for most cases. Under `keep='fail'` a
+completed sweep retains far less, but artifact size should be watched once F19's
+fixes let a sweep finish — 1.2 GB per leg per night will exhaust storage quotas
+quickly.
