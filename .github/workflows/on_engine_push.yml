@@ -18,6 +18,7 @@ jobs:
   sweep:
     name: Sweep ${{ github.event.client_payload.ref }}@${{ github.event.client_payload.sha }}
     runs-on: ubuntu-latest
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
 
@@ -52,6 +53,7 @@ jobs:
       # a silent green. `nightly` is the whole corpus; a dispatcher that wants
       # something cheaper can send `client_payload.tier` once `pr` is curated.
       - name: Run suites
+        id: sweep
         run: |
           python run_regression.py --suite all \
             --tier "${{ github.event.client_payload.tier || 'nightly' }}" \
@@ -65,9 +67,23 @@ jobs:
           path: |
             results/
             badges/
+          retention-days: 14
+
+      # continue-on-error on the sweep exists ONLY so the artifacts upload and
+      # the dashboard publishes when a sweep fails. Without this step the job
+      # then concludes SUCCESS, so the engine author sees green while the
+      # parity gate is failing — a regression platform whose gate does not gate.
+      - name: Gate on the sweep result
+        if: steps.sweep.outcome == 'failure'
+        run: |
+          echo "::error::the sweep reported failures for engine ${{ github.event.client_payload.sha }}"
+          exit 1
 
   publish:
     needs: sweep
+    # See F20: a skipped publish leaves the previous dashboard up, which makes
+    # a failed run look like a passing one.
+    if: always()
     uses: ./.github/workflows/publish.yml
     permissions:
       contents: read

@@ -20,6 +20,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -47,7 +48,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          run_id=$(gh run list --workflow Nightly --limit 20 \
+          run_id=$(gh run list --workflow nightly.yml --limit 20 \
                      --json databaseId,conclusion,status \
                      --jq '[.[] | select(.status=="completed")][0].databaseId')
           if [ -z "${run_id:-}" ]; then
@@ -66,8 +67,7 @@ jobs:
         run: |
           n=$(find results -name '*scores*.json' 2>/dev/null | wc -l)
           echo "scores envelopes found: $n"
-          [ "$n" -gt 0 ] || echo "::warning::no results to publish; the \
-          dashboard will render its no-results state"
+          [ "$n" -gt 0 ] || echo "::warning::no results to publish; the dashboard will render its no-results state"
 
       # Renders the scoreboard, immutable per-run pages keyed by engine SHA,
       # per-tag facets over the corpus, and the shields.io badge endpoints.
@@ -86,6 +86,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

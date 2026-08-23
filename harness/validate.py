@@ -212,15 +212,32 @@ def find_cases(paths: list[Path] | None = None) -> list[Path]:
     return cases
 
 
-def changed_paths() -> list[Path]:
-    """Corpus directories touched relative to origin/dev (best effort)."""
+class CannotDetermineChanges(RuntimeError):
+    """The diff base could not be resolved, so 'changed' is unknowable."""
+
+
+def changed_paths(base: str = "origin/dev") -> list[Path]:
+    """Corpus directories touched relative to `base`.
+
+    Raises CannotDetermineChanges when the base ref cannot be resolved. That
+    distinction is the whole point: "nothing changed" and "I could not work
+    out what changed" look identical downstream, and treating the second as
+    the first turns the contributor-facing gate into a rubber stamp — a PR
+    adding a malformed case would sail through a shallow clone, a fork, or a
+    renamed default branch.
+    """
     try:
-        diff = subprocess.run(
+        proc = subprocess.run(
             ["git", "-C", str(REPO_ROOT), "diff", "--name-only",
-             "origin/dev...HEAD"],
-            capture_output=True, text=True, timeout=60).stdout.split()
-    except Exception:
-        return []
+             f"{base}...HEAD"],
+            capture_output=True, text=True, timeout=60)
+    except Exception as exc:
+        raise CannotDetermineChanges(f"git could not be run: {exc}") from exc
+    if proc.returncode != 0:
+        raise CannotDetermineChanges(
+            f"cannot diff against {base!r}: "
+            f"{proc.stderr.strip().splitlines()[0] if proc.stderr.strip() else 'unknown error'}")
+    diff = proc.stdout.split()
     dirs = {(REPO_ROOT / p).parent for p in diff if p.startswith("corpus/")}
     return sorted(d for d in dirs if (d / "metadata.yaml").exists())
 
@@ -231,7 +248,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("paths", nargs="*", type=Path,
                     help="case dirs or roots to validate (default: whole corpus)")
     ap.add_argument("--changed", action="store_true",
-                    help="validate only cases changed vs origin/dev")
+                    help="validate only cases changed vs the base ref")
+    ap.add_argument("--base", default="origin/dev",
+                    help="base ref for --changed (default origin/dev)")
     ap.add_argument("--quiet", action="store_true", help="only show problems")
     args = ap.parse_args(argv)
 
@@ -239,7 +258,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"corpus/ not found at {CORPUS} — nothing to validate")
         return 0
 
-    cases = changed_paths() if args.changed else find_cases(args.paths or None)
+    if args.changed:
+        try:
+            cases = changed_paths(args.base)
+        except CannotDetermineChanges as exc:
+            # Fall back to validating EVERYTHING rather than nothing. Slower,
+            # but a gate that cannot see the diff must not conclude "clean".
+            print(f"cannot determine changed cases ({exc}); "
+                  "validating the whole corpus instead", file=sys.stderr)
+            cases = find_cases(None)
+    else:
+        cases = find_cases(args.paths or None)
     if not cases:
         print("no cases to validate")
         return 0

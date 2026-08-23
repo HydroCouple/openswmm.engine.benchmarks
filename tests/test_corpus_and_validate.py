@@ -268,3 +268,36 @@ def test_envelope_cells_are_replaced_not_duplicated(tmp_path):
     assert len(env["cells"]) == 2
     assert scoring.exit_code(env) == 0
     assert scoring.load(path)["cells"] == env["cells"]
+
+
+def test_undeterminable_diff_validates_everything_rather_than_nothing(monkeypatch):
+    """A gate that cannot see the diff must not conclude "clean".
+
+    `--changed` diffs against origin/dev. On a shallow clone, a fork, or a
+    repository whose default branch was renamed, that ref does not resolve —
+    and the old code swallowed the error, returned [], and printed "no cases
+    to validate" with exit 0. A PR adding a malformed case would sail through
+    the contributor-facing gate.
+    """
+    with pytest.raises(validate.CannotDetermineChanges):
+        validate.changed_paths("origin/definitely-not-a-ref")
+
+    # ...and the CLI falls back to the full corpus rather than skipping.
+    # find_cases is stubbed so the assertion is about the CONTROL FLOW, not
+    # about spending a minute revalidating 1,396 cases.
+    called = {}
+
+    def fake_find_cases(paths=None):
+        called["fallback"] = paths is None
+        return []
+
+    monkeypatch.setattr(validate, "find_cases", fake_find_cases)
+    validate.main(["--changed", "--base", "origin/definitely-not-a-ref",
+                   "--quiet"])
+    assert called.get("fallback") is True, (
+        "an unresolvable diff base must fall back to the whole corpus")
+
+
+def test_resolvable_diff_still_narrows_to_changed_cases():
+    """The fallback must not defeat the optimisation when the ref is fine."""
+    assert validate.changed_paths("HEAD") == []

@@ -790,3 +790,88 @@ sweep died before `_prune_outputs` ran for most cases. Under `keep='fail'` a
 completed sweep retains far less, but artifact size should be watched once F19's
 fixes let a sweep finish — 1.2 GB per leg per night will exhaust storage quotas
 quickly.
+
+---
+
+## F21 — CI/CD audit: five more ways the pipeline could mislead · **4 FIXED, 3 OPEN**
+
+A deliberate sweep of all four workflows and the composite action, prompted by
+F19/F20 both being first-real-execution defects. Findings are ordered by how
+badly they would mislead, not by how hard they are to fix.
+
+### FIXED — the gate did not gate
+
+`nightly.yml` and `on_engine_push.yml` both run the sweep with
+`continue-on-error: true`, which is correct and necessary: it lets the
+artifacts upload and the dashboard publish when a sweep fails. But nothing
+afterwards re-raised the failure, so **the job concluded SUCCESS and the
+workflow badge stayed green while the parity gate was failing.** A regression
+platform whose gate does not gate is worse than no gate, because the badge is
+evidence people act on.
+
+Both workflows now carry a `Gate on the sweep result` step, placed *after* the
+artifact upload so the evidence survives, that re-raises the masked failure.
+
+### FIXED — publish was skipped exactly when it mattered
+
+`publish` declared `needs: sweep` without `always()`. A hard sweep failure
+therefore skipped publish and left the **previous** run's dashboard standing —
+the same hazard as F20, arriving through a different door. Both now use
+`if: always()`.
+
+### FIXED — the contributor gate could not tell "clean" from "cannot tell"
+
+`harness.validate --changed` diffs against `origin/dev`. When that ref does not
+resolve — a shallow clone, a fork, a renamed default branch — `changed_paths()`
+swallowed the error, returned `[]`, and the CLI printed "no cases to validate"
+and exited **0**. A pull request adding a malformed case would pass the
+contributor-facing gate without anything being checked.
+
+Verified locally: `git diff origin/nonexistent...HEAD` exits 128, and the old
+code reported success. `changed_paths()` now raises `CannotDetermineChanges`,
+and the CLI falls back to validating the **whole corpus** — slower, but a gate
+that cannot see the diff must never conclude "clean".
+
+### FIXED — no job had an explicit timeout
+
+Every job inherited the 6-hour default. A full-corpus sweep can plausibly
+exceed it, and an overrun is *cancelled*, which reads as infrastructure noise
+rather than a result. Sweeps are now bounded at 330 min, validation at 30, and
+publish at 20 — so hitting the limit is a visible, deliberate decision.
+
+### OPEN — the corpus cannot fit on a runner
+
+Computed from the decks themselves (`_est_out_bytes` over all 1,396 cases):
+
+| | |
+|---|---|
+| whole corpus, one engine | **~0.1 TiB** of `.out` (×2 engines) |
+| cases estimated >1 GiB each | **20** |
+| largest single case | `half-a-million`, **11.3 GiB** per engine |
+| GitHub `ubuntu-latest` free disk | ~14 GiB after checkout and toolchain |
+
+Per-case pruning (`keep='fail'`) bounds the steady state, so the sweep does not
+accumulate — but the *peak* is two `.out` files for one case, and the largest
+20 cases cannot be run on a hosted runner at all. The `DISK_FLOOR_BYTES` guard
+handles this correctly by marking them `UNAVAILABLE` rather than filling the
+volume, which means **those 20 cases are permanently unmeasured in CI** and
+that fact is currently invisible on the dashboard. Options: a self-hosted
+runner for a weekly tier, or a `runtime_class`-style `size` exclusion that says
+so explicitly.
+
+### OPEN — artifact volume
+
+The partial Linux sweep uploaded **1.14 GiB** at 30-day retention. Two legs
+nightly at that size is ~68 GiB of rolling storage, and a completed sweep with
+failures retained will be larger. `on_engine_push` retention is now 14 days;
+nightly is still 30. Worth measuring on the first sweep that finishes before
+choosing a limit — guessing now would be arbitrary.
+
+### OPEN — `epa_qa`, `quality`, `stability`, `performance` still produce no cells
+
+Four of the eight registered suites are scaffolds that return an empty
+envelope. `run_regression.py --suite all` therefore reports success for them
+every night. This is recorded in F15; it is repeated here because in a
+CI/CD context an empty suite is indistinguishable from a passing one on the
+scoreboard, and the nightly summary currently gives them equal footing with
+suites that actually ran.

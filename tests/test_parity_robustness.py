@@ -264,3 +264,56 @@ def test_build_action_uses_the_cmake_target_not_the_output_name():
     line = build[0]
     assert "openswmm_legacy" in line
     assert "--target openswmm openswmm-legacy" not in line
+
+
+# ── CI wiring ──────────────────────────────────────────────────────────────
+
+def _workflow(name):
+    import yaml
+    p = REPO_ROOT / ".github" / "workflows" / name
+    if not p.exists():
+        pytest.skip(f"{name} not present")
+    return yaml.safe_load(p.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("wf", ["nightly.yml", "on_engine_push.yml"])
+def test_the_gate_actually_gates(wf):
+    """`continue-on-error` on the sweep exists so artifacts upload and the
+    dashboard publishes on failure. Without a gate step afterwards the job then
+    concludes SUCCESS, and the workflow badge is green while parity is failing.
+    """
+    steps = _workflow(wf)["jobs"]["sweep"]["steps"]
+    sweep = [s for s in steps if s.get("id") == "sweep"]
+    assert sweep, "the sweep step needs an id for the gate to reference"
+    if not sweep[0].get("continue-on-error"):
+        return                       # no masking, nothing to re-raise
+    gate = [s for s in steps if "outcome == 'failure'" in str(s.get("if", ""))]
+    assert gate, f"{wf}: sweep failure is masked and never re-raised"
+    assert "exit 1" in gate[0]["run"]
+    # the gate must come after the upload, or a failing sweep loses its evidence
+    names = [s.get("name") or str(s.get("uses", "")) for s in steps]
+    assert names.index(gate[0]["name"]) > \
+        max(i for i, n in enumerate(names) if "upload-artifact" in n)
+
+
+@pytest.mark.parametrize("wf", ["nightly.yml", "on_engine_push.yml"])
+def test_publish_runs_even_when_the_sweep_fails(wf):
+    """A skipped publish leaves the previous dashboard up, so a broken run is
+    indistinguishable from a healthy one (F20)."""
+    pub = _workflow(wf)["jobs"].get("publish")
+    assert pub, f"{wf} has no publish job"
+    assert "always()" in str(pub.get("if", "")), (
+        f"{wf}: publish is skipped when the sweep fails")
+
+
+def test_every_job_has_an_explicit_timeout():
+    """The 6h default silently cancels a job, and a cancellation reads as
+    infrastructure noise rather than a result."""
+    missing = []
+    for wf in ("nightly.yml", "on_engine_push.yml", "validate.yml", "publish.yml"):
+        for jn, j in _workflow(wf)["jobs"].items():
+            if "uses" in j:          # reusable-workflow call: the callee sets it
+                continue
+            if not j.get("timeout-minutes"):
+                missing.append(f"{wf}:{jn}")
+    assert not missing, f"jobs without an explicit timeout: {missing}"

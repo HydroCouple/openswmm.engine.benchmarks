@@ -36,6 +36,10 @@ jobs:
           - {os: ubuntu-latest, alias: Linux-x64}
           - {os: windows-latest, alias: Windows-x64}
     runs-on: ${{ matrix.os }}
+    # A full-corpus sweep can outrun the 6h default, and a
+    # cancelled job reads as infrastructure noise rather than a result.
+    # Bound it explicitly so overrun is a visible, deliberate limit.
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,6 +56,7 @@ jobs:
           ref: ${{ inputs.engine_ref || 'develop' }}
 
       - name: Run suites
+        id: sweep
         run: |
           python run_regression.py --suite all \
             --tier ${{ inputs.tier || 'nightly' }} \
@@ -69,10 +74,23 @@ jobs:
             badges/
           retention-days: 30
 
+      # continue-on-error above exists ONLY so the artifacts upload and the
+      # dashboard publishes when a sweep fails. Without this step the job then
+      # concludes SUCCESS, so the workflow badge is green while the parity gate
+      # is failing — a regression platform whose gate does not gate.
+      - name: Gate on the sweep result
+        if: steps.sweep.outcome == 'failure'
+        run: |
+          echo "::error::the sweep reported failures; see the job summary and the published dashboard"
+          exit 1
+
   publish:
     name: Publish dashboard
     needs: sweep
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # always(): a sweep that failed is exactly when the dashboard must be
+    # refreshed. Skipping publish leaves the PREVIOUS run's page standing, so a
+    # broken nightly is indistinguishable from a healthy one (see F20).
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     uses: ./.github/workflows/publish.yml
     permissions:
       contents: read

@@ -26,6 +26,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,6 +38,7 @@ jobs:
   schema:
     name: Schema and corpus validation
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,6 +58,7 @@ jobs:
   smoke:
     name: Run submitted models
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       pull-requests: write       # the results comment
