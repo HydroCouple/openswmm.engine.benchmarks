@@ -875,3 +875,61 @@ every night. This is recorded in F15; it is repeated here because in a
 CI/CD context an empty suite is indistinguishable from a passing one on the
 scoreboard, and the nightly summary currently gives them equal footing with
 suites that actually ran.
+
+---
+
+## F22 — results are now summarised and reclaimed per case · **FIXED**
+
+Answering "can results be summarised after each run and deleted immediately?" —
+yes, and asking exposed a leak introduced by F19's own fix.
+
+### The leak
+
+F19 gave each (case, engine) an isolated run directory seeded with the model
+and its colocated data, so relative references resolve without writing into
+`corpus/`. Nothing removed those copies. Measured across the corpus:
+
+| | |
+|---|---|
+| models + colocated data | 2.04 GiB |
+| seeded once per engine (×2) | **4.09 GiB accumulating** |
+| free disk on `ubuntu-latest` | ~14 GiB |
+
+The old `_prune_outputs` deleted only `.out` files, so the seeded inputs and
+the `.rpt` grew unbounded across a 1,396-case sweep.
+
+### What replaces it
+
+`_Reclaimer` deletes a case's **entire run tree** as soon as its cells are
+written. This is safe because everything a result *means* — continuity,
+stability, wall time, parity metrics, worst offender, the engine's own error
+text — is already extracted into the scores envelope. What remains on disk is
+evidence for a human, not data the platform needs.
+
+That converts unbounded growth into a bounded working set: the peak is one
+case's outputs, not the sweep's. It is what makes a corpus needing ~0.1 TiB of
+`.out` per engine runnable on a 14 GiB runner at all.
+
+Retention policy (`--keep-out`, default `fail`):
+
+* `fail` — keep a tree only when something failed **and** the tree contains
+  actual evidence (a `.out` or `.rpt`). A tree holding only seeded inputs is a
+  copy of something already in `corpus/`; `UNAVAILABLE` cases produce exactly
+  that, and retaining them re-creates the leak while offering nothing to drill
+  into.
+* `all` — local debugging only.
+* `none` — the envelope is the whole record.
+
+`--retain-budget-gib` (default 2 GiB) caps retention. Past it the sweep says so
+once and keeps reclaiming: a sweep that dies of a full disk publishes nothing,
+which is strictly worse than losing drill-down detail on late failures.
+
+Each envelope now carries `disk: {reclaimed_bytes, retained_bytes,
+budget_reached}`, so a sweep can prove its own footprint rather than being
+trusted about it.
+
+**Verified end to end:** a two-case run where no engine can launch now leaves
+`results/` at 4 KiB — the scores envelope alone — where it previously left
+seeded model copies behind. Nine tests pin the behaviour, including that the
+working set stays flat across 50 passing cases and that the budget is never
+breached.

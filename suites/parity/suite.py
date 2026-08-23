@@ -124,20 +124,87 @@ def _est_out_bytes(case: corpus.Case) -> int:
     return periods * (per_period * 4 + 8)
 
 
-def _prune_outputs(runs: dict, keep: str, failed: bool) -> None:
-    """Drop the bulk .out files a sweep no longer needs.
+#: Ceiling on retained run trees. Retention exists for triage, but a sweep with
+#: many failures must not be able to fill the volume it is running on: past this
+#: budget the sweep keeps reclaiming and says so, rather than dying at case 900
+#: with nothing published.
+DEFAULT_RETAIN_BUDGET_BYTES = 2 * 1024 ** 3
 
-    keep='fail'  retain them only where a comparison did not pass — those are
-                 the ones a human drills into. keep='all' retains everything;
-                 keep='none' always drops. The .rpt is always kept: it is small
-                 and it is the mass-balance and stability evidence.
+
+def _dir_size(path: Path) -> int:
+    return sum(p.stat().st_size for p in Path(path).rglob("*") if p.is_file())
+
+
+class _Reclaimer:
+    """Summarise each case into its cells, then delete its run tree.
+
+    Everything a result means — continuity, stability, wall time, parity
+    metrics, the worst offender — is extracted into the scores envelope before
+    this runs. The tree on disk is then evidence for a human, not data the
+    platform needs, so it can go immediately.
+
+    That matters because the corpus does not fit on a runner: ~0.1 TiB of
+    ``.out`` per engine across 1,396 cases, against ~14 GiB free. Deleting per
+    case turns unbounded growth into a bounded working set — the peak is one
+    case's outputs, not the sweep's.
+
+    keep='fail'  retain a case's tree only if something about it failed
+                 (default); those are the ones a human drills into
+    keep='all'   retain everything — local debugging only
+    keep='none'  retain nothing; the envelope is the whole record
     """
-    if keep == "all" or (keep == "fail" and failed):
-        return
-    for info in runs.values():
-        out = info.get("out")
-        if out and Path(out).exists():
-            Path(out).unlink()
+
+    def __init__(self, keep: str = "fail",
+                 budget: int = DEFAULT_RETAIN_BUDGET_BYTES):
+        self.keep = keep
+        self.budget = budget
+        self.reclaimed = 0
+        self.retained = 0
+        self.over_budget = False
+
+    @staticmethod
+    def _has_evidence(case_dir: Path) -> bool:
+        """Did anything worth looking at actually get produced?
+
+        A tree holding only the seeded inputs is not evidence — it is a copy of
+        a file already in `corpus/`. Cases that fail as UNAVAILABLE (no engine
+        on this machine, or a build that never completed) produce exactly that,
+        and retaining them re-creates the ~4 GiB of duplicated models this
+        reclaimer exists to prevent.
+        """
+        return any(p.suffix in (".out", ".rpt")
+                   for p in Path(case_dir).rglob("*") if p.is_file())
+
+    def finish_case(self, case_dir: Path, failed: bool) -> None:
+        case_dir = Path(case_dir)
+        if not case_dir.exists():
+            return
+        size = _dir_size(case_dir)
+
+        want_keep = self.keep == "all" or (
+            self.keep == "fail" and failed and self._has_evidence(case_dir))
+        if want_keep and self.retained + size > self.budget:
+            # Retaining this one would breach the budget. Say so once, then
+            # keep reclaiming — a sweep that dies of a full disk publishes
+            # nothing, which is strictly worse than losing drill-down detail.
+            if not self.over_budget:
+                self.over_budget = True
+                print(f"retention budget of {self.budget / 2**30:.1f} GiB "
+                      f"reached; further failed cases are summarised in the "
+                      f"envelope but their outputs are not kept",
+                      file=sys.stderr)
+            want_keep = False
+
+        if want_keep:
+            self.retained += size
+            return
+        shutil.rmtree(case_dir, ignore_errors=True)
+        self.reclaimed += size
+
+    def summary(self) -> str:
+        return (f"disk: reclaimed {self.reclaimed / 2**30:.2f} GiB, "
+                f"retained {self.retained / 2**30:.2f} GiB"
+                + (" (budget reached)" if self.over_budget else ""))
 
 
 #: Files that describe a case rather than feed the engine.
@@ -226,9 +293,15 @@ def run(argv: list[str] | None = None) -> dict | None:
     ap.add_argument("--only", help="comma-separated case ids")
     ap.add_argument("--engines", help="comma-separated engine ids to resolve")
     ap.add_argument("--keep-out", choices=("fail", "all", "none"), default="fail",
-                    help="retain bulk .out files: only where a comparison did "
-                         "not pass (default), always, or never. .rpt is always "
-                         "kept.")
+                    help="retain a case's run tree (.out, .rpt, seeded inputs) "
+                         "only where something failed (default), always, or "
+                         "never. Every result is summarised into the scores "
+                         "envelope first, so 'none' loses drill-down detail, "
+                         "never a verdict.")
+    ap.add_argument("--retain-budget-gib", type=float, default=2.0,
+                    help="ceiling on retained run trees; past it the sweep "
+                         "keeps reclaiming and says so, rather than filling "
+                         "the volume (default 2 GiB)")
     ap.add_argument("--skip-list", dest="use_skip_list",
                     action=argparse.BooleanOptionalAction, default=True,
                     help="honour manifests/skip_list.yaml (--no-skip-list runs "
@@ -275,6 +348,8 @@ def run(argv: list[str] | None = None) -> dict | None:
         print(scoring.summary(envelope))
         return envelope
 
+    reclaimer = _Reclaimer(args.keep_out,
+                           int(args.retain_budget_gib * 1024 ** 3))
     default_timeout = float(manifest.get("timeout_s", 600))
     for case in cases:
         if case.id in skip:
@@ -300,7 +375,7 @@ def run(argv: list[str] | None = None) -> dict | None:
         timeout = float(case.meta.get("timeout_s", default_timeout))
         try:
             _sweep_case(case, resolved, reg, scores, envelope,
-                        timeout, args.keep_out)
+                        timeout, reclaimer)
         except Exception as exc:
             # One malformed model, unreadable output, or unforeseen edge case
             # must not end the sweep. A nightly run died exactly this way and
@@ -315,12 +390,16 @@ def run(argv: list[str] | None = None) -> dict | None:
                 "note": f"harness error, sweep continued: "
                         f"{type(exc).__name__}: {exc}"[:300]})
 
+    print(reclaimer.summary(), file=sys.stderr)
+    envelope["disk"] = {"reclaimed_bytes": reclaimer.reclaimed,
+                        "retained_bytes": reclaimer.retained,
+                        "budget_reached": reclaimer.over_budget}
     print(scoring.summary(envelope))
     return envelope
 
 
 def _sweep_case(case, resolved, reg, scores, envelope, timeout,
-                keep_out: str) -> bool:
+                reclaimer: "_Reclaimer") -> bool:
     """Run one case through every engine and evaluate every pair.
 
     Returns True if anything about this case failed. Raising is allowed —
@@ -389,7 +468,7 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                 "dialects": res["dialects"],
                 "note": "; ".join(res["fault"])})
 
-        _prune_outputs(runs, keep_out, case_failed)
+        reclaimer.finish_case(RESULTS / case.id, case_failed)
     return case_failed
 
 

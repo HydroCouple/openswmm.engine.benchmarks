@@ -317,3 +317,125 @@ def test_every_job_has_an_explicit_timeout():
             if not j.get("timeout-minutes"):
                 missing.append(f"{wf}:{jn}")
     assert not missing, f"jobs without an explicit timeout: {missing}"
+
+
+# ── disk reclamation ───────────────────────────────────────────────────────
+
+def _make_run_tree(root: Path, case_id: str, out_bytes: int = 4096) -> Path:
+    """A per-case run tree as the sweep leaves it: seeded inputs + .rpt + .out."""
+    d = root / case_id
+    for engine in ("openswmm-v6", "swmm-5.3.0"):
+        e = d / engine
+        e.mkdir(parents=True)
+        (e / "model.inp").write_text("[TITLE]\nx\n", encoding="utf-8")
+        (e / "rain.dat").write_text("0 0\n", encoding="utf-8")
+        (e / f"{case_id}.rpt").write_text("report\n", encoding="utf-8")
+        (e / f"{case_id}.out").write_bytes(b"\0" * out_bytes)
+    return d
+
+
+def test_a_passing_case_leaves_nothing_behind(tmp_path):
+    """The envelope already holds every metric; the tree is disposable."""
+    d = _make_run_tree(tmp_path, "c1")
+    r = suite._Reclaimer(keep="fail")
+    r.finish_case(d, failed=False)
+    assert not d.exists()
+    assert r.reclaimed > 0 and r.retained == 0
+
+
+def test_seeded_inputs_are_reclaimed_too(tmp_path):
+    """The seeded model and its data are copies, one per engine. Left behind
+    they accumulate to ~4 GiB over the corpus — on a ~14 GiB runner."""
+    d = _make_run_tree(tmp_path, "c1")
+    suite._Reclaimer(keep="fail").finish_case(d, failed=False)
+    assert not (d / "openswmm-v6" / "model.inp").exists()
+    assert not (d / "openswmm-v6" / "rain.dat").exists()
+
+
+def test_a_failing_case_is_retained_for_triage(tmp_path):
+    d = _make_run_tree(tmp_path, "c1")
+    r = suite._Reclaimer(keep="fail")
+    r.finish_case(d, failed=True)
+    assert d.exists(), "the evidence a human drills into must survive"
+    assert r.retained > 0 and r.reclaimed == 0
+
+
+def test_keep_none_discards_even_failures(tmp_path):
+    d = _make_run_tree(tmp_path, "c1")
+    r = suite._Reclaimer(keep="none")
+    r.finish_case(d, failed=True)
+    assert not d.exists()
+
+
+def test_keep_all_retains_even_passes(tmp_path):
+    d = _make_run_tree(tmp_path, "c1")
+    r = suite._Reclaimer(keep="all")
+    r.finish_case(d, failed=False)
+    assert d.exists()
+
+
+def test_retention_is_bounded_by_the_budget(tmp_path):
+    """Retention exists for triage, but a sweep with many failures must not be
+    able to fill the volume it is running on."""
+    r = suite._Reclaimer(keep="fail", budget=20_000)
+    for i in range(20):
+        r.finish_case(_make_run_tree(tmp_path, f"c{i}", out_bytes=8192),
+                      failed=True)
+    assert r.retained <= 20_000, "budget breached"
+    assert r.over_budget is True
+    assert r.reclaimed > 0, "later failures must be reclaimed, not hoarded"
+
+
+def test_working_set_stays_flat_across_many_passing_cases(tmp_path):
+    """The property the whole design exists for: disk does not grow with the
+    number of cases swept."""
+    r = suite._Reclaimer(keep="fail")
+    for i in range(50):
+        r.finish_case(_make_run_tree(tmp_path, f"c{i}"), failed=False)
+    leftover = [p for p in tmp_path.rglob("*") if p.is_file()]
+    assert leftover == [], f"{len(leftover)} files survived a clean sweep"
+
+
+def test_reclaimer_is_wired_into_the_sweep():
+    """Guard the wiring: the concept passing while the call is absent is
+    exactly how unbounded growth returns."""
+    src = (REPO_ROOT / "suites" / "parity" / "suite.py").read_text(encoding="utf-8")
+    assert "reclaimer.finish_case(" in src
+    assert "_prune_outputs" not in src, "the .out-only pruner should be gone"
+
+
+def test_disk_totals_are_recorded_on_the_envelope():
+    """A sweep should be able to prove its own footprint."""
+    src = (REPO_ROOT / "suites" / "parity" / "suite.py").read_text(encoding="utf-8")
+    assert 'envelope["disk"]' in src
+    assert "reclaimed_bytes" in src and "retained_bytes" in src
+
+
+def test_a_case_with_no_evidence_is_reclaimed_even_when_failed(tmp_path):
+    """UNAVAILABLE cases produce only the seeded inputs — a copy of something
+    already in corpus/. Retaining them re-creates the ~4 GiB of duplicated
+    models this reclaimer exists to prevent, and there is nothing to drill
+    into anyway."""
+    d = tmp_path / "c1" / "openswmm-v6"
+    d.mkdir(parents=True)
+    (d / "model.inp").write_text("[TITLE]\nx\n", encoding="utf-8")
+    (d / "rain.dat").write_text("0 0\n", encoding="utf-8")
+
+    r = suite._Reclaimer(keep="fail")
+    r.finish_case(tmp_path / "c1", failed=True)
+    assert not (tmp_path / "c1").exists()
+    assert r.retained == 0
+
+
+def test_a_failed_case_with_a_report_is_still_retained(tmp_path):
+    """A .rpt alone IS evidence — it carries the continuity and stability
+    numbers and the engine's own error text."""
+    d = tmp_path / "c1" / "openswmm-v6"
+    d.mkdir(parents=True)
+    (d / "model.inp").write_text("[TITLE]\nx\n", encoding="utf-8")
+    (d / "c1.rpt").write_text("ERROR 138\n", encoding="utf-8")
+
+    r = suite._Reclaimer(keep="fail")
+    r.finish_case(tmp_path / "c1", failed=True)
+    assert (tmp_path / "c1").exists()
+    assert r.retained > 0
