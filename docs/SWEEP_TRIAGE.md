@@ -601,3 +601,57 @@ file whose entire purpose is to be compared byte-exactly.
 139 passed — rather than from the working tree. Worth doing for anything whose
 correctness depends on what is *committed*: see also
 `registered/referenced source never git-added`, the same class of trap.
+
+
+---
+
+## F18 — three Windows-only CI failures, and the silent class behind them · **FIXED**
+
+The harness job runs `pytest` on Linux, macOS and Windows. Once CI was real
+(F-CI), Windows failed three tests, each a genuine portability defect:
+
+**1. Generators died before writing a byte.** The manufactured reference headers
+carry `≈`, `—`, `²`, and the generators used `open(out, "w", newline="")` with
+no encoding — UTF-8 on the Linux/macOS runners, **cp1252** on Windows, where the
+write raises `UnicodeEncodeError`. The byte-exactness test then reported the
+generator as non-reproducible, pointing at entirely the wrong cause. All eight
+open-for-write calls under `suites/analytical/` now declare `encoding="utf-8"`;
+the committed references are already UTF-8, so this reproduces them identically
+everywhere. Confirmed locally by running a generator under `LC_ALL=C`
+(US-ASCII): it raises with the old code and is byte-exact with the new.
+
+**2. The absolute-path validator answered for the host OS.** `validate_case`
+used `Path(rel).is_absolute()`, which is platform-dependent in exactly the wrong
+direction — on Linux `C:\secrets\creds` reads as *relative*, and on Windows
+`/etc/passwd` does. Each platform waved through precisely the paths the other
+cares about, and this corpus is shared and full of Windows paths authored
+elsewhere. Replaced with `is_absolute_anywhere()`, which asks both flavours plus
+UNC.
+
+**3. Runner fixtures were POSIX shell scripts.** A `#!/bin/sh` wrapper cannot be
+launched on Windows, so the test saw `rc=-1` instead of the engine's `3` — and
+two further tests were *skipped* there for the same reason. Rather than skip a
+third, a `_fake_engine` helper emits a `.bat` on Windows and a `.sh` on POSIX.
+That un-skips the wall-time and timeout tests too, so Windows now exercises "the
+engine ran and failed", "a hung engine becomes a cell rather than an exception",
+and the launched-vs-result distinction that keeps an unusable engine from gating
+CI.
+
+### The larger, silent problem underneath
+
+Auditing the AST for the same mistake found **34 more** unencoded text reads and
+writes across `harness/`, `tools/`, `tests/` and `suites/`. **None of them failed
+on Windows, and that is precisely why they mattered:** cp1252 maps every byte, so
+reading UTF-8 corpus metadata under it does not raise — it silently yields
+mojibake. Writing is worse: the dashboard pages declare `<meta charset=utf-8>`,
+so a cp1252 write produces a file that lies about its own encoding.
+
+All now declare UTF-8; the binary `.out` reader is untouched.
+`tests/test_portability.py` re-runs that audit as a test — walking the AST, not
+grepping — so the next one cannot slip in. CLI entry points also reconfigure
+stdout/stderr to UTF-8 with `errors="replace"`: `harness.validate` prints its
+warnings as prose and was raising `UnicodeEncodeError` *while reporting them*,
+failing for a reason unrelated to the corpus it was asked to check.
+
+**Verified** on a fresh clone under both the default locale and `LC_ALL=C`
+(US-ASCII — stricter than any real runner): **155 passed** in each.
