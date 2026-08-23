@@ -190,8 +190,25 @@ def run(argv: list[str] | None = None) -> dict | None:
     if not resolved:
         print("no engines resolved — every cell UNAVAILABLE", file=sys.stderr)
     if not cases:
-        print(f"no cases selected for tier {args.tier!r} "
-              "(corpus migration is plan step 3)", file=sys.stderr)
+        # A sweep that selects nothing must NOT report success. An empty
+        # envelope scores as green (exit_code sees no gating cells), so a
+        # mis-set tier — or a tier no case has opted into — would publish a
+        # clean bill of health for zero models. That is the most dangerous
+        # failure a regression platform has, because nothing about the output
+        # looks wrong. `tier_pr.yaml` selects 0 cases today for exactly this
+        # reason: its query matches 1,361 models, but none list `pr` in their
+        # metadata `tiers:` until the PR tier is curated from measured
+        # runtimes.
+        detail = f"tier {args.tier!r} selected no cases"
+        if args.only:
+            detail += f" matching --only {args.only!r}"
+        print(detail, file=sys.stderr)
+        scoring.save_cell(scores, envelope, {
+            "case": "-", "solver": "-",
+            "reference_class": "self_consistency",
+            "verdict": "ERROR",
+            "note": detail + " — a sweep over zero cases is not a pass"})
+        print(scoring.summary(envelope))
         return envelope
 
     default_timeout = float(manifest.get("timeout_s", 600))

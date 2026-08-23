@@ -16,10 +16,23 @@ env:
 
 jobs:
   sweep:
-    name: Sweep engine ${{ github.event.client_payload.sha }}
+    name: Sweep ${{ github.event.client_payload.ref }}@${{ github.event.client_payload.sha }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # A blank sha would make the build step check out the engine's DEFAULT
+      # branch and publish results keyed to a commit that never produced them.
+      - name: Require an engine SHA in the payload
+        env:
+          SHA: ${{ github.event.client_payload.sha }}
+        run: |
+          if [ -z "$SHA" ]; then
+            echo "::error::dispatch carried no client_payload.sha - refusing to sweep an unidentified engine"
+            exit 1
+          fi
+          echo "engine $SHA from ${{ github.event.client_payload.repo }}"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -33,9 +46,15 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.sha }}
 
+      # The tier is explicit. `parity` defaults to `pr`, and no case has opted
+      # into that tier yet (curating it needs measured runtimes), so the default
+      # would sweep ZERO models — and an empty sweep is now an ERROR rather than
+      # a silent green. `nightly` is the whole corpus; a dispatcher that wants
+      # something cheaper can send `client_payload.tier` once `pr` is curated.
       - name: Run suites
         run: |
           python run_regression.py --suite all \
+            --tier "${{ github.event.client_payload.tier || 'nightly' }}" \
             --summary "$GITHUB_STEP_SUMMARY" --badges badges/
         continue-on-error: true
 

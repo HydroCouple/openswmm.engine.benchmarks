@@ -15,6 +15,8 @@ from pathlib import Path
 
 import pytest
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
 from harness import compare, scoring
 from tests.outfixture import expected, write_out
 
@@ -148,3 +150,53 @@ def test_all_cases_excluded_is_grey_not_green():
     b = _mb_badge([_mb_cell("x", -300.0, by_design=True)])
     assert b["color"] == scoring.BADGE_GREY
     assert b["message"] == "none graded · 1 by design"
+
+
+# ── an empty sweep is not a pass ───────────────────────────────────────────
+
+def test_empty_envelope_would_score_as_green():
+    """The hazard this guards against, stated plainly.
+
+    scoring.exit_code only looks for gating cells, so a sweep that produced NO
+    cells exits 0. That is correct for the function and dangerous for the
+    platform: a mis-set tier publishes a clean bill of health over zero models,
+    and nothing in the output looks wrong.
+    """
+    env = scoring.new_envelope("parity", "sha")
+    assert env["cells"] == []
+    assert scoring.exit_code(env) == 0
+
+
+def test_parity_suite_errors_when_a_tier_selects_no_cases(tmp_path, monkeypatch):
+    """So the suite must refuse to be silent about it."""
+    import suites.parity.suite as parity
+
+    monkeypatch.setattr(parity, "RESULTS", tmp_path)
+    monkeypatch.setattr(parity, "_manifest", lambda tier: {"select": "no_such_tag"})
+    env = parity.run(["--tier", "pr"])
+
+    assert env is not None
+    assert [c["verdict"] for c in env["cells"]] == ["ERROR"]
+    assert "selected no cases" in env["cells"][0]["note"]
+    assert scoring.exit_code(env) == 1, "an empty sweep must gate, not pass"
+
+
+def test_pr_tier_is_either_curated_or_fails_loudly():
+    """`tier_pr.yaml` is what on_engine_push and the engine-side gate will run.
+
+    Until cases opt in via their metadata `tiers:`, it selects nothing. That is
+    allowed — curation needs measured runtimes — but it must never be mistaken
+    for a passing sweep, so this asserts the two states are the only two.
+    """
+    import yaml
+    from harness import corpus
+    manifest = yaml.safe_load(
+        (REPO_ROOT / "suites/parity/manifests/tier_pr.yaml").read_text(
+            encoding="utf-8"))
+    selected = corpus.select(corpus.load(), manifest.get("select"), tier="pr")
+    if selected:
+        assert len(selected) >= 20, (
+            f"the PR tier has been curated but only holds {len(selected)} "
+            "cases; the target is 50-100 with broad tag coverage")
+    # else: uncurated, and the suite turns that into an ERROR cell — pinned by
+    # test_parity_suite_errors_when_a_tier_selects_no_cases above.
