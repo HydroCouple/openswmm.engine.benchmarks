@@ -933,3 +933,29 @@ trusted about it.
 seeded model copies behind. Nine tests pin the behaviour, including that the
 working set stays flat across 50 passing cases and that the budget is never
 breached.
+
+---
+
+## F23 — a reusable workflow cannot out-request its caller · **FIXED**
+
+F20 added `actions: read` to `publish.yml` so a dispatched publish can fetch
+the sweep's artifacts from the Nightly run that produced them. That permission
+was added to the callee only. GitHub rejected the result outright:
+
+```
+Invalid workflow file: .github/workflows/nightly.yml#L87
+Error calling workflow '.../publish.yml@fc74567'. The workflow is requesting
+'actions: read', but is only allowed 'actions: none'.
+```
+
+The failure mode is worth noting: this is **not** a step failing, or publish
+failing. The entire workflow file is invalid, so the nightly does not run at
+all — no build, no sweep, no artifacts. A permission added to a reusable
+workflow must be granted by every caller *in the same change*, or the caller
+stops existing.
+
+Both `nightly.yml` and `on_engine_push.yml` now grant `actions: read` on their
+`publish` job. A test walks every job that `uses:` a reusable workflow and
+asserts the granted permissions are a superset of what the callee requests,
+ranked `none < read < write` — so the next permission added to `publish.yml`
+fails locally rather than taking the nightly offline.

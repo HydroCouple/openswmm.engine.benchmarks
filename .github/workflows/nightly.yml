@@ -94,5 +94,10 @@ jobs:
     uses: ./.github/workflows/publish.yml
     permissions:
       contents: read
+      # A reusable workflow cannot request more than its caller grants, and
+      # publish.yml needs actions:read to fetch the sweep's artifacts when it
+      # is dispatched on its own. Omitting it here makes the whole workflow
+      # file invalid, not just that one step.
+      actions: read
       pages: write
       id-token: write

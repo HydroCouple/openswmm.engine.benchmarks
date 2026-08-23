@@ -439,3 +439,40 @@ def test_a_failed_case_with_a_report_is_still_retained(tmp_path):
     r.finish_case(tmp_path / "c1", failed=True)
     assert (tmp_path / "c1").exists()
     assert r.retained > 0
+
+
+def test_callers_grant_every_permission_the_reusable_workflow_requests():
+    """A reusable workflow cannot request more than its caller grants.
+
+    This is not a runtime error — GitHub rejects the entire workflow file:
+
+        Error calling workflow '.../publish.yml'. The workflow is requesting
+        'actions: read', but is only allowed 'actions: none'.
+
+    So the nightly does not merely fail to publish; it does not run at all.
+    Adding a permission to publish.yml therefore requires adding it to every
+    caller in the same change.
+    """
+    import yaml
+    rank = {"none": 0, "read": 1, "write": 2}
+    callee_path = REPO_ROOT / ".github" / "workflows" / "publish.yml"
+    if not callee_path.exists():
+        pytest.skip("publish.yml not present")
+    needs = yaml.safe_load(callee_path.read_text(encoding="utf-8"))["permissions"]
+
+    problems = []
+    for wf in ("nightly.yml", "on_engine_push.yml"):
+        p = REPO_ROOT / ".github" / "workflows" / wf
+        if not p.exists():
+            continue
+        for job_name, job in yaml.safe_load(p.read_text(encoding="utf-8"))["jobs"].items():
+            if "publish.yml" not in str(job.get("uses", "")):
+                continue
+            granted = job.get("permissions") or {}
+            for scope, need in needs.items():
+                have = granted.get(scope, "none")
+                if rank[have] < rank[need]:
+                    problems.append(
+                        f"{wf}:{job_name} grants {scope}={have!r}, "
+                        f"publish.yml requests {need!r}")
+    assert not problems, "; ".join(problems)
