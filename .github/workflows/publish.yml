@@ -77,7 +77,11 @@ jobs:
       # leaves the previous run's dashboard standing, so a broken nightly looks
       # like a healthy one. The page says "no results" instead.
       - name: Build site
-        run: python -m harness.report results/ --site site/build
+        # docs/CNAME pins the Pages custom domain and must sit at the root of
+        # the published dashboard.
+        run: |
+          python -m harness.report results/ --site site/build
+          cp docs/CNAME site/build/
 
       - uses: actions/upload-pages-artifact@v3
         with:
