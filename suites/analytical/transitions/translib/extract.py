@@ -69,7 +69,7 @@ def arrival_time(t: np.ndarray, xf: np.ndarray, station: float) -> float:
 def write_extracted_csv(path: Path, res: dict, case: Case) -> None:
     """Node heads per report step (long-form, reviewable)."""
     x = case.node_x()
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write("t_s," + ",".join(f"h_x{xi:g}" for xi in x) + "\n")
         for k, tk in enumerate(res["t"]):
             f.write(f"{tk:g}," +

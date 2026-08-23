@@ -183,7 +183,7 @@ def write_extracted_csv(path, res: dict) -> None:
         q_at_h = np.interp(prof["x_h"], prof["x_q"], prof["q"])
         for x, h, q in zip(prof["x_h"], prof["h"], q_at_h):
             rows.append(f"{t:.6g},{x:.6g},{h:.9g},{q:.9g}")
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(rows) + "\n")
 
 

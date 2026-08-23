@@ -10,9 +10,26 @@ from __future__ import annotations
 
 import sys
 
-import pytest
-
 from harness import runner
+
+
+def _fake_engine(tmp_path, *, posix: str, windows: str, name: str = "engine"):
+    """A stand-in engine the current OS can actually launch.
+
+    runner.run execs `[exe, inp, rpt, out]` directly, so the fixture has to be
+    something the platform will start on its own. A `#!/bin/sh` script is not
+    that on Windows, and skipping there would drop coverage of the single most
+    important behaviour — "the engine ran and failed" being reported with its
+    exit code — on a platform where the whole sweep runs.
+    """
+    if sys.platform == "win32":
+        exe = tmp_path / f"{name}.bat"
+        exe.write_text("@echo off\r\n" + windows)
+    else:
+        exe = tmp_path / f"{name}.sh"
+        exe.write_text("#!/bin/sh\n" + posix)
+        exe.chmod(0o755)
+    return exe
 
 
 def test_missing_executable_returns_not_ok(tmp_path):
@@ -35,34 +52,34 @@ def test_wrong_architecture_binary_returns_not_ok(tmp_path):
 
 
 def test_nonzero_exit_is_reported(tmp_path):
+    """An engine that RAN and failed is a result: its exit code must survive."""
     script = tmp_path / "engine.py"
     script.write_text("import sys; sys.stderr.write('boom'); sys.exit(3)\n")
-    exe = tmp_path / "engine.sh"
-    exe.write_text(f"#!/bin/sh\n{sys.executable} {script} \"$@\"\n")
-    exe.chmod(0o755)
+    exe = _fake_engine(
+        tmp_path,
+        posix=f'"{sys.executable}" "{script}" "$@"\n',
+        windows=f'"{sys.executable}" "{script}" %*\r\nexit /b %errorlevel%\r\n')
     res = runner.run(exe, tmp_path / "m.inp", tmp_path / "m.rpt",
                      tmp_path / "m.out")
     assert res["ok"] is False
+    assert res["launched"] is True, "the engine started; this is a result, not an environment problem"
     assert res["returncode"] == 3
     assert "boom" in res["stderr"]
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="POSIX shell fixture")
 def test_successful_run_reports_wall_time(tmp_path):
-    exe = tmp_path / "engine.sh"
-    exe.write_text("#!/bin/sh\nexit 0\n")
-    exe.chmod(0o755)
+    exe = _fake_engine(tmp_path, posix="exit 0\n", windows="exit /b 0\r\n")
     res = runner.run(exe, tmp_path / "m.inp", tmp_path / "m.rpt",
                      tmp_path / "m.out")
     assert res["ok"] is True
     assert res["wall"] is not None and res["wall"] >= 0
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="POSIX shell fixture")
 def test_timeout_is_reported_not_raised(tmp_path):
-    exe = tmp_path / "engine.sh"
-    exe.write_text("#!/bin/sh\nsleep 5\n")
-    exe.chmod(0o755)
+    """A hung engine must be a cell, not an exception that ends the sweep."""
+    sleeper = f'"{sys.executable}" -c "import time; time.sleep(5)"'
+    exe = _fake_engine(tmp_path, posix=sleeper + "\n",
+                       windows=sleeper + "\r\n")
     res = runner.run(exe, tmp_path / "m.inp", tmp_path / "m.rpt",
                      tmp_path / "m.out", timeout=0.2)
     assert res["ok"] is False

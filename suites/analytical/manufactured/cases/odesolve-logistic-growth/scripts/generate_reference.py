@@ -46,7 +46,7 @@ for (t0, y0), (t1, y1) in zip(rows, rows[1:]):
 
 # ── write CSV ────────────────────────────────────────────────────────────────
 out = pathlib.Path(__file__).parent.parent / "reference.csv"
-with open(out, "w", newline="") as f:
+with open(out, "w", newline="", encoding="utf-8") as f:
     f.write("# Exact solution for logistic ODE: dy/dt = r*y*(1 - y/K)\n")
     f.write("# Parameters: r = 0.5 s^-1, K = 1.0, y(0) = 0.1\n")
     f.write("# y(t) = K / (1 + (K/y0 - 1) * exp(-r*t)) = 1 / (1 + 9 * exp(-0.5*t))\n")

@@ -69,7 +69,7 @@ for t in TIMES:
 
 # ── write CSV ────────────────────────────────────────────────────────────────
 out = pathlib.Path(__file__).parent.parent / "reference.csv"
-with open(out, "w", newline="") as f:
+with open(out, "w", newline="", encoding="utf-8") as f:
     f.write("# Ritter (1892) exact solution — dry-bed dam break\n")
     f.write("# US customary: h0=1.0 ft, g=32.2 ft/s^2, L=250 ft, x_d=125 ft\n")
     f.write("# 51 nodes (xi = 5*i - 125 ft, i=0..50), t in {2,4,6,8} s\n")

@@ -123,3 +123,22 @@ def test_every_analytical_provenance_is_a_mapping():
                 continue
             doc = yaml.safe_load(prov.read_text())
             assert isinstance(doc, dict), f"{case.name}: provenance is not a mapping"
+
+
+def test_generators_declare_an_output_encoding():
+    """A generator that writes non-ASCII must not depend on the locale.
+
+    reference.csv headers carry '≈', '—', '²'. `open(..., "w")` without an
+    encoding uses the platform default, which is cp1252 on a Windows runner —
+    so the generator dies with UnicodeEncodeError before writing a byte, and
+    the byte-exactness test above reports the unmet claim rather than the real
+    cause. The committed references are UTF-8; saying so explicitly reproduces
+    them identically everywhere.
+    """
+    import re
+    offenders = []
+    for script in sorted(MANUFACTURED.glob("*/scripts/*.py")):
+        for call in re.findall(r'open\([^()]*"w"[^()]*\)', script.read_text(encoding="utf-8")):
+            if "encoding=" not in call:
+                offenders.append(f"{script.parent.parent.name}: {call}")
+    assert not offenders, "writes without an explicit encoding:\n  " + "\n  ".join(offenders)

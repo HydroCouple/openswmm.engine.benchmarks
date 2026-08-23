@@ -22,7 +22,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CORPUS = REPO_ROOT / "corpus"
@@ -60,6 +60,24 @@ def load_tags() -> dict:
     import yaml
     doc = yaml.safe_load((SCHEMA_DIR / "tags.yaml").read_text()) or {}
     return doc.get("tags", {})
+
+
+def is_absolute_anywhere(path: str) -> bool:
+    """Is `path` absolute on POSIX *or* on Windows?
+
+    `Path.is_absolute()` answers for the OS running it, which is the wrong
+    question here: the corpus is shared across platforms and is full of
+    Windows paths authored elsewhere. On Linux `Path(r"C:\\secrets\\x")` is
+    "relative" and on Windows `Path("/etc/passwd")` is "relative", so a
+    single-flavour check passes exactly the paths the other platform cares
+    about. Both flavours are asked, plus UNC, so the verdict is the same
+    everywhere.
+    """
+    p = str(path)
+    return (PurePosixPath(p).is_absolute()
+            or PureWindowsPath(p).is_absolute()
+            or p.startswith("\\\\")          # UNC:  \\server\share
+            or bool(re.match(r"^[A-Za-z]:[\\/]", p)))
 
 
 def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
@@ -112,7 +130,7 @@ def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
         r.errors.append(
             f"reference.class must be one of {sorted(VALID_REFERENCE_CLASSES)}")
     for rel in ref.get("files") or []:
-        if Path(rel).is_absolute():
+        if is_absolute_anywhere(rel):
             r.errors.append(f"reference file must be a relative path: {rel}")
         elif not (case_dir / rel).exists():
             r.errors.append(f"reference file not found: {rel}")

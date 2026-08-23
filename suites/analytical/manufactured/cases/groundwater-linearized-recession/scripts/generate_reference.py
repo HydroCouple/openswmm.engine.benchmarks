@@ -44,7 +44,7 @@ for (_, h0), (_, h1) in zip(rows, rows[1:]):
 
 # ── write CSV ────────────────────────────────────────────────────────────────
 out = pathlib.Path(__file__).parent.parent / "reference.csv"
-with open(out, "w", newline="") as fh:
+with open(out, "w", newline="", encoding="utf-8") as fh:
     fh.write("# Linearized groundwater recession (lower-zone head)\n")
     fh.write("# H(t) = h_star + (H_0 - h_star)*exp(-lambda*t)\n")
     fh.write("# lambda = a1/(ucf_gwflow*(phi-theta)) = 10/(43560*0.2) = 1/871.2 s^-1\n")

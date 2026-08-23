@@ -142,11 +142,32 @@ def test_missing_reference_file_is_rejected(tmp_path):
     assert any("reference file not found" in e for e in r.errors)
 
 
-def test_absolute_reference_path_is_rejected(tmp_path):
+@pytest.mark.parametrize("path", [
+    "/etc/passwd",                 # POSIX absolute
+    "C:\\secrets\\creds.dat",        # Windows drive, backslash
+    "D:/data/ref.csv",             # Windows drive, forward slash
+    "\\\\server\\share\\ref.csv",     # UNC
+])
+def test_absolute_reference_path_is_rejected(tmp_path, path):
+    """Rejection must not depend on which OS is running the validator.
+
+    `Path.is_absolute()` answers for the host, so on Linux a `C:\\...` path reads
+    as relative and on Windows a `/etc/...` path does — each platform waving
+    through exactly the paths the other cares about. The corpus is shared and
+    full of Windows paths authored elsewhere, so both flavours are checked.
+    """
     case = _make_case(tmp_path, reference={
-        "class": "external_reference", "files": ["/etc/passwd"]})
+        "class": "external_reference", "files": [path]})
     r = validate.validate_case(case)
-    assert any("relative path" in e for e in r.errors)
+    assert any("relative path" in e for e in r.errors), r.errors
+
+
+@pytest.mark.parametrize("path", [
+    "reference/legacy.rpt", "./ref.csv", "a/b/c.dat", "ref.csv",
+])
+def test_relative_reference_paths_are_accepted(path, tmp_path):
+    """The check must not become so eager it rejects ordinary relative paths."""
+    assert not validate.is_absolute_anywhere(path)
 
 
 def test_inp_scan_flags_latlong_coordinates(tmp_path):

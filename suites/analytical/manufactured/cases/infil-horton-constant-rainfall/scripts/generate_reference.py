@@ -51,7 +51,7 @@ assert abs(rows[-1][2] - FMIN) < 1e-9, "rate must approach f_min by t=4 hr"
 
 # ── write CSV ────────────────────────────────────────────────────────────────
 out = pathlib.Path(__file__).parent.parent / "reference.csv"
-with open(out, "w", newline="") as fh:
+with open(out, "w", newline="", encoding="utf-8") as fh:
     fh.write("# Horton infiltration, capacity-limited, constant rainfall (fully ponded)\n")
     fh.write("# f0=3.0 in/hr, f_min=0.5 in/hr, k=4.0 hr^-1\n")
     fh.write("# f(t) = f_min + (f0-f_min)*exp(-k*t)\n")

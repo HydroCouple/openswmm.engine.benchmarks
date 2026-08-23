@@ -50,7 +50,7 @@ for (t, F) in rows:
 
 # ── write CSV ────────────────────────────────────────────────────────────────
 out = pathlib.Path(__file__).parent.parent / "reference.csv"
-with open(out, "w", newline="") as fh:
+with open(out, "w", newline="", encoding="utf-8") as fh:
     fh.write("# Green-Ampt saturated-phase cumulative infiltration trajectory\n")
     fh.write("# Parameters: S = 1.93/12 ft, Ks = 0.43/43200 ft/s, IMD = 0.25, depth = 0\n")
     fh.write("# c1 = (S + depth) * IMD = (1.93/12) * 0.25 = 1.93/48 ft\n")

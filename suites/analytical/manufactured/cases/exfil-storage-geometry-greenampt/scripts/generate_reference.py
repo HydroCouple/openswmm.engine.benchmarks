@@ -77,7 +77,7 @@ for (_, r0, E0), (_, r1, E1) in zip(rows[1:], rows[2:]):
 
 # ── write CSV ────────────────────────────────────────────────────────────────
 out = pathlib.Path(__file__).parent.parent / "reference.csv"
-with open(out, "w", newline="") as fh:
+with open(out, "w", newline="", encoding="utf-8") as fh:
     fh.write("# Fixed-stage storage exfiltration, analytic geometry + saturated Green-Ampt\n")
     fh.write("# A(d) = 50 + 100 d; at d=2 ft: bottom 50 ft^2 (c1=0.5), bank 250 ft^2 (c1=0.3)\n")
     fh.write("# Ks = 1e-4 ft/s.  t(F) = [F - c1 ln(1 + F/c1)] / Ks inverted per component\n")
