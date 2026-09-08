@@ -23,7 +23,7 @@ from .genrefs import (MissingReferenceError, all_cases, case_by_id,
                       reference_blocks)
 from .solvers import SOLVERS
 
-from harness import engines, rptparse, runner, scoring
+from harness import engines, rptparse, runner, runtime, scoring
 
 MASS_GATE_PCT = 0.5
 STEADY_GATE = 0.02   # relative drift of the window-MEAN (residual seiche wobble)
@@ -238,12 +238,21 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
 
 def run_matrix(case_glob: str | None = None,
                solver_ids: list[str] | None = None, *,
-               force: bool = False, nx_sweep: bool = False) -> dict:
+               force: bool = False, nx_sweep: bool = False,
+               max_wall: float | None = None) -> dict:
     envelope = scoring.load(config.SCORES_FILE) or scoring.new_envelope(
         "swashes", engines.engine_sha())
     envelope["engine_sha"] = engines.engine_sha()
+    ledger = runtime.load()
     for case in all_cases():
         if case_glob and not fnmatch.fnmatch(case.id, case_glob):
+            continue
+        too_slow = runtime.skip_reason(ledger, "swashes", case.id, max_wall)
+        if too_slow:
+            runtime.warn(f"{case.id}: {too_slow}")
+            scoring.save_cell(config.SCORES_FILE, envelope,
+                              {"case": case.id, "solver": "-",
+                               "verdict": "SKIP", "note": too_slow})
             continue
         for solver in SOLVERS:
             if solver_ids and solver.id not in solver_ids:

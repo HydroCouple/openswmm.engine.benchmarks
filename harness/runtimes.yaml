@@ -1,0 +1,134 @@
+# Measured wall-clock seconds per case, worst engine, from local
+# sweeps. This is the ONLY input to the CI runtime gate — see
+# harness/runtime.py. Cases under 60s are not recorded.
+#
+# Refresh after a local sweep:
+#   python -m harness.runtime --record results/parity/scores_nightly.json
+suites:
+  parity:
+    1080-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 166.6
+    1218-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      timed_out: true
+      wall_s: 600.0
+    1220-nodes:
+      engine: swmm-5.3.0
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 182.5
+    1350-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 76.7
+    1365-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 75.7
+    14400-h-h-elements:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 228.5
+    14600-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      timed_out: true
+      wall_s: 600.0
+    1465-nodes:
+      engine: swmm-5.3.0
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 323.7
+    1546-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 73.6
+    1610-nodes-600-subs-si:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 66.4
+    2002-nodes-19-rdii-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 132.1
+    2009-nodes-si:
+      engine: swmm-5.3.0
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 149.5
+    203-rg-model:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 121.3
+    2180-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 71.9
+    3000-nodemodel:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 516.4
+    3224-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 79.6
+    3900-h-h-elements:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 61.5
+    4190-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 328.3
+    4610-h-h-elements:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 172.3
+    48-subs:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 69.9
+    4902-h-elements:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 230.3
+    5120-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 452.3
+    5438-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 188.0
+    5500-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 310.6
+    5920-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 460.5
+    99-subs:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 62.1
+    ftr-prelim-model-updated:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 62.2
+    greenville-6lidcontrols-all-lid-usage:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 102.4
+    session10-outfallbc-65-h-element:
+      engine: swmm-5.3.0
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 67.1
+    session25-greenville-6lidcontrols-all-lid-usage:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 155.2
+    v15-2002-nodes-19-rdii-nodes:
+      engine: openswmm-v6
+      sweep: '2026-09-03T15:25:53'
+      wall_s: 131.2

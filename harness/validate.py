@@ -124,6 +124,25 @@ def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
         if tier not in VALID_TIERS:
             r.errors.append(f"tier {tier!r} must be one of {sorted(VALID_TIERS)}")
 
+    if "ci_runtime" in meta:
+        ci = meta["ci_runtime"]
+        if not isinstance(ci, dict):
+            r.errors.append("ci_runtime must be a mapping")
+        else:
+            try:
+                if float(ci.get("duration_h", 0)) <= 0:
+                    raise ValueError
+            except (TypeError, ValueError):
+                r.errors.append(
+                    "ci_runtime.duration_h must be a positive number of "
+                    "simulated hours")
+            # A trim changes what the case tests on CI. An unexplained one is
+            # indistinguishable from a mistake six months later.
+            if len(str(ci.get("reason", "")).strip()) < 10:
+                r.errors.append(
+                    "ci_runtime.reason is required: say what the shortened "
+                    "period still covers and what the full run cost")
+
     ref = meta.get("reference") or {}
     rclass = ref.get("class")
     if rclass not in VALID_REFERENCE_CLASSES:

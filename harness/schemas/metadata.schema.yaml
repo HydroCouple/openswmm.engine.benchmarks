@@ -66,6 +66,29 @@ properties:
     exclusiveMinimum: 0
     description: Per-run timeout override.
 
+  ci_runtime:
+    type: object
+    additionalProperties: false
+    required: [duration_h, reason]
+    description: >
+      CI-only shortening of the simulated period, for a model measured to cost
+      more than the runtime gate allows (harness/runtime.py). Applied to the
+      seeded copy in the run directory when --max-wall is active; the committed
+      .inp is never modified and a local sweep still runs the full period. Use
+      this in preference to letting the case be skipped: a trimmed run still
+      exercises the engine on CI, a skipped one does not.
+    properties:
+      duration_h:
+        type: number
+        exclusiveMinimum: 0
+        description: Simulated hours from START_DATE/START_TIME.
+      reason:
+        type: string
+        minLength: 10
+        description: >
+          Why this duration — what the shortened period still covers, and what
+          the full-period runtime was.
+
   reference:
     type: object
     additionalProperties: false

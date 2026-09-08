@@ -39,14 +39,23 @@ def _stamp(envelope: dict) -> dict:
 def run(argv: list[str] | None = None) -> dict | None:
     from swasheslib import runcase
     argv = argv or []
-    case_glob = solver_ids = None
+    case_glob = solver_ids = max_wall = None
     if "--cases" in argv:
         case_glob = argv[argv.index("--cases") + 1]
     if "--solvers" in argv:
         solver_ids = argv[argv.index("--solvers") + 1].split(",")
+    # Honoured for uniformity with the rest of the platform, though no case
+    # here comes close: the slowest cell in this suite is bend00-gentle on
+    # 1d-dynwave-vj at ~50 s, a sixth of the 300 s CI threshold. Every case
+    # therefore keeps running on Actions and keeps being graded against the
+    # Delestre closed-form solutions, which is the whole point of the suite —
+    # a SKIP here would silently drop cells out of the verification badge.
+    if "--max-wall" in argv:
+        max_wall = float(argv[argv.index("--max-wall") + 1])
     return _stamp(runcase.run_matrix(case_glob=case_glob,
                                      solver_ids=solver_ids,
-                                     force="--force" in argv))
+                                     force="--force" in argv,
+                                     max_wall=max_wall))
 
 
 def report(argv: list[str] | None = None) -> list[Path]:

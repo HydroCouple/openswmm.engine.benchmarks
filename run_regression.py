@@ -7,10 +7,16 @@
     python run_regression.py --suite analytical/swashes
     python run_regression.py --suite epa_qa --report-only
     python run_regression.py --suite all --badges badges/
+    python run_regression.py --suite all --max-wall 300     # what CI runs
 
 Extra arguments are forwarded to the suite. Exit code is the OR of every
 executed suite's gate (harness.scoring.exit_code); a suite whose engines are
 missing degrades to UNAVAILABLE cells, never to failure.
+
+`--max-wall` is how CI stays inside its budget: every workflow passes
+`--max-wall 300`, and a case MEASURED to cost more than that is skipped there
+with a warning. Unset — the default, and how a local sweep runs — nothing is
+skipped for runtime. See harness/runtime.py.
 """
 from __future__ import annotations
 
@@ -39,7 +45,16 @@ def main(argv: list[str] | None = None) -> int:
                          "(use $GITHUB_STEP_SUMMARY in CI)")
     ap.add_argument("--badges", type=Path,
                     help="write shields.io endpoint JSON to this directory")
+    ap.add_argument("--max-wall", type=float, metavar="SECONDS",
+                    help="skip cases MEASURED to cost more than this, with a "
+                         "warning and a SKIP cell (harness/runtimes.yaml holds "
+                         "the measurements). CI passes 300; unset locally, "
+                         "where long cases are meant to run.")
     args, passthrough = ap.parse_known_args(argv)
+    # Declared here so --help documents it and a typo is rejected rather than
+    # silently ignored, but the suites are what act on it — so hand it on.
+    if args.max_wall:
+        passthrough += ["--max-wall", str(args.max_wall)]
 
     available = suites.list_suites()
     if args.list:

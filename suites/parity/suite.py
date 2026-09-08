@@ -27,7 +27,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from harness import compare, corpus, engines, readers, rptparse, runner, scoring  # noqa: E402
+from harness import (compare, corpus, engines, readers, rptparse, runner,  # noqa: E402
+                     runtime, scoring)
 
 SUITE = "parity"
 SUITE_DIR = Path(__file__).resolve().parent
@@ -257,10 +258,16 @@ def _usable_output(out: Path) -> tuple[bool, str]:
 
 
 def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
-              timeout: float | None) -> dict:
+              timeout: float | None, trim_h: float | None = None) -> dict:
     """Run one case through one engine; return run info + .rpt metrics."""
     out_dir.mkdir(parents=True, exist_ok=True)
     model = _seed_run_dir(case, out_dir)
+    trim_note = ""
+    if trim_h:
+        # The SEEDED copy only — corpus/ holds the model exactly as it was
+        # contributed, and a trim that edited it would quietly change what the
+        # case tests for everyone, forever.
+        trim_note = runtime.apply_trim(model, trim_h)
     rpt = out_dir / f"{case.id}.rpt"
     out = out_dir / f"{case.id}.out"
 
@@ -269,6 +276,7 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
                       cwd=out_dir)
     info["rpt"] = rpt
     info["out"] = out
+    info["trim_note"] = trim_note
 
     parsed = rptparse.parse(rpt)
     info.update({k: v for k, v in parsed.items()
@@ -306,6 +314,9 @@ def run(argv: list[str] | None = None) -> dict | None:
                     action=argparse.BooleanOptionalAction, default=True,
                     help="honour manifests/skip_list.yaml (--no-skip-list runs "
                          "the skipped cases, to confirm the listed reason)")
+    ap.add_argument("--max-wall", type=float, metavar="SECONDS",
+                    help="skip cases measured to cost more than this "
+                         "(harness/runtime.py). CI passes 300; unset locally.")
     args, _ = ap.parse_known_args(argv or [])
 
     manifest = _manifest(args.tier)
@@ -351,12 +362,26 @@ def run(argv: list[str] | None = None) -> dict | None:
     reclaimer = _Reclaimer(args.keep_out,
                            int(args.retain_budget_gib * 1024 ** 3))
     default_timeout = float(manifest.get("timeout_s", 600))
+    ledger = runtime.load()
     for case in cases:
         if case.id in skip:
             scoring.save_cell(scores, envelope,
                               {"case": case.id, "solver": "-",
                                "reference_class": case.reference_class,
                                "verdict": "SKIP", "note": "skip-list"})
+            continue
+
+        # Too expensive for this runner. A SKIP cell, not a silent omission:
+        # the dashboard must show a deliberate exclusion, and SKIP is already
+        # excluded from the verified count, so this cannot inflate a badge.
+        too_slow = runtime.skip_reason(ledger, SUITE, case.id,
+                                       args.max_wall, case.meta)
+        if too_slow:
+            runtime.warn(f"{case.id}: {too_slow}")
+            scoring.save_cell(scores, envelope,
+                              {"case": case.id, "solver": "-",
+                               "reference_class": case.reference_class,
+                               "verdict": "SKIP", "note": too_slow})
             continue
 
         # Disk guard: refuse a case whose outputs would not fit rather than
@@ -373,9 +398,16 @@ def run(argv: list[str] | None = None) -> dict | None:
             continue
 
         timeout = float(case.meta.get("timeout_s", default_timeout))
+        # A trim applies only where the budget applies. Locally --max-wall is
+        # unset, so the model runs its full contributed period.
+        trim_h = runtime.trim_hours(case.meta) if args.max_wall else None
+        if trim_h:
+            runtime.warn(f"{case.id}: simulated period trimmed to {trim_h:g} h "
+                         f"for this run — "
+                         f"{(case.meta.get('ci_runtime') or {}).get('reason', '')}")
         try:
             _sweep_case(case, resolved, reg, scores, envelope,
-                        timeout, reclaimer)
+                        timeout, reclaimer, trim_h)
         except Exception as exc:
             # One malformed model, unreadable output, or unforeseen edge case
             # must not end the sweep. A nightly run died exactly this way and
@@ -399,7 +431,7 @@ def run(argv: list[str] | None = None) -> dict | None:
 
 
 def _sweep_case(case, resolved, reg, scores, envelope, timeout,
-                reclaimer: "_Reclaimer") -> bool:
+                reclaimer: "_Reclaimer", trim_h: float | None = None) -> bool:
     """Run one case through every engine and evaluate every pair.
 
     Returns True if anything about this case failed. Raising is allowed —
@@ -409,7 +441,8 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
     case_failed = False
     if True:            # noqa: SIM103 — keeps the body's indentation stable
         for eid, engine in resolved.items():
-            info = _run_case(case, engine, RESULTS / case.id / eid, timeout)
+            info = _run_case(case, engine, RESULTS / case.id / eid, timeout,
+                             trim_h)
             runs[eid] = info
             scoring.save_cell(scores, envelope, {
                 "case": case.id, "solver": eid,
@@ -429,7 +462,12 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                 # (see the tag's definition in harness/schemas/tags.yaml).
                 "expected_high_continuity":
                     "expected_high_continuity" in case.tags,
-                "note": info.get("stderr", "")[:200]})
+                # The trim rides on the cell: a shortened run's numbers must
+                # never be published as if they came from the full period.
+                "trimmed": bool(info.get("trim_note")),
+                "note": "; ".join(x for x in (info.get("trim_note"),
+                                              info.get("stderr", ""))
+                                  if x)[:280]})
 
         for pair in reg.active_comparisons():
             a, b = runs.get(pair.a), runs.get(pair.b)

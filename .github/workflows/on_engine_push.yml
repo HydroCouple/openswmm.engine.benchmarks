@@ -52,11 +52,14 @@ jobs:
       # would sweep ZERO models — and an empty sweep is now an ERROR rather than
       # a silent green. `nightly` is the whole corpus; a dispatcher that wants
       # something cheaper can send `client_payload.tier` once `pr` is curated.
+      # --max-wall 300: see nightly.yml. Long models run locally, not on a
+      # shared runner; the skips are announced, never silent.
       - name: Run suites
         id: sweep
         run: |
           python run_regression.py --suite all \
             --tier "${{ github.event.client_payload.tier || 'nightly' }}" \
+            --max-wall 300 \
             --summary "$GITHUB_STEP_SUMMARY" --badges badges/
         continue-on-error: true
 

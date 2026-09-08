@@ -79,11 +79,15 @@ jobs:
         if: steps.changed.outputs.cases != ''
         uses: ./.github/actions/build-engine
 
+      # --max-wall 300: see nightly.yml. A contributor whose submitted model is
+      # measured to take longer than five minutes gets a warning in the log
+      # saying it runs locally, not a 30-minute job that times out on them.
       - name: Run changed cases
         if: steps.changed.outputs.cases != ''
         run: |
           python -m suites.parity.suite --tier nightly \
             --only "${{ steps.changed.outputs.cases }}" \
+            --max-wall 300 \
             --keep-out none | tee smoke.log
         continue-on-error: true
 

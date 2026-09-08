@@ -55,11 +55,19 @@ jobs:
         with:
           ref: ${{ inputs.engine_ref || 'develop' }}
 
+      # --max-wall 300: cases MEASURED to cost more than five minutes are a
+      # local concern. On a shared runner they are skipped, loudly — a
+      # ::warning:: per case and a SKIP cell in the envelope, so the dashboard
+      # shows a deliberate exclusion rather than a missing result. Cases that
+      # carry a ci_runtime trim run here on a shortened period instead. The
+      # measurements live in harness/runtimes.yaml; anything unmeasured runs
+      # normally, bounded by the manifest's timeout_s.
       - name: Run suites
         id: sweep
         run: |
           python run_regression.py --suite all \
             --tier ${{ inputs.tier || 'nightly' }} \
+            --max-wall 300 \
             --summary "$GITHUB_STEP_SUMMARY" \
             --badges badges/
         shell: bash
