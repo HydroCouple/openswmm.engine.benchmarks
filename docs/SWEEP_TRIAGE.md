@@ -959,3 +959,66 @@ Both `nightly.yml` and `on_engine_push.yml` now grant `actions: read` on their
 asserts the granted permissions are a superset of what the callee requests,
 ranked `none < read < write` — so the next permission added to `publish.yml`
 fails locally rather than taking the nightly offline.
+
+---
+
+## F24 — `[REPORT]` element selection: an accepted divergence, now graded as one · **ACCEPTED (flagged XFAIL)**
+
+Legacy writes to the `.out` only the elements a deck's `[REPORT]` section asks
+for. Every object's `rptFlag` starts FALSE and is set only by an explicit
+`SUBCATCHMENTS`/`NODES`/`LINKS` entry (`project.c:260-266`), and `output_open`
+sizes the element tables from those flags. OpenSWMM v6 writes them all.
+
+Two corpus decks make the difference structural rather than numeric:
+
+| deck | `[REPORT]` | legacy `.out` | v6 `.out` |
+|---|---|---|---|
+| `rtcexample` | *no section at all* | 0 links, 0 nodes, 360 periods | 58 links, 61 nodes, 360 periods |
+| `storm-cut-sw5` | present, names no elements | 0 links, 0 nodes, 5 periods | 52 links, 49 nodes, 5 periods |
+
+`compare_full` reports these as a `fault` (link-id and node-id mismatch), not a
+tolerance miss, so they sat in the ERROR bucket looking like an output-format
+defect. They are not: both engines ran correctly and neither result is wrong.
+
+**Decision: v6 keeps ALL as its default; the divergence is accepted.**
+Matching legacy would be a three-line change and would close both decks, but
+it would empty the element tables for the **55 corpus decks** that name no
+elements (48 with no `[REPORT]` section, 7 with one that lists none), and for
+any user who has never written the section. Two parity points is a poor price
+for that, and v6's default is deliberate — `test_report_section.cpp:96-98`
+pins it. Legacy's behaviour is a known trap in its own right (the standing
+"legacy `.out` is empty without `[REPORT] ALL`" note).
+
+The two decks are now flagged in their own `metadata.yaml`:
+
+```yaml
+expected_failures:
+- engine: openswmm-v6
+  reason: >-
+    No [REPORT] element selection, so legacy writes ZERO ... 
+  issue: docs/SWEEP_TRIAGE.md#f24
+```
+
+and the parity suite honours the flag. `metadata.schema.yaml` has carried
+`expected_failures` since the schema was written and **nothing read it** — so
+every documented divergence in this corpus was still being graded a plain
+FAIL. `suites/parity/suite.py` now maps a flagged case to `XFAIL`, and a
+flagged case that starts PASSING to `XPASS`, which **gates**: a divergence that
+quietly disappears is a promotion candidate somebody has to look at, not a
+silent win. Those verdicts and that gating rule were already defined in
+`harness/scoring.py`; only the glue was missing.
+
+### Not to be confused with
+
+- **`ERROR-MISMATCH`, 18 decks.** Seventeen are the `user1/3/5-*` family, whose
+  `[XSECT]` rows use `SEMI_ELLIPTICAL`, `SEMI_CIRCULAR`, `MODBASKETHANDLE` or a
+  named `CUSTOM` shape. Legacy 5.3.0 rejects all four; v6 supports them. v6 is
+  a deliberate superset there, so no oracle can exist and these can never PASS.
+  Candidates for the same XFAIL treatment.
+- **Sweep timeouts.** `3974-subs-horton`, `8367-nodes` and `9651-nodes` have
+  each been reported `PASS -> BOTH-ERROR` on one sweep and `PASS` on the next.
+  All three hit the 1800 s per-deck cap under `--workers 6..8` while legacy
+  finished in 62 s, 829 s and 1093 s respectively. That is a ~30x slowdown from
+  ~6x contention, which points at thread oversubscription in v6 rather than
+  load. **Always re-run a lone regression before believing it**, and prefer
+  `--workers 6`. Engine-side performance item, not a parity defect.

@@ -492,6 +492,20 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                 case_failed = True
             if verdict == "FAIL" and gate != "fail":
                 verdict = "BASELINE-PASS"     # differences recorded, not gated
+
+            # A documented expected failure grades XFAIL, and an expected
+            # failure that starts PASSING grades XPASS — which gates, because
+            # a divergence that quietly disappeared is a promotion candidate
+            # somebody has to look at (see scoring.VERDICTS / GATING).
+            # metadata.schema.yaml has carried `expected_failures` since the
+            # schema was written; nothing read it until now, so every
+            # documented divergence was still being counted as a plain FAIL.
+            xfail = next(
+                (x for x in (case.meta.get("expected_failures") or [])
+                 if x.get("engine") in (pair.b, pair.a, "*")), None)
+            if xfail:
+                verdict = "XPASS" if verdict == "PASS" else "XFAIL"
+
             worst = res["worst_offenders"][0] if res["worst_offenders"] else {}
             scoring.save_cell(scores, envelope, {
                 "case": case.id, "pair": f"{pair.a} vs {pair.b}",
@@ -504,7 +518,8 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                 "total_cells": res["total_cells"],
                 "total_over_tol": res["total_over_tol"],
                 "dialects": res["dialects"],
-                "note": "; ".join(res["fault"])})
+                "note": ("XFAIL: " + xfail["reason"]) if xfail
+                        else "; ".join(res["fault"])})
 
         reclaimer.finish_case(RESULTS / case.id, case_failed)
     return case_failed
