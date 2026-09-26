@@ -1022,3 +1022,65 @@ silent win. Those verdicts and that gating rule were already defined in
   ~6x contention, which points at thread oversubscription in v6 rather than
   load. **Always re-run a lone regression before believing it**, and prefer
   `--workers 6`. Engine-side performance item, not a parity defect.
+
+<a id="f25"></a>
+## F25 — pinned legacy rejection of extended cross-section decks
+
+Seventeen `user1-*`, `user3-*`, and `user5-*` decks are accepted by v6 but
+rejected by the pinned Sep-5 legacy oracle. Their metadata now records the
+specific legacy diagnostic in `expected_failures.report_error`:
+
+- `user1/3/5-{all-closed-shapes,every-shape,semi-elliptical}`: `SEMI_ELLIPTICAL`, ERROR 205.
+- `user1/3/5-semi-circular`: `SEMI_CIRCULAR`, ERROR 205.
+- `user1/3/5-modbaskethandle`: `MODBASKETHANDLE`, ERROR 211.
+- `user3/5-custom-shape`: `CUSTOM` referencing `CustomShape`, ERROR 209.
+
+These are exceptions for the authored decks against that oracle, not a claim
+that all legacy versions lack the shapes. No v6 capability is removed.
+
+The former expected-failure path required two usable output files, so an input
+rejection bypassed it and produced a gating engine ERROR plus an UNAVAILABLE
+comparison. The suite now marks the matching legacy rejection and its missing
+comparison XFAIL. A missing executable or different error is not excused. If
+the expected-rejecting engine succeeds, its run is XPASS and requires review.
+Existing numerical/structural expected failures keep their previous handling.
+
+The remaining `v14rtcmanyrules` rejection is unrelated: its line 494 names
+conduit `8040` as `WEIR 8040`. Legacy emits ERROR 209 after WARNING 11. The
+first report diagnostic alone had hidden the fatal error in the handoff.
+
+### Continuity diagnostics after the September 25 handoff
+
+Use `python -m tools.compare_continuity LEGACY.rpt V6.rpt` for report triage.
+It joins quality columns by pollutant name, supports v6's repeated tables,
+normalizes the initial runoff-storage label, and exposes non-finite ledger
+values. The old `results/short_sweep/continuity_triage.py` overwrote earlier
+v6 pollutants with the last one and discarded `nan` tokens. Its table of
+"missing mechanisms" must therefore be rechecked against the reports.
+
+All seven LID decks named in Family B have matching initial storage at
+printed precision. v6 already adds `lid_.storedVolume()` to its initial
+ledger; it labels the row `Initial Storage` instead of `Initial LID Storage`.
+The remaining differences in those decks are not missing initial LID water.
+
+The binary comparator also needs a separate non-finite audit: its tolerance
+counts ignore NaN mismatches. Do not call `over=0` literal byte equality.
+See engine issue report 5 for the legacy zero-load/dry-conduit NaN defect.
+
+### Saved sweep rejection labels
+
+The standalone `parallel_verify36.py` driver treats a report warning as a
+rejection when the other engine lacks readable output. Its saved baseline has
+48 BOTH-ERROR rows where one engine exited zero and produced a readable binary.
+Those rows do not establish rejection agreement: the driver records only the
+first diagnostic, and `_usable_output` checks readability without checking the
+binary error code or requiring a positive report-period count.
+
+Treat these 48 cases as needing revalidation from full reports and binary
+footers. Reclassifying solely from saved readability/exit-status fields would
+give 859 PASS, 109 BOTH-ERROR, 35 FAIL, 66 ERROR-MISMATCH and 2 ERROR, but those
+are provisional counts, not confirmed corrected verdicts. The records are in
+`results/short_sweep/codex_baseline_rejection_audit.json`. The 17 explicit
+exceptions above should not be assumed to exhaust all one-sided rejections.
+The regular suite's new expected-rejection matcher requires an ERROR
+message; a warning alone cannot satisfy it.

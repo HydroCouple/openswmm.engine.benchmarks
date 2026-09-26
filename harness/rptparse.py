@@ -102,35 +102,53 @@ def parse(path: str | Path) -> dict:
     return out
 
 
-def quality_continuity(text: str) -> dict[str, float]:
-    """Per-pollutant continuity error from the Quality Routing Continuity table.
+def continuity_rows(text: str) -> dict[tuple[str, str, str], float]:
+    """Read continuity rows by table, row label, and pollutant/quantity column.
 
-    The table is column-per-pollutant: pollutant names appear in the header row
-    and the ``Continuity Error (%)`` row carries one value per column.
+    Legacy groups several pollutants into columns; v6 repeats a single-column
+    table for each pollutant. Use the names above the title so neither layout
+    overwrites another species. Retain NaN/Inf as values, not missing rows.
     """
-    # Layout (one column per pollutant; names sit on the line ABOVE the title,
-    # units on the title line itself):
-    #     **************************            TN          Lead
-    #     Quality Routing Continuity           lbs           lbs
-    #     **************************    ----------    ----------
-    #     Dry Weather Inflow .......    913791.663         0.000
-    #     ...
-    #     Continuity Error (%) .....         0.000         0.000
-    # NOTE: the names group must be [^\n]* rather than .*? — under re.S a dot
-    # crosses newlines and would match an earlier banner elsewhere in the file.
-    m = re.search(r"\*{10,}[ \t]+(\S[^\n]*)\n[ \t]*Quality Routing Continuity"
-                  r"(.*?)(?:\n[ \t]*\n[ \t]*\n|\Z)", text, re.S)
-    if not m:
-        return {}
-    names = m.group(1).split()
-    err = re.search(r"Continuity Error \(%\)\s*\.+\s*(.+)", m.group(2))
-    if not names or not err:
-        return {}
-    try:
-        vals = [float(v) for v in err.group(1).split()]
-    except ValueError:
-        return {}
-    return dict(zip(names, vals)) if len(names) == len(vals) else {}
+    titles = [title for title, _ in _CONTINUITY] + [
+        "Runoff Quality Continuity", "Quality Routing Continuity"]
+    lines = text.splitlines()
+    rows: dict[tuple[str, str, str], float] = {}
+    table = None
+    columns: list[str] = []
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith("****") and i + 1 < len(lines):
+            title_line = lines[i + 1].strip()
+            title = next((t for t in titles if title_line.startswith(t)), None)
+            if title:
+                table = title
+                columns = stripped.lstrip("*").split() if "Quality" in title else []
+                continue
+        if not stripped:
+            table = None
+        if table is None:
+            continue
+        match = re.match(r"^(\S.*?)\s*\.{3,}\s*(.*?)\s*$", stripped)
+        if not match:
+            continue
+        label = match.group(1).strip()
+        # Same initial-water ledger term, different report labels.
+        if table == "Runoff Quantity Continuity" and label == "Initial Storage":
+            label = "Initial LID Storage"
+        for col, token in enumerate(match.group(2).split()):
+            try:
+                value = float(token)
+            except ValueError:
+                continue
+            name = columns[col] if col < len(columns) else str(col)
+            rows[(table, label, name)] = value
+    return rows
+
+
+def quality_continuity(text: str) -> dict[str, float]:
+    """Per-pollutant errors, including repeated single-pollutant v6 tables."""
+    return {column: value for (table, label, column), value in continuity_rows(text).items()
+            if table == "Quality Routing Continuity" and label == "Continuity Error (%)"}
 
 
 def table_row_count(text: str, title: str) -> int | None:

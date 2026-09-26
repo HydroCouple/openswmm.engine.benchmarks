@@ -476,3 +476,46 @@ def test_callers_grant_every_permission_the_reusable_workflow_requests():
                         f"{wf}:{job_name} grants {scope}={have!r}, "
                         f"publish.yml requests {need!r}")
     assert not problems, "; ".join(problems)
+
+
+@pytest.mark.parametrize("mode,run_verdict,pair_verdict", [
+    ("expected", "XFAIL", "XFAIL"),
+    ("different", "ERROR", "UNAVAILABLE"),
+    ("unavailable", "UNAVAILABLE", "UNAVAILABLE"),
+    ("timeout", "ERROR", "UNAVAILABLE"),
+    ("accepted", "XPASS", "PASS"),
+])
+def test_expected_input_rejection_requires_its_diagnostic(
+        case, tmp_path, monkeypatch, mode, run_verdict, pair_verdict):
+    from types import SimpleNamespace
+    from harness import scoring
+
+    case.meta["expected_failures"] = [{
+        "engine": "legacy", "reason": "unsupported authored cross section",
+        "report_error": "ERROR 205: invalid keyword SEMI_ELLIPTICAL",
+    }]
+    monkeypatch.setattr(suite, "RESULTS", tmp_path / "runs")
+    pair = SimpleNamespace(a="legacy", b="v6", rtol=1e-9, atol=1e-12, gate="fail")
+    reg = SimpleNamespace(active_comparisons=lambda: [pair])
+    resolved = {eid: SimpleNamespace(id=eid) for eid in ("legacy", "v6")}
+
+    def fake_run(case, engine, out_dir, *args):
+        out_dir.mkdir(parents=True, exist_ok=True)
+        accepted = engine.id == "v6" or mode == "accepted"
+        out = out_dir / "model.out"
+        if accepted:
+            write_out(out)
+        error = ("ERROR 205: invalid keyword SEMI_ELLIPTICAL at line 10"
+                 if mode in ("expected", "timeout") else "ERROR 209: undefined object X")
+        return {"ok": accepted, "launched": mode != "unavailable" or engine.id == "v6",
+                "produced_output": accepted, "out": out,
+                "returncode": -9 if mode == "timeout" and not accepted else 0,
+                "report_errors": [] if accepted or mode == "unavailable"
+                                 else [error], "stderr": ""}
+
+    monkeypatch.setattr(suite, "_run_case", fake_run)
+    envelope = scoring.new_envelope("parity", "sha")
+    suite._sweep_case(case, resolved, reg, tmp_path / "scores.json", envelope,
+                      10, suite._Reclaimer(keep="none"))
+    assert [c["verdict"] for c in envelope["cells"]] == [run_verdict, "PASS", pair_verdict]
+    assert scoring.exit_code(envelope) == (0 if mode in ("expected", "unavailable") else 1)

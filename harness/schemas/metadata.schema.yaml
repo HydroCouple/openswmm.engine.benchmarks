@@ -142,6 +142,9 @@ properties:
         engine: {type: string}
         reason: {type: string}
         issue: {type: string}
+        report_error:
+          type: string
+          description: Exact diagnostic substring for an expected input rejection.
 
   data_files:
     type: array

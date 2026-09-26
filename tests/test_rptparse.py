@@ -190,3 +190,72 @@ def test_truncated_report_degrades_gracefully(tmp_path):
     got = rptparse.parse(p)
     assert "routing_err" not in got         # absent, not zero
     assert got["had_error"] is False
+
+
+def test_repeated_quality_tables_keep_pollutant_names(tmp_path):
+    text = """
+  **************************          BOD5
+  Quality Routing Continuity           lbs
+  **************************    ----------
+  External Outflow .........        12.000
+  Continuity Error (%) .....         0.100
+
+  **************************            TN
+  Quality Routing Continuity           lbs
+  **************************    ----------
+  External Outflow .........         2.000
+  Continuity Error (%) .....        -3.000
+
+"""
+    p = tmp_path / "repeated.rpt"
+    p.write_text(text, encoding="utf-8")
+    got = rptparse.parse(p)
+    assert got["quality_err"] == {"BOD5": 0.1, "TN": -3.0}
+    assert got["worst_quality_err"] == 3.0
+    rows = rptparse.continuity_rows(text)
+    assert rows[("Quality Routing Continuity", "External Outflow", "BOD5")] == 12.0
+    assert rows[("Quality Routing Continuity", "External Outflow", "TN")] == 2.0
+
+
+def test_continuity_comparison_normalizes_layout_and_exposes_nan():
+    import math
+    from tools.compare_continuity import differences
+
+    legacy = """
+  **************************          BOD5            TN
+  Quality Routing Continuity           lbs           lbs
+  **************************    ----------    ----------
+  External Outflow .........        12.000         2.000
+  Final Stored Mass ........           nan         1.000
+
+  **************************
+  Runoff Quantity Continuity
+  **************************
+  Initial LID Storage ......         0.045         0.100
+
+"""
+    v6 = """
+  **************************          BOD5
+  Quality Routing Continuity           lbs
+  **************************    ----------
+  External Outflow .........        12.000
+  Final Stored Mass ........         0.000
+
+  **************************            TN
+  Quality Routing Continuity           lbs
+  **************************    ----------
+  External Outflow .........         2.000
+  Final Stored Mass ........         1.000
+
+  **************************
+  Runoff Quantity Continuity
+  **************************
+  Initial Storage ..........         0.045         0.100
+
+"""
+    a, b = rptparse.continuity_rows(legacy), rptparse.continuity_rows(v6)
+    diffs = list(differences(a, b))
+    assert len(diffs) == 1
+    key, x, y, why = diffs[0]
+    assert key == ("Quality Routing Continuity", "Final Stored Mass", "BOD5")
+    assert math.isnan(x) and y == 0.0 and why == "non-finite ledger"

@@ -279,6 +279,8 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
     info["trim_note"] = trim_note
 
     parsed = rptparse.parse(rpt)
+    info["report_errors"] = [s for s in parsed.get("errors", [])
+                             if s.startswith("ERROR")]
     info.update({k: v for k, v in parsed.items()
                  if k in ("runoff_err", "routing_err", "worst_quality_err",
                           "pct_not_converging", "avg_iter", "min_dt",
@@ -430,6 +432,17 @@ def run(argv: list[str] | None = None) -> dict | None:
     return envelope
 
 
+def _expected_rejection(case, eid, info):
+    """Match a documented input rejection, never a timeout or launch failure."""
+    if (not info or not info.get("launched") or info.get("produced_output")
+            or info.get("returncode", 0) < 0):
+        return None
+    return next((x for x in (case.meta.get("expected_failures") or [])
+                 if x.get("engine") in (eid, "*") and x.get("report_error")
+                 and any(x["report_error"] in s
+                         for s in info.get("report_errors", []))), None)
+
+
 def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                 reclaimer: "_Reclaimer", trim_h: float | None = None) -> bool:
     """Run one case through every engine and evaluate every pair.
@@ -444,12 +457,18 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
             info = _run_case(case, engine, RESULTS / case.id / eid, timeout,
                              trim_h)
             runs[eid] = info
+            rejection = _expected_rejection(case, eid, info)
+            expected_rejection = any(
+                x.get("engine") in (eid, "*") and x.get("report_error")
+                for x in (case.meta.get("expected_failures") or []))
             scoring.save_cell(scores, envelope, {
                 "case": case.id, "solver": eid,
                 "reference_class": case.reference_class,
                 # a launch failure is an environment problem, not a
                 # result: UNAVAILABLE, which does not gate CI
-                "verdict": ("PASS" if info["ok"]
+                "verdict": ("XFAIL" if rejection else
+                            "XPASS" if expected_rejection and info["ok"] else
+                            "PASS" if info["ok"]
                             else "ERROR" if info.get("launched", True)
                             else "UNAVAILABLE"),
                 "wall": info.get("wall"),
@@ -477,10 +496,16 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
             missing = [eid for eid, info in ((pair.a, a), (pair.b, b))
                        if not info or not info.get("produced_output")]
             if missing:
+                # A pinned oracle can reject a supported v6 shape and write
+                # no .out. Match the actual diagnostic before calling that
+                # expected; unavailable binaries and unrelated errors remain
+                # visible through their ordinary run verdicts.
+                expected = all(_expected_rejection(case, eid, runs.get(eid))
+                               for eid in missing)
                 scoring.save_cell(scores, envelope, {
                     "case": case.id, "pair": f"{pair.a} vs {pair.b}",
                     "reference_class": case.reference_class,
-                    "verdict": "UNAVAILABLE",
+                    "verdict": "XFAIL" if expected else "UNAVAILABLE",
                     "note": f"no usable output from {', '.join(missing)}"})
                 case_failed = True
                 continue
@@ -502,7 +527,8 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
             # documented divergence was still being counted as a plain FAIL.
             xfail = next(
                 (x for x in (case.meta.get("expected_failures") or [])
-                 if x.get("engine") in (pair.b, pair.a, "*")), None)
+                 if x.get("engine") in (pair.b, pair.a, "*")
+                 and not x.get("report_error")), None)
             if xfail:
                 verdict = "XPASS" if verdict == "PASS" else "XFAIL"
 
