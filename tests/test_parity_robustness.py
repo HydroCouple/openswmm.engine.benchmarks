@@ -519,3 +519,54 @@ def test_expected_input_rejection_requires_its_diagnostic(
                       10, suite._Reclaimer(keep="none"))
     assert [c["verdict"] for c in envelope["cells"]] == [run_verdict, "PASS", pair_verdict]
     assert scoring.exit_code(envelope) == (0 if mode in ("expected", "unavailable") else 1)
+
+
+def test_readable_output_with_fatal_footer_is_not_usable(tmp_path):
+    import struct
+    p = write_out(tmp_path / 'fatal.out')
+    data = bytearray(p.read_bytes())
+    struct.pack_into('<i', data, len(data) - 8, 209)
+    p.write_bytes(data)
+    ok, why = suite._usable_output(p)
+    assert not ok
+    assert 'fatal error code 209' in why
+
+
+def test_output_without_periods_is_not_usable(tmp_path):
+    p = write_out(tmp_path / 'empty.out', n_periods=0)
+    ok, why = suite._usable_output(p)
+    assert not ok
+    assert 'no reporting periods' in why
+
+
+@pytest.mark.parametrize("diagnostic,ok", [
+    ("WARNING 04: minimum elevation drop", True),
+    ("WARNING 04: minimum elevation drop\nERROR 209: invalid object", False),
+])
+def test_fatal_report_wins_over_readable_output(case, tmp_path, monkeypatch,
+                                                diagnostic, ok):
+    def fake_run(exe, inp, rpt, out, **kw):
+        Path(rpt).write_text(diagnostic + "\n", encoding="utf-8")
+        write_out(Path(out))
+        return {"ok": True, "launched": True, "returncode": 0,
+                "wall": 0.1, "stderr": ""}
+    monkeypatch.setattr(suite.runner, "run", fake_run)
+    engine = type("E", (), {"exe": Path("engine"), "id": "e"})()
+    info = suite._run_case(case, engine, tmp_path / "run", timeout=10)
+    assert info["ok"] is ok
+    assert info["produced_output"] is ok
+    if not ok:
+        assert info["stderr"].startswith("ERROR 209")
+
+
+def test_failed_exit_cannot_supply_a_passing_comparison(case, tmp_path, monkeypatch):
+    def fake_run(exe, inp, rpt, out, **kw):
+        Path(rpt).write_text("interrupted\n", encoding="utf-8")
+        write_out(Path(out))
+        return {"ok": False, "launched": True, "returncode": 1,
+                "wall": 0.1, "stderr": "run failed"}
+    monkeypatch.setattr(suite.runner, "run", fake_run)
+    engine = type("E", (), {"exe": Path("engine"), "id": "e"})()
+    info = suite._run_case(case, engine, tmp_path / "run", timeout=10)
+    assert not info["ok"]
+    assert not info["produced_output"]

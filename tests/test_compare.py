@@ -177,3 +177,70 @@ def test_pollutants_in_different_order_align_by_name(outdir):
     res = compare.compare_full(a.path, b.path)
     assert "link.POLL:TSS" in res["per_var"]
     assert res["per_var"]["link.POLL:TSS"]["max_abs"] == pytest.approx(10.0)
+
+
+@pytest.mark.parametrize("left,right,mismatches", [
+    (1.0, float('nan'), 1), (float('nan'), 1.0, 1),
+    (float('inf'), 1.0, 1), (1.0, float('-inf'), 1),
+    (float('inf'), float('-inf'), 1),
+    (float('nan'), float('inf'), 1),
+    (float('nan'), float('nan'), 0),
+    (float('inf'), float('inf'), 0),
+    (float('-inf'), float('-inf'), 0),
+])
+def test_nonfinite_cells_are_explicit(outdir, left, right, mismatches):
+    cell = ('link', 0, 5, 2)
+    a = write_out(outdir / 'a.out', pollutants=POLLUTANTS, perturb={cell: left})
+    b = write_out(outdir / 'b.out', pollutants=POLLUTANTS, perturb={cell: right})
+    res = compare.compare_full(a, b)
+    assert res['verdict'] == ('FAIL' if mismatches else 'PASS')
+    import json
+    json.dumps(res, allow_nan=False)
+    assert res['total_nonfinite'] == 1
+    assert res['total_nonfinite_mismatch'] == mismatches
+    assert res['total_over_tol'] == mismatches
+    if mismatches:
+        assert res['worst_offenders'][0]['element'] == 'L1'
+        assert res['worst_offenders'][0]['first_div_period'] == 2
+        assert not res['bytes_results_identical']
+    else:
+        assert res['bytes_results_identical']
+
+
+def test_nonfinite_does_not_hide_a_finite_difference(outdir):
+    cell = ('link', 0, 5, 0)
+    a = write_out(outdir / 'a.out', pollutants=POLLUTANTS,
+                  perturb={cell: float('nan')})
+    b = write_out(outdir / 'b.out', pollutants=POLLUTANTS,
+                  perturb={cell: float('nan'), ('link', 0, 5, 3): 99.0})
+    res = compare.compare_full(a, b)
+    assert res['total_over_tol'] == 1
+    assert res['worst_offenders'][0]['first_div_period'] == 3
+
+
+def test_binary_error_is_a_comparison_fault(outdir):
+    import struct
+    a, b = _pair(outdir)
+    data = bytearray(b.read_bytes())
+    struct.pack_into('<i', data, len(data) - 8, 209)
+    b.write_bytes(data)
+    res = compare.compare_full(a, b)
+    assert res['verdict'] == 'ERROR'
+    assert 'b: binary error code 209' in res['fault']
+
+
+def test_no_periods_is_not_a_vacuous_pass(outdir):
+    a, b = _pair(outdir, n_periods=0)
+    res = compare.compare_full(a, b)
+    assert res['verdict'] == 'ERROR'
+    assert 'a: no reporting periods' in res['fault']
+
+
+def test_signed_zero_distinguishes_numeric_and_byte_equality(outdir):
+    cell = ('link', 0, 0, 1)
+    a = write_out(outdir / 'a.out', perturb={cell: 0.0})
+    b = write_out(outdir / 'b.out', perturb={cell: -0.0})
+    res = compare.compare_full(a, b)
+    assert res['verdict'] == 'PASS'
+    assert res['strict_identical']
+    assert not res['bytes_results_identical']

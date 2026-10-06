@@ -251,7 +251,11 @@ def _usable_output(out: Path) -> tuple[bool, str]:
     if out.stat().st_size < 32:
         return False, f"engine wrote a truncated .out ({out.stat().st_size} bytes)"
     try:
-        readers.Out(out)
+        output = readers.Out(out)
+        if output.err_code:
+            return False, f".out records fatal error code {output.err_code}"
+        if output.n_periods <= 0:
+            return False, ".out contains no reporting periods"
     except Exception as exc:
         return False, f"unreadable .out: {type(exc).__name__}: {exc}"
     return True, ""
@@ -287,11 +291,13 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
                           "nodes_flooded", "links_instability", "had_error")})
 
     produced, why = _usable_output(out) if info["launched"] else (False, "")
-    info["produced_output"] = produced
-    if info["ok"] and not produced:
-        # The engine claimed success and did not deliver. Prefer the engine's
-        # own explanation from the report over our generic one.
-        engine_said = "; ".join(parsed.get("errors", [])[:2])
+    # A readable partial output is not a completed result. Do not let its
+    # pair comparison advertise PASS after the run has failed.
+    info["produced_output"] = produced and info["ok"] and not info["report_errors"]
+    if info["ok"] and (not produced or info["report_errors"]):
+        # The engine claimed success but its report/output contradicts it.
+        # Prefer a fatal diagnostic over the generic output validation reason.
+        engine_said = "; ".join(info["report_errors"][:2])
         info["ok"] = False
         info["stderr"] = (engine_said or why)[:500]
     return info

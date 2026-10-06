@@ -1063,8 +1063,13 @@ printed precision. v6 already adds `lid_.storedVolume()` to its initial
 ledger; it labels the row `Initial Storage` instead of `Initial LID Storage`.
 The remaining differences in those decks are not missing initial LID water.
 
-The binary comparator also needs a separate non-finite audit: its tolerance
-counts ignore NaN mismatches. Do not call `over=0` literal byte equality.
+As of September 26, `compare_full` counts finite/NaN, finite/infinity,
+NaN/infinity and opposite-sign infinity pairs as failures. Matching NaNs and
+same-sign infinities agree numerically and are counted explicitly. Magnitude
+metrics describe finite pairs only. `bytes_results_identical` separately tests
+raw result bytes, including timestamps, signed zeros and NaN payloads; `over=0`
+still does not mean byte equality. This correction exposes the known 3,862
+NaN mismatches in `ejemplo-epa` and 42 in `treattest1` as FAIL, rather than PASS.
 See engine issue report 5 for the legacy zero-load/dry-conduit NaN defect.
 
 ### Saved sweep rejection labels
@@ -1073,14 +1078,22 @@ The standalone `parallel_verify36.py` driver treats a report warning as a
 rejection when the other engine lacks readable output. Its saved baseline has
 48 BOTH-ERROR rows where one engine exited zero and produced a readable binary.
 Those rows do not establish rejection agreement: the driver records only the
-first diagnostic, and `_usable_output` checks readability without checking the
-binary error code or requiring a positive report-period count.
+first diagnostic, and the then-current `_usable_output` checked readability
+without checking the binary error code or requiring a positive report-period
+count. Both checks are now required. The regular suite also treats a fatal
+report diagnostic as a failed run even if the binary is readable; warnings
+alone do not fail a run. Failed exits and fatal reports cannot supply partial
+outputs to a passing pair comparison.
 
-Treat these 48 cases as needing revalidation from full reports and binary
-footers. Reclassifying solely from saved readability/exit-status fields would
-give 859 PASS, 109 BOTH-ERROR, 35 FAIL, 66 ERROR-MISMATCH and 2 ERROR, but those
-are provisional counts, not confirmed corrected verdicts. The records are in
-`results/short_sweep/codex_baseline_rejection_audit.json`. The 17 explicit
-exceptions above should not be assumed to exhaust all one-sided rejections.
-The regular suite's new expected-rejection matcher requires an ERROR
-message; a warning alone cannot satisfy it.
+The September 26 rerun resolves all 48 flagged cases: **22 BOTH-ERROR,
+25 ERROR-MISMATCH, and 1 RUN-ERROR**. The RUN-ERROR is `950nodes`: legacy
+reports ERROR 211 while v6 exits zero with no reporting periods. None of the
+48 uses USE HOTSTART, so the routing-quality fix does not affect this audit.
+Evidence, including every fatal diagnostic and output validation reason, is in
+`results/short_sweep/codex_verify39_rejection_audit.json`. This corrects the
+flagged subset, not all historical BOTH-ERROR records. The old provisional
+readability-only count of 66 one-sided rejections was not confirmed.
+
+The 17 explicit shape exceptions above do not exhaust one-sided rejections.
+The regular suite's expected-rejection matcher requires an ERROR message;
+a warning alone cannot satisfy it.

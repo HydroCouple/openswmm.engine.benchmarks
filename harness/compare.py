@@ -247,32 +247,48 @@ def _var_metrics(A: Out, B: Out, kind: str, ia: int, ib: int,
     v_n = v_exact = 0
     v_first: int | None = None
     v_first_eid = v_worst_eid = None
-    n_over_tol = 0
+    n_over_tol = n_nonfinite = n_nonfinite_mismatch = 0
     for eid in ids:
         a = A.series(kind, eid, ia)[:n_periods]
         b = B.series(kind, eid, ib)[:n_periods]
-        d = np.abs(a - b)
+        finite = np.isfinite(a) & np.isfinite(b)
+        same_nonfinite = ((np.isnan(a) & np.isnan(b)) |
+                          ((a == b) & ~finite))
+        mismatch = ~finite & ~same_nonfinite
+        n_nonfinite += int((~finite).sum())
+        n_nonfinite_mismatch += int(mismatch.sum())
+        # Matching NaNs/infinities agree numerically, but are reported explicitly.
+        # Never let NaN arithmetic turn a genuine mismatch into a passing cell.
+        d = np.zeros(a.shape, dtype=float)
+        d[finite] = np.abs(a[finite] - b[finite])
+        # Magnitude metrics describe finite pairs; non-finite differences have
+        # no numeric magnitude and are counted separately (keep JSON finite).
+        if mismatch.any() and v_worst_eid is None:
+            v_worst_eid = eid
         if not d.size:
             continue
         dmax = float(d.max())
         if dmax > v_abs:
             v_abs, v_worst_eid = dmax, eid
-        denom = np.maximum(np.abs(a), 1e-6)
+        denom = np.where(finite, np.maximum(np.abs(a), 1e-6), 1.0)
         v_rel = max(v_rel, float((d / denom).max()))
         v_sq += float(np.sum(d * d))
         v_n += d.size
-        v_exact += int((d == 0.0).sum())
-        n_over_tol += int((d > (atol + rtol * np.abs(a))).sum())
-        nz = d > 0
+        v_exact += int((a == b).sum())
+        violations = mismatch.copy()
+        violations[finite] = d[finite] > (atol + rtol * np.abs(a[finite]))
+        n_over_tol += int(violations.sum())
+        nz = finite & (d > 0)
         if nz.any():
             ulp = np.spacing(np.maximum(np.abs(a), 1e-30).astype(np.float32))
             v_ulp = max(v_ulp, float((d[nz] / ulp[nz]).max()))
-        over = np.where(d > ABS_EPS)[0]
+        over = np.where(violations)[0]
         if over.size and (v_first is None or int(over[0]) < v_first):
             v_first, v_first_eid = int(over[0]), eid
     return {"max_abs": v_abs, "max_rel": v_rel, "max_ulp": v_ulp,
-            "rms": (v_sq / v_n) ** 0.5 if v_n else 0.0,
+            "rms": (v_sq / (v_n - n_nonfinite)) ** 0.5 if v_n > n_nonfinite else 0.0,
             "n_cells": v_n, "n_exact": v_exact, "n_over_tol": n_over_tol,
+            "n_nonfinite": n_nonfinite, "n_nonfinite_mismatch": n_nonfinite_mismatch,
             "first_div_period": v_first, "first_div_eid": v_first_eid,
             "worst_eid": v_worst_eid}
 
@@ -291,11 +307,20 @@ def compare_full(a_out, b_out, *, rtol: float = 1e-9, atol: float = 1e-12,
     case's metadata override), NOT the float32-ULP bit-parity ladder that
     `compare()` implements; use `compare()` for the near-bit-parity gate and
     this for general engine-vs-engine grading.
+    Matching NaNs and same-sign infinities agree for this numerical gate;
+    other non-finite pairs always fail. Non-finite counts are explicit and
+    magnitude metrics cover finite pairs only. Raw result-byte equality is
+    reported separately, including timestamps, signed zeros and NaN payloads.
     """
     A, B = Out(a_out), Out(b_out)
     n_periods = min(A.n_periods, B.n_periods)
 
     fault: list[str] = []
+    for label, output in (("a", A), ("b", B)):
+        if output.err_code:
+            fault.append(f"{label}: binary error code {output.err_code}")
+        if output.n_periods <= 0:
+            fault.append(f"{label}: no reporting periods")
     for kind in kinds:
         if kind == "sys":
             continue
@@ -329,7 +354,8 @@ def compare_full(a_out, b_out, *, rtol: float = 1e-9, atol: float = 1e-12,
     offenders = sorted(
         ({"var": k, "element": v["worst_eid"], "max_abs": v["max_abs"],
           "max_rel": v["max_rel"], "first_div_period": v["first_div_period"],
-          "n_over_tol": v["n_over_tol"]}
+          "n_over_tol": v["n_over_tol"],
+          "n_nonfinite_mismatch": v["n_nonfinite_mismatch"]}
          for k, v in per_var.items() if v["n_over_tol"]),
         key=lambda o: (o["n_over_tol"], o["max_abs"]),
         reverse=True)[:max_offenders]
@@ -346,6 +372,9 @@ def compare_full(a_out, b_out, *, rtol: float = 1e-9, atol: float = 1e-12,
         "total_cells": total_cells,
         "total_exact": total_exact,
         "total_over_tol": total_over,
+        "total_nonfinite": sum(v["n_nonfinite"] for v in per_var.values()),
+        "total_nonfinite_mismatch": sum(v["n_nonfinite_mismatch"] for v in per_var.values()),
+        "bytes_results_identical": not fault and A.results_bytes() == B.results_bytes(),
         "strict_identical": (not fault and total_cells > 0
                              and total_exact == total_cells),
         "worst_offenders": offenders,
