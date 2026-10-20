@@ -24,3 +24,6 @@ The implemented [quality/reactions suite](reactions/README.md) is separate
 from the parent scaffold. It adds 24 closed-form verification cells for
 multispecies network kinetics, rate units and per-element parameter overrides,
 with native-output values and an equal-unit parent/product mass invariant.
+Three rain-fed wet-pool cases additionally check A+B=tracer and positive
+product at the subcatchment and receiving node. These self-consistency cells
+are reported separately from the closed-form accuracy checks.

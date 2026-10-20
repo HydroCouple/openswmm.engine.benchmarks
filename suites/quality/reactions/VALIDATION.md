@@ -1,6 +1,6 @@
-# Analytic multispecies verification
+# Multispecies verification
 
-Engine: `175b5fae-dirty`
+Engine: `770fe19d-dirty`
 
 Equal-unit parent/product conversion in an isolated wet pool. A(t) = exp(-kt), B(t) = 1 - A(t).
 Each case checks every native reporting period at the storage node and conduit, including the sum A+B.
@@ -34,4 +34,15 @@ Each case checks every native reporting period at the storage node and conduit, 
 
 Tolerance: 5e-4 concentration units; 2e-6 for A+B. RATE_UNITS variants have the same physical rate.
 The override cases double Tank k and halve Pipe k. They must therefore have different analytic curves.
-This suite does not qualify porous layers, wall geometry, runoff reactors, or checkpoint/output continuation.
+
+Rain-fed wet-pool cases check the conserved sum A+B=tracer at Catchment and Tank and require positive product B.
+These are self-consistency checks, without a closed-form concentration history or accuracy claim.
+
+| Quality solver | Result | Catchment sum residual | Tank sum residual |
+| --- | --- | --- | --- |
+| LEGACY | PASS | 1.1920928955078125e-07 | 1.1920928955078125e-07 |
+| EULERIAN_ARD | PASS | 1.1920928955078125e-07 | 1.1920928955078125e-07 |
+| LAGRANGIAN | PASS | 1.1920928955078125e-07 | 1.1920928955078125e-07 |
+
+Wet-pool tolerances: 2e-6 at Catchment; 2e-5 at Tank. Product B must exceed 0.001 in both.
+This suite does not qualify porous layers, dry buildup reactions, wall geometry, or checkpoint/output continuation.

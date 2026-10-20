@@ -1,12 +1,16 @@
 {
   "date": "2026-10-20",
-  "platform": "macOS-27.0.1-arm64-arm-64bit",
-  "engine_sha": "175b5fae-dirty",
-  "library_sha256": "cf5b704e1aff3f2643756d34253e3ee395631e7ffd6626694c6c624e1913b0b8",
-  "case_count": 24,
-  "passed": 24,
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "engine_sha": "770fe19d-dirty",
+  "executable_sha256": "160de391a520222b1da8315bac6cca71c107b2501a90965aa5e9aa467385cf30",
+  "library_sha256": "8f526b529b6e1d3ae8ec43e3dcdd557d67f349fac16c26cb5b68a34aa97e0807",
+  "case_count": 27,
+  "passed": 27,
+  "analytic_cells": 24,
+  "self_consistency_cells": 3,
   "max_concentration_error": 8.25005962779013e-05,
-  "max_sum_error": 2.9802322387695312e-08,
+  "max_analytic_sum_error": 2.9802322387695312e-08,
+  "max_wet_sum_residual": 1.1920928955078125e-07,
   "cells": [
     {
       "case": "parent_product_SEC",
@@ -271,12 +275,75 @@
       "max_mass_sum_error": 2.9802322387695312e-08,
       "tolerance": 0.0005,
       "periods": 60
+    },
+    {
+      "case": "wet_pool",
+      "solver": "LEGACY",
+      "reference_class": "self_consistency",
+      "input_sha256": "5d01e907a7e9bf9aa375a40607acbc08988a80472b293b62b032ac5b031ecb4d",
+      "verdict": "PASS",
+      "max_sum_residual": {
+        "subcatch": 1.1920928955078125e-07,
+        "node": 1.1920928955078125e-07
+      },
+      "peak_product": {
+        "subcatch": 0.9825828075408936,
+        "node": 0.9797071814537048
+      },
+      "sum_tolerances": {
+        "subcatch": 2e-06,
+        "node": 2e-05
+      },
+      "periods": 36
+    },
+    {
+      "case": "wet_pool",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "self_consistency",
+      "input_sha256": "9c0a7328404a76053b8152066a5e51ccefe078fe03289381178b2471c6310364",
+      "verdict": "PASS",
+      "max_sum_residual": {
+        "subcatch": 1.1920928955078125e-07,
+        "node": 1.1920928955078125e-07
+      },
+      "peak_product": {
+        "subcatch": 0.9825828075408936,
+        "node": 0.9771657586097717
+      },
+      "sum_tolerances": {
+        "subcatch": 2e-06,
+        "node": 2e-05
+      },
+      "periods": 36
+    },
+    {
+      "case": "wet_pool",
+      "solver": "LAGRANGIAN",
+      "reference_class": "self_consistency",
+      "input_sha256": "f31274aede663770b83a480b981a32e4b49a6b2fd47a08e3ca6f2ad8930c9460",
+      "verdict": "PASS",
+      "max_sum_residual": {
+        "subcatch": 1.1920928955078125e-07,
+        "node": 1.1920928955078125e-07
+      },
+      "peak_product": {
+        "subcatch": 0.9825828075408936,
+        "node": 0.9771559834480286
+      },
+      "sum_tolerances": {
+        "subcatch": 2e-06,
+        "node": 2e-05
+      },
+      "periods": 36
     }
   ],
   "limitations": [
-    "isolated wet network only",
-    "no wet-subcatchment or porous LID qualification",
-    "no wall geometry conversion",
-    "no exact reaction checkpoint/output continuation"
-  ]
+    "porous LID-layer species transport and reaction adapters",
+    "dry buildup reactions and selective subcatchment laws",
+    "geometry-dependent WALL/BULK conversion",
+    "exact native reaction checkpoint/output continuation",
+    "SETPOINT/FLOWPACED sources",
+    "wet-pool splitting needs timestep sensitivity checks for rapid kinetics"
+  ],
+  "source_note": "Local working-tree build includes pre-existing changes; native output hashes identify the tested artifacts."
 }

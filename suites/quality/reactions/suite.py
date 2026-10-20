@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analytic multispecies parent/product verification via native output."""
+"""Analytic network verification and rain-fed wet-pool invariants."""
 from __future__ import annotations
 
 import argparse
@@ -77,22 +77,73 @@ def run(argv=None):
                 except (ValueError, KeyError, IndexError, OSError) as error:
                     cell.update(verdict="ERROR", note=str(error))
                 scoring.save_cell(scores, envelope, cell)
+    run_wet_pools(exe, scores, envelope)
     return envelope
+
+
+def run_wet_pools(exe, scores, envelope):
+    template = (HERE / "wet_pool.inp").read_text()
+    rx = (HERE / "wet_pool.rxn").read_text()
+    for solver in SOLVERS:
+        cell = {"case": "wet_pool", "solver": solver, "reference_class": "self_consistency"}
+        if not engines.available(exe):
+            scoring.save_cell(scores, envelope, {**cell, "verdict": "UNAVAILABLE", "note": "OpenSWMM 6 executable missing"})
+            continue
+        folder = RESULTS / "wet_pool" / solver
+        folder.mkdir(parents=True, exist_ok=True)
+        inp, rpt, out = (folder / name for name in ("wet_pool.inp", "wet_pool.rpt", "wet_pool.out"))
+        inp.write_text(template.replace("QUALITY_SOLVER LEGACY", f"QUALITY_SOLVER {solver}"))
+        (folder / "wet_pool.rxn").write_text(rx)
+        cell["input_sha256"] = hashlib.sha256(inp.read_bytes() + rx.encode()).hexdigest()
+        result = runner.run(exe, inp.resolve(), rpt.resolve(), out.resolve(), cwd=folder, timeout=60)
+        if not result["ok"]:
+            scoring.save_cell(scores, envelope, {**cell, "verdict": "ERROR" if result["launched"] else "UNAVAILABLE", "note": result["stderr"]})
+            continue
+        try:
+            data = Out(out)
+            if data.err_code or not data.n_periods or data.pollut_ids != ["A", "B", "tracer"]:
+                raise ValueError("invalid native output or missing named species")
+            invariant = {}
+            product = {}
+            for kind, name, base in (("subcatch", "Catchment", 8), ("node", "Tank", 6)):
+                read = data.subcatch_series if kind == "subcatch" else data.node_series
+                a, b, tracer = (read(name, base + m) for m in range(3))
+                if any(not math.isfinite(float(v)) or v < -1.e-8 for series in (a, b, tracer) for v in series):
+                    raise ValueError("non-finite or negative reported species")
+                invariant[kind] = max(abs(float(av) + float(bv) - float(tv)) for av, bv, tv in zip(a, b, tracer))
+                product[kind] = max(float(v) for v in b)
+            ok = invariant["subcatch"] <= 2.e-6 and invariant["node"] <= 2.e-5 and min(product.values()) > .001
+            cell.update(verdict="PASS" if ok else "FAIL", max_sum_residual=invariant,
+                        peak_product=product, sum_tolerances={"subcatch": 2.e-6, "node": 2.e-5}, periods=data.n_periods)
+        except (ValueError, KeyError, IndexError, OSError) as error:
+            cell.update(verdict="ERROR", note=str(error))
+        scoring.save_cell(scores, envelope, cell)
 
 
 def report(argv=None):
     envelope = scoring.load(RESULTS / "scores.json")
     if envelope is None:
         return []
-    lines = ["# Analytic multispecies verification", "", f"Engine: `{envelope['engine_sha']}`", "",
+    lines = ["# Multispecies verification", "", f"Engine: `{envelope['engine_sha']}`", "",
              "Equal-unit parent/product conversion in an isolated wet pool. A(t) = exp(-kt), B(t) = 1 - A(t).",
              "Each case checks every native reporting period at the storage node and conduit, including the sum A+B.", "",
              "| Case | Quality solver | Result | Maximum concentration error | Sum error |", "| --- | --- | --- | --- | --- |"]
     for cell in envelope["cells"]:
+        if cell["reference_class"] != "analytic":
+            continue
         lines.append(f"| {cell['case']} | {cell['solver']} | {cell['verdict']} | {cell.get('max_abs_error', '')} | {cell.get('max_mass_sum_error', '')} |")
     lines += ["", "Tolerance: 5e-4 concentration units; 2e-6 for A+B. RATE_UNITS variants have the same physical rate.",
               "The override cases double Tank k and halve Pipe k. They must therefore have different analytic curves.",
-              "This suite does not qualify porous layers, wall geometry, runoff reactors, or checkpoint/output continuation.", ""]
+              "", "Rain-fed wet-pool cases check the conserved sum A+B=tracer at Catchment and Tank and require positive product B.",
+              "These are self-consistency checks, without a closed-form concentration history or accuracy claim.", "",
+              "| Quality solver | Result | Catchment sum residual | Tank sum residual |", "| --- | --- | --- | --- |"]
+    for cell in envelope["cells"]:
+        if cell["reference_class"] != "self_consistency":
+            continue
+        residual = cell.get("max_sum_residual", {})
+        lines.append(f"| {cell['solver']} | {cell['verdict']} | {residual.get('subcatch', '')} | {residual.get('node', '')} |")
+    lines += ["", "Wet-pool tolerances: 2e-6 at Catchment; 2e-5 at Tank. Product B must exceed 0.001 in both.",
+              "This suite does not qualify porous layers, dry buildup reactions, wall geometry, or checkpoint/output continuation.", ""]
     path = RESULTS / "report.md"
     path.write_text("\n".join(lines))
     return [path]

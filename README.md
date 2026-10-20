@@ -68,9 +68,10 @@ Engines are located through environment variables — `OPENSWMM_ENGINE_DIR`,
 command runs locally and in CI. A missing engine degrades to `UNAVAILABLE`,
 never a crash.
 
-The [analytic multispecies suite](suites/quality/reactions/README.md) checks
+The [multispecies suite](suites/quality/reactions/README.md) checks
 parent/product conversion across three network quality solvers, four rate
-units and element-specific coefficient overrides. Run it with
+units and element-specific coefficient overrides, plus rain-fed wet-pool
+conservation through each network solver. Run it with
 `python run_regression.py --suite quality/reactions --exe /path/to/openswmm`.
 
 ## Layout
