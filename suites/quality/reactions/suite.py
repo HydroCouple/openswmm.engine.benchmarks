@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import math
+import re
 from pathlib import Path
 import sys
 
@@ -78,6 +80,7 @@ def run(argv=None):
                     cell.update(verdict="ERROR", note=str(error))
                 scoring.save_cell(scores, envelope, cell)
     run_wet_pools(exe, scores, envelope)
+    run_extended(exe, scores, envelope)
     return envelope
 
 
@@ -129,7 +132,7 @@ def report(argv=None):
              "Each case checks every native reporting period at the storage node and conduit, including the sum A+B.", "",
              "| Case | Quality solver | Result | Maximum concentration error | Sum error |", "| --- | --- | --- | --- | --- |"]
     for cell in envelope["cells"]:
-        if cell["reference_class"] != "analytic":
+        if not cell["case"].startswith("parent_product_"):
             continue
         lines.append(f"| {cell['case']} | {cell['solver']} | {cell['verdict']} | {cell.get('max_abs_error', '')} | {cell.get('max_mass_sum_error', '')} |")
     lines += ["", "Tolerance: 5e-4 concentration units; 2e-6 for A+B. RATE_UNITS variants have the same physical rate.",
@@ -138,19 +141,96 @@ def report(argv=None):
               "These are self-consistency checks, without a closed-form concentration history or accuracy claim.", "",
               "| Quality solver | Result | Catchment sum residual | Tank sum residual |", "| --- | --- | --- | --- |"]
     for cell in envelope["cells"]:
-        if cell["reference_class"] != "self_consistency":
+        if cell["case"] != "wet_pool":
             continue
         residual = cell.get("max_sum_residual", {})
+        if not isinstance(residual,dict):residual={"subcatch":residual,"node":residual}
         lines.append(f"| {cell['solver']} | {cell['verdict']} | {residual.get('subcatch', '')} | {residual.get('node', '')} |")
     lines += ["", "Wet-pool tolerances: 2e-6 at Catchment; 2e-5 at Tank. Product B must exceed 0.001 in both.",
-              "This suite does not qualify porous layers, dry buildup reactions, wall geometry, or checkpoint/output continuation.", ""]
+              "Extended cases cover prescribed wall-area exchange, dry buildup conversion, SETPOINT injection and a fully covered bioretention layer profile. Checkpoint continuation is verified by engine tests.", ""]
+    lines += ["## Extended profiles", "", "Thresholds and reference definitions are given in the suite README.", "", "| Case | Solver | Reference | Result | Metrics |", "| --- | --- | --- | --- | --- |"]
+    for cell in envelope["cells"]:
+        if cell["case"] not in ("wall_geometry","dry_buildup","lid_layers","setpoint"):continue
+        metrics={k:v for k,v in cell.items() if k not in ("case","solver","reference_class","verdict","input_sha256")}
+        lines.append(f"| {cell['case']} | {cell['solver']} | {cell['reference_class']} | {cell['verdict']} | `{json.dumps(metrics,sort_keys=True)}` |")
+    lines.append("")
     path = RESULTS / "report.md"
     path.write_text("\n".join(lines))
     return [path]
 
 
+def check_extended(case, data, report):
+    if data.err_code or not data.n_periods:
+        raise ValueError("invalid or empty native output")
+    if case == "wall_geometry":
+        if data.pollut_ids != ["A", "W"]:
+            raise ValueError("wall output columns absent")
+        worst = invariant = 0.
+        for kind, name, base, area, volume in (("node", "Tank", 6, 100., 1500.), ("link", "Pipe", 5, 500., None)):
+            a, w = (data.series(kind, name, base+i) for i in range(2))
+            volumes = data.series(kind, name, 3) if volume is None else [volume]*len(a)
+            for i, (av, wv, vol) in enumerate(zip(a, w, volumes)):
+                if not all(math.isfinite(float(x)) for x in (av,wv,vol)) or vol<=0:
+                    raise ValueError("invalid wall reactor volume/concentration")
+                expected=math.exp(-.1*area/(float(vol)*28.317)*(i+1)*60)
+                worst=max(worst,abs(float(av)-expected))
+                invariant=max(invariant,abs(float(av)+float(wv)*area/(float(vol)*28.317)-1))
+        return dict(verdict="PASS" if worst<2e-5 and invariant<2e-6 else "FAIL", max_abs_error=worst, max_normalized_mass_error=invariant)
+    if case == "dry_buildup":
+        rows=re.findall(r"Remaining Buildup[^\n]*",report)
+        if len(rows)!=1:
+            raise ValueError("dry mass report row absent or ambiguous")
+        mass=[float(v) for v in re.findall(r"[-+]?\d+\.\d+(?:[eE][-+]?\d+)?",rows[0])]
+        if len(mass)!=3 or not all(math.isfinite(x) for x in mass):
+            raise ValueError("dry species mass columns absent")
+        expected=1000*math.exp(-.3)
+        error=max(abs(mass[0]-expected),abs(mass[1]-(1000-expected)))
+        invariant=abs(mass[0]+mass[1]-mass[2])
+        return dict(verdict="PASS" if error<.01 and invariant<.002 else "FAIL",max_abs_mass_error=error,max_mass_sum_error=invariant)
+    if case == "setpoint":
+        if data.pollut_ids != ["A"]:raise ValueError("booster species column absent")
+        values=data.node_series("Tank",6)
+        error=max(abs(float(v)-2) for v in values)
+        if not all(math.isfinite(float(v)) for v in values):raise ValueError("nonfinite booster")
+        return dict(verdict="PASS" if error<2e-5 else "FAIL",max_abs_error=error)
+    if data.pollut_ids != ["A","B","tracer"]:raise ValueError("LID columns absent")
+    residual=0.; product=[]
+    for read,name,base in ((data.subcatch_series,"Catchment",8),(data.node_series,"Tank",6)):
+        a,b,t=(read(name,base+i) for i in range(3))
+        if any(not math.isfinite(float(v)) or v< -1e-8 for values in (a,b,t) for v in values):raise ValueError("invalid LID species output")
+        residual=max(residual,max(abs(float(x)+float(y)-float(z)) for x,y,z in zip(a,b,t)))
+        product.append(max(float(v) for v in b))
+    routing_error=None
+    if "Reaction Species Routing" in report:
+        block=report.split("Reaction Species Routing",1)[1]
+        row=re.search(r"Continuity Error \(%\)[^\n]*",block)
+        if not row:raise ValueError("network mass receipt report absent")
+        routing_error=max(abs(float(v)) for v in re.findall(r"[-+]?\d+\.\d+",row[0]))
+    good=residual<2e-5 and min(product)>.001 and (routing_error is None or routing_error<.25)
+    return dict(verdict="PASS" if good else "FAIL",max_sum_residual=residual,peak_product=product,max_network_continuity_percent=routing_error)
+
+
+def run_extended(exe,scores,envelope):
+    for case in ("wall_geometry","dry_buildup","lid_layers","setpoint"):
+        for solver in (SOLVERS[:2] if case=="wall_geometry" else SOLVERS):
+            cell=dict(case=case,solver=solver,reference_class="self_consistency" if case=="lid_layers" else "analytic")
+            if not engines.available(exe):
+                scoring.save_cell(scores,envelope,{**cell,"verdict":"UNAVAILABLE","note":"OpenSWMM 6 executable missing"});continue
+            folder=RESULTS/case/solver;folder.mkdir(parents=True,exist_ok=True)
+            inp,rpt,out=(folder/(case+suffix) for suffix in (".inp",".rpt",".out"))
+            inp.write_text((HERE/(case+".inp")).read_text().replace("QUALITY_SOLVER LEGACY","QUALITY_SOLVER "+solver))
+            rx=(HERE/(case+".rxn")).read_text();(folder/(case+".rxn")).write_text(rx)
+            cell["input_sha256"]=hashlib.sha256(inp.read_bytes()+rx.encode()).hexdigest()
+            result=runner.run(exe,inp.resolve(),rpt.resolve(),out.resolve(),cwd=folder,timeout=60)
+            if not result["ok"]:
+                cell.update(verdict="ERROR" if result["launched"] else "UNAVAILABLE",note=result["stderr"])
+            else:
+                try:cell.update(check_extended(case,Out(out),rpt.read_text(encoding="latin1")))
+                except (ValueError,KeyError,IndexError,OSError) as error:cell.update(verdict="ERROR",note=str(error))
+            scoring.save_cell(scores,envelope,cell)
+
 if __name__ == "__main__":
-    envelope = run(sys.argv[1:])
+    envelope=run(sys.argv[1:])
     report()
     print(scoring.summary(envelope))
     raise SystemExit(scoring.exit_code(envelope))
