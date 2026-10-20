@@ -68,6 +68,11 @@ Engines are located through environment variables — `OPENSWMM_ENGINE_DIR`,
 command runs locally and in CI. A missing engine degrades to `UNAVAILABLE`,
 never a crash.
 
+The [analytic multispecies suite](suites/quality/reactions/README.md) checks
+parent/product conversion across three network quality solvers, four rate
+units and element-specific coefficient overrides. Run it with
+`python run_regression.py --suite quality/reactions --exe /path/to/openswmm`.
+
 ## Layout
 
 ```
@@ -75,7 +80,7 @@ harness/          engines · runner · readers · rptparse · compare · scoring
   engines.yaml    THE engine registry — engines are data, not code
   schemas/        metadata + provenance schemas, tag vocabulary
 suites/           parity · epa_qa · analytical/{swashes,transitions,manufactured}
-                  · stability · quality · performance
+                  · stability · quality/reactions · performance
 corpus/           the model library: <collection>/<case>/{model.inp,metadata.yaml,provenance.yaml}
 data/             shared forcing files (rainfall, timeseries)
 legacy/           pre-migration source material (XPSWMM projects, summaries)

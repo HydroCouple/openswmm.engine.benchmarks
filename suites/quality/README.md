@@ -17,3 +17,10 @@ from community submissions.
 
 **Scaffold stub** — plan step 3 populates it via tag query
 (`quality OR lid_pollutants`).
+
+## Analytic reaction networks
+
+The implemented [quality/reactions suite](reactions/README.md) is separate
+from the parent scaffold. It adds 24 closed-form verification cells for
+multispecies network kinetics, rate units and per-element parameter overrides,
+with native-output values and an equal-unit parent/product mass invariant.

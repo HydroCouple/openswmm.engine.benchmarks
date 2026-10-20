@@ -1,0 +1,282 @@
+{
+  "date": "2026-10-20",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "engine_sha": "175b5fae-dirty",
+  "library_sha256": "cf5b704e1aff3f2643756d34253e3ee395631e7ffd6626694c6c624e1913b0b8",
+  "case_count": 24,
+  "passed": 24,
+  "max_concentration_error": 8.25005962779013e-05,
+  "max_sum_error": 2.9802322387695312e-08,
+  "cells": [
+    {
+      "case": "parent_product_SEC",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "684ffae54d1b423ad08cef359914c2636f0d7cfa7ed9c0f82136082ae45b63ac",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_SEC_override",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "23514cfad55792afadc194a51e3681191027cc33af0dc1164e119ec58ac6c89b",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_MIN",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "e0d281cc3659f94d4c341fdaa3f953c9c148287e0399dfc3d0d64a7a60717040",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_MIN_override",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "b73994698dec3f3a4234df0353b9c55d3b4936dda4bea1385bca6c222db42c60",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_HR",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "c4fcb5cc52a0dd144593b592c31ddfe85e3227866b7e6da677386d04f9fe0329",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_HR_override",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "3dd6f241726b3837c69ab0f06d70e4532dcc551a6ceaf4dc67388ddf279b640c",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_DAY",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "19117d38bba3344b4762c9e4abec54556f0069e25d1adc8458939b6e6172f28f",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_DAY_override",
+      "solver": "LEGACY",
+      "reference_class": "analytic",
+      "input_sha256": "a33fa50e5615945637a426c5178867c3e7a83c61c6bb5195b8f2cba1b25bb58f",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_SEC",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "f0bfc36ab3c517b41189ffbd23dbf0c7096c6d1281e928f614f641f978eda244",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_SEC_override",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "d185ac73fc1a8fb2c3891f84db7c385fe193f095627f4e5a3f39bafad7205e6c",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_MIN",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "4b83ee37496789cc4631a7929a38d0fac8d838feedfe5f92744f81ed65fc9f50",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_MIN_override",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "1b7b93d928851e91cc607b9865314b9c1fb31375ea131e1883115fe8160da4dd",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_HR",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "25601a3c5f77114efacb452c7e2ec1fc4a357110785811d33b996cb7f8b5e80b",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_HR_override",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "296bb9df5006e106bb9f0a9c505a26ed59aee9e3c35dc885d603a95c7e99a2ce",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_DAY",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "25399fd48aeeacef17c28888cba019189a2be939f54d04e5beea1b86ebeadd40",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_DAY_override",
+      "solver": "EULERIAN_ARD",
+      "reference_class": "analytic",
+      "input_sha256": "3b341ae8b6feed2a3e283cfe38b7e8a1696aadd8b3d90eb791dab8012f2f540a",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_SEC",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "47bf37fdd0429f10e7a0ba286b681b3591b3d49fbd588d52ac3473dae664ba8a",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_SEC_override",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "76ed1e35908e943e2d7ea30742451daba222bc7cdf80454f92671337b549f53c",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_MIN",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "4f319b2ea3c2b748d5524dd37e2eb32e717dd0f22f0e18388805c80eb9f7f914",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_MIN_override",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "ff88c323a0fa99b77d9824dbd7d6652c58af6cd05ab6e0f1f25f5f910d5298b2",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_HR",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "5fd35f87dc9056d0dc38ce65cf10883e5e6541443c868ff23849ab85016626d8",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_HR_override",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "4893ed807fc7b4b6c314b93a11603376f782152bf87a554fdbda1e04a928c0b8",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_DAY",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "8a73bdb6ab39e9d760bfae7d4351b079f04e8b11855b3c0c6cc3afbbb13c53bb",
+      "verdict": "PASS",
+      "max_abs_error": 4.145811415534606e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    },
+    {
+      "case": "parent_product_DAY_override",
+      "solver": "LAGRANGIAN",
+      "reference_class": "analytic",
+      "input_sha256": "760b0f2dc352c090f2d4887e2115e39fa0237db520f3566df77626b64554af6f",
+      "verdict": "PASS",
+      "max_abs_error": 8.25005962779013e-05,
+      "max_mass_sum_error": 2.9802322387695312e-08,
+      "tolerance": 0.0005,
+      "periods": 60
+    }
+  ],
+  "limitations": [
+    "isolated wet network only",
+    "no wet-subcatchment or porous LID qualification",
+    "no wall geometry conversion",
+    "no exact reaction checkpoint/output continuation"
+  ]
+}
