@@ -77,7 +77,7 @@ def test_record_keeps_the_slowest_engine(tmp_path):
         {"case": "c", "solver": "fast-engine", "wall": 100.0},
         {"case": "c", "solver": "slow-engine", "wall": 400.0},
     ]}, p)
-    assert yaml.safe_load(p.read_text())["suites"]["parity"]["c"] == {
+    assert yaml.safe_load(p.read_text(encoding='utf-8'))["suites"]["parity"]["c"] == {
         "wall_s": 400.0, "engine": "slow-engine", "sweep": "t"}
 
 
@@ -86,7 +86,7 @@ def test_record_ignores_cases_below_the_floor(tmp_path):
     n = runtime.record({"suite": "parity", "timestamp": "t", "cells": [
         {"case": "quick", "solver": "e", "wall": 1.0}]}, p)
     assert n == 0
-    assert not yaml.safe_load(p.read_text())["suites"]
+    assert not yaml.safe_load(p.read_text(encoding='utf-8'))["suites"]
 
 
 def test_record_flags_a_timeout(tmp_path):
@@ -94,7 +94,7 @@ def test_record_flags_a_timeout(tmp_path):
     runtime.record({"suite": "parity", "timestamp": "t", "cells": [
         {"case": "c", "solver": "e", "wall": 600.0,
          "note": "timeout after 600s"}]}, p)
-    assert yaml.safe_load(p.read_text())["suites"]["parity"]["c"]["timed_out"]
+    assert yaml.safe_load(p.read_text(encoding='utf-8'))["suites"]["parity"]["c"]["timed_out"]
 
 
 def test_a_missing_ledger_means_nothing_measured(tmp_path):
@@ -130,9 +130,9 @@ ROUTING_STEP\t30
 
 def test_trim_rewrites_only_the_end_of_the_period(tmp_path):
     p = tmp_path / "model.inp"
-    p.write_text(INP)
+    p.write_text(INP, encoding='utf-8')
     note = runtime.apply_trim(p, 48)
-    out = p.read_text()
+    out = p.read_text(encoding='utf-8')
     assert "END_DATE\t01/22/2013" in out
     assert "END_TIME\t00:00:00" in out
     assert "START_DATE\t01/20/2013" in out      # untouched
@@ -143,16 +143,16 @@ def test_trim_rewrites_only_the_end_of_the_period(tmp_path):
 
 def test_trim_handles_a_start_time_of_day(tmp_path):
     p = tmp_path / "model.inp"
-    p.write_text(INP.replace("START_TIME\t00:00", "START_TIME\t06:30:00"))
+    p.write_text(INP.replace("START_TIME\t00:00", "START_TIME\t06:30:00"), encoding='utf-8')
     runtime.apply_trim(p, 2)
-    assert "END_TIME\t08:30:00" in p.read_text()
+    assert "END_TIME\t08:30:00" in p.read_text(encoding='utf-8')
 
 
 def test_trim_refuses_a_model_it_cannot_parse(tmp_path):
     """Silently not trimming would hand CI the full-length run it was told to
     avoid, and the timeout would be blamed instead."""
     p = tmp_path / "model.inp"
-    p.write_text("[OPTIONS]\nFLOW_ROUTING DYNWAVE\n")
+    p.write_text("[OPTIONS]\nFLOW_ROUTING DYNWAVE\n", encoding='utf-8')
     with pytest.raises(ValueError):
         runtime.apply_trim(p, 6)
 

@@ -1,0 +1,753 @@
+{
+  "source": "SC120002/R Chapter 4",
+  "pdf_sha256": "e2c03b52f28c9f85cd11f6509b40d190bf16d18e8ff69c59c4b965e776f95dea",
+  "review": "Visually transcribed chart limits; numeric tick OCR used as a cross-check for Figure 4.17. No competitor curves extracted.",
+  "figures": {
+    "4.10": {
+      "time_unit": "minutes",
+      "seconds_per_unit": 60,
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            400
+          ],
+          "ylim": [
+            0,
+            0.6
+          ],
+          "pdf_page_1based": 51,
+          "embedded_image_sha256": "b549ff12c06b30750e96f0b02e4d19ddd4130a38250d281db36d3d3f7551b4e4"
+        },
+        "3": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            0.6
+          ],
+          "pdf_page_1based": 52,
+          "embedded_image_sha256": "b48a6b7da48980ebb935f02005becbc3b23bd06107f5b652d20732719eb92028"
+        },
+        "5": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            0.4
+          ],
+          "pdf_page_1based": 52,
+          "embedded_image_sha256": "25e39978ae8ad73bee523cf2639984854e827e5b648199d1e61d96f31cfdd178"
+        },
+        "6": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            0.35
+          ],
+          "pdf_page_1based": 53,
+          "embedded_image_sha256": "67f5f61cf9d9e11440fa9db435cc2661f33e9ddd411ad685f574cb0f9e3fafbc"
+        }
+      }
+    },
+    "4.11": {
+      "time_unit": "minutes",
+      "seconds_per_unit": 60,
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            400
+          ],
+          "ylim": [
+            0,
+            0.6
+          ],
+          "pdf_page_1based": 53,
+          "embedded_image_sha256": "9d536e5d5dc3a74a56f6d6f688c7d6c00f56c799933a269bde548a1f3217fe72"
+        },
+        "3": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            0.3
+          ],
+          "pdf_page_1based": 54,
+          "embedded_image_sha256": "d88467bae262b10c7bab0dd0431e8093db9bd808bb76f94064b7b2033cba90ac"
+        },
+        "5": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            0.25
+          ],
+          "pdf_page_1based": 54,
+          "embedded_image_sha256": "f7bfc0197bcbe0aef2eba9311bd4d984a5a2d5e75ea0c9f3e26f7078cf0b51e8"
+        },
+        "6": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            0.2
+          ],
+          "pdf_page_1based": 55,
+          "embedded_image_sha256": "3243a30d06ec320ed2c7fce05854e7fe16d8cc0398de8b7d41afc08bc8a8ed9c"
+        }
+      }
+    },
+    "4.16": {
+      "time_unit": "hours",
+      "seconds_per_unit": 3600,
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            12
+          ],
+          "ylim": [
+            171,
+            177
+          ],
+          "pdf_page_1based": 63,
+          "embedded_image_sha256": "8b76f999a1c211d61f79b4367652f1b0dbd489405e7bb0c634d9f0f94a570ce3"
+        },
+        "3": {
+          "xlim": [
+            0,
+            20
+          ],
+          "ylim": [
+            150,
+            159
+          ],
+          "pdf_page_1based": 63,
+          "embedded_image_sha256": "3d25772281b3b47564927e3f8a2bc8fb1632804993b9c6f1be727569b49e6fcf"
+        },
+        "5": {
+          "xlim": [
+            0,
+            30
+          ],
+          "ylim": [
+            144,
+            150
+          ],
+          "pdf_page_1based": 64,
+          "embedded_image_sha256": "e6a483858bd81ec5bbd327d7b49ba59a4fded29646ba7ba7021ac8aeeb08d28b"
+        },
+        "7": {
+          "xlim": [
+            0,
+            16
+          ],
+          "ylim": [
+            152,
+            158
+          ],
+          "pdf_page_1based": 64,
+          "embedded_image_sha256": "ee5b86e497e6e77d7b6300ff6e214ee3635b965ef9e7fc7c8a2ca9238ed72a64"
+        }
+      }
+    },
+    "4.17": {
+      "time_unit": "hours",
+      "seconds_per_unit": 3600,
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            0,
+            3
+          ],
+          "pdf_page_1based": 65,
+          "embedded_image_sha256": "7717a26595965a101f3da57f710aa01a657093e04942f4c201785c772ee69c2b"
+        },
+        "3": {
+          "xlim": [
+            0.5,
+            2
+          ],
+          "ylim": [
+            0,
+            3.5
+          ],
+          "pdf_page_1based": 65,
+          "embedded_image_sha256": "0207ead8e4eb6cc05806d50ed15f1bece7be3fe1c2fcf4fe31a87461d456fada"
+        },
+        "4": {
+          "xlim": [
+            1,
+            3.5
+          ],
+          "ylim": [
+            0,
+            2.5
+          ],
+          "pdf_page_1based": 66,
+          "embedded_image_sha256": "3e9f5fa7ab088da96892dc5bc3ea14d6dd7848f16ae06cf6dd6b968cfd185c3a"
+        },
+        "7": {
+          "xlim": [
+            0.5,
+            5
+          ],
+          "ylim": [
+            0,
+            2
+          ],
+          "pdf_page_1based": 66,
+          "embedded_image_sha256": "78cb8dd18b98bc810e3b36740895e0d4cb6eed0f56e4470462cc49a61ba8020b"
+        }
+      }
+    },
+    "4.25": {
+      "time_unit": "seconds",
+      "seconds_per_unit": 1,
+      "panels": {
+        "G2": {
+          "xlim": [
+            0,
+            60
+          ],
+          "ylim": [
+            0,
+            0.18
+          ],
+          "pdf_page_1based": 79,
+          "embedded_image_sha256": "13673a0d6d6644dc56a0ad5fb63add0987336723c9ef810d2869e334ef867d46"
+        },
+        "G4": {
+          "xlim": [
+            0,
+            60
+          ],
+          "ylim": [
+            0,
+            0.16
+          ],
+          "pdf_page_1based": 79,
+          "embedded_image_sha256": "10b316168a37e10364b983390683197735fb6a247bf937862adffcf078aee0dd"
+        },
+        "G5": {
+          "xlim": [
+            0,
+            60
+          ],
+          "ylim": [
+            0,
+            0.14
+          ],
+          "pdf_page_1based": 80,
+          "embedded_image_sha256": "71df4db3177d04563764f509141ae86ea6bedbb17b258b7ce3fffbc87a0fbeed"
+        },
+        "G6": {
+          "xlim": [
+            0,
+            60
+          ],
+          "ylim": [
+            0,
+            0.42
+          ],
+          "pdf_page_1based": 80,
+          "embedded_image_sha256": "3028f566ca03314ae98710346a912a57a268afcbf5b633091f9241335a6598f4"
+        }
+      }
+    },
+    "4.26": {
+      "time_unit": "seconds",
+      "seconds_per_unit": 1,
+      "panels": {
+        "G2": {
+          "xlim": [
+            0,
+            60
+          ],
+          "ylim": [
+            0,
+            2.5
+          ],
+          "pdf_page_1based": 81,
+          "embedded_image_sha256": "44dcb514536f75397fb32e3032169fb6901fe960815ff48042ab007e1dd5f58d"
+        },
+        "G4": {
+          "xlim": [
+            0,
+            60
+          ],
+          "ylim": [
+            0,
+            2
+          ],
+          "pdf_page_1based": 81,
+          "embedded_image_sha256": "d5f86ddf5c5d1b891e118d55fb712869174cfe75a070dac52eb6f133ca05c877"
+        }
+      }
+    },
+    "4.27": {
+      "time_unit": "seconds",
+      "seconds_per_unit": 1,
+      "panels": {
+        "G2": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            0,
+            3.5
+          ],
+          "pdf_page_1based": 85,
+          "embedded_image_sha256": "d96bc92529ef1852903f27b1984a50e07b7217f3a874ae3108bc815c688e3bc1"
+        },
+        "G4": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            0,
+            3
+          ],
+          "pdf_page_1based": 85,
+          "embedded_image_sha256": "f37af190d8ea56366482d4ff837a5c4e9e4314b1a901e210217e0c571b319436"
+        },
+        "G5": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            0,
+            3
+          ],
+          "pdf_page_1based": 86,
+          "embedded_image_sha256": "9565805b062a9a3369d9c3dcb13df02681eac01fee593e4e45862355ec95cce1"
+        },
+        "G6": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            0,
+            8
+          ],
+          "pdf_page_1based": 86,
+          "embedded_image_sha256": "da5ac0293bb90485c5a357a8ab6c6ca4bcee352579c653848afbfcacc354bf29"
+        }
+      }
+    },
+    "4.28": {
+      "time_unit": "seconds",
+      "seconds_per_unit": 1,
+      "panels": {
+        "G2": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            0,
+            5.5
+          ],
+          "pdf_page_1based": 87,
+          "embedded_image_sha256": "74a5fc4d7d917f46af9b4590f7cdf1bcabd6bfeac42fa81e9f9ba01cb221240e"
+        },
+        "G4": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            0,
+            5
+          ],
+          "pdf_page_1based": 87,
+          "embedded_image_sha256": "7534adf38dc2c017bc16ef84386b0be54ac234e7cf70e60ef719c894369be33b"
+        }
+      }
+    },
+    "4.3": {
+      "time_unit": "hours",
+      "seconds_per_unit": 3600,
+      "source_figure": "4.3",
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            20
+          ],
+          "ylim": [
+            9.9,
+            10.4
+          ],
+          "pdf_page_1based": 29,
+          "embedded_image_sha256": "5b501864147e4c0bf418a021d00774880cf336b3cce657ffcd818d1c70ca8b63"
+        },
+        "2": {
+          "xlim": [
+            0,
+            20
+          ],
+          "ylim": [
+            9.9,
+            10.4
+          ],
+          "pdf_page_1based": 29,
+          "embedded_image_sha256": "9f730a16ccf435fcfdf3e532870c6e4dd72a82ce42c1a0ad50b34f64e6069ff5"
+        }
+      }
+    },
+    "4.8-level": {
+      "time_unit": "seconds",
+      "seconds_per_unit": 1,
+      "source_figure": "4.8",
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            9.7,
+            10.2
+          ],
+          "pdf_page_1based": 47,
+          "embedded_image_sha256": "a06823bc407bca9fd76f3aadcad1bc742bbf54b7f2ea3e76246511a420e42af2"
+        },
+        "2": {
+          "xlim": [
+            0,
+            600
+          ],
+          "ylim": [
+            9.74,
+            9.9
+          ],
+          "pdf_page_1based": 48,
+          "embedded_image_sha256": "cfb4eac801d88d721697f1dd7a7a11aff46a1df3954651d497ce92bcf4360285"
+        }
+      }
+    },
+    "4.8-speed": {
+      "time_unit": "seconds",
+      "seconds_per_unit": 1,
+      "source_figure": "4.8",
+      "panels": {
+        "1": {
+          "xlim": [
+            0,
+            300
+          ],
+          "ylim": [
+            0,
+            3
+          ],
+          "pdf_page_1based": 47,
+          "embedded_image_sha256": "915a1cd5b4b215dc1ef1349089b4be9881ed052ddf500d0789fa23c0297231cc"
+        }
+      }
+    },
+    "4.5-a": {
+      "time_unit": "hours",
+      "seconds_per_unit": 3600,
+      "source_figure": "4.5",
+      "panels": {
+        "4": {
+          "xlim": [
+            0,
+            24
+          ],
+          "ylim": [
+            9.2,
+            9.8
+          ],
+          "pdf_page_1based": 33,
+          "embedded_image_sha256": "ceca1b478438913f0bd3c3e29ffa182529f7d8bfe98bfa52a5eea6df489d88e4"
+        },
+        "3": {
+          "xlim": [
+            0,
+            24
+          ],
+          "ylim": [
+            8.75,
+            9.35
+          ],
+          "pdf_page_1based": 33,
+          "embedded_image_sha256": "35e7f40a4e47702e84b63ca0d37714b7225c9b82b00977c727b87b842c0e8382"
+        },
+        "2": {
+          "xlim": [
+            0,
+            48
+          ],
+          "ylim": [
+            8.4,
+            9
+          ],
+          "pdf_page_1based": 34,
+          "embedded_image_sha256": "1a1d882568bc527b545a98c54b4516b8c02eb489be270afa4b6eb6235deae3ff"
+        },
+        "1": {
+          "xlim": [
+            0,
+            48
+          ],
+          "ylim": [
+            8.05,
+            8.65
+          ],
+          "pdf_page_1based": 34,
+          "embedded_image_sha256": "6893833511669586d247df6b7e6a5102efde1e73644268021cbe525944802a6d"
+        }
+      }
+    },
+    "4.5-b": {
+      "time_unit": "hours",
+      "seconds_per_unit": 3600,
+      "source_figure": "4.5",
+      "panels": {
+        "8": {
+          "xlim": [
+            0,
+            24
+          ],
+          "ylim": [
+            8.85,
+            9.45
+          ],
+          "pdf_page_1based": 35,
+          "embedded_image_sha256": "61b2618d4c996797545b4d184c5d22d9c12b6472971aa82dd95a591b5a37d1f5"
+        },
+        "7": {
+          "xlim": [
+            0,
+            24
+          ],
+          "ylim": [
+            8.5,
+            9.1
+          ],
+          "pdf_page_1based": 35,
+          "embedded_image_sha256": "62fee68c29b71721ec4eacd606e23de7a99a5408554577be9b73ce65da53b417"
+        },
+        "6": {
+          "xlim": [
+            0,
+            48
+          ],
+          "ylim": [
+            8.1,
+            8.7
+          ],
+          "pdf_page_1based": 36,
+          "embedded_image_sha256": "3d319dd3a50899c1a04161d4c2d652a382cf8a92ba2ea33f522d0086d23fbdb7"
+        },
+        "5": {
+          "xlim": [
+            0,
+            48
+          ],
+          "ylim": [
+            7.9,
+            8.5
+          ],
+          "pdf_page_1based": 36,
+          "embedded_image_sha256": "243e95cf86ed823de32f82b5c2c62cbdfd74b708c6fe575afd39d68088a4bc28"
+        }
+      }
+    },
+    "4.5-c": {
+      "time_unit": "hours",
+      "seconds_per_unit": 3600,
+      "source_figure": "4.5",
+      "panels": {
+        "12": {
+          "xlim": [
+            0,
+            24
+          ],
+          "ylim": [
+            8.4,
+            9
+          ],
+          "pdf_page_1based": 37,
+          "embedded_image_sha256": "632a2a616c21d8e5bb49277138d2078db448ce43d4e36ac51b335db7a5217de0"
+        },
+        "11": {
+          "xlim": [
+            0,
+            24
+          ],
+          "ylim": [
+            8.1,
+            8.7
+          ],
+          "pdf_page_1based": 37,
+          "embedded_image_sha256": "d4efde0dccd76dbe60c614f26f639315947ad7d66e6986da3c9348a3e9d7876c"
+        },
+        "10": {
+          "xlim": [
+            0,
+            48
+          ],
+          "ylim": [
+            7.6,
+            8.2
+          ],
+          "pdf_page_1based": 38,
+          "embedded_image_sha256": "2b322c49b52b27bf9ae38d5f64b5b7d1e2bda7eb1f80603f0f3e13358aa52938"
+        },
+        "9": {
+          "xlim": [
+            0,
+            48
+          ],
+          "ylim": [
+            7.6,
+            8.2
+          ],
+          "pdf_page_1based": 38,
+          "embedded_image_sha256": "ed8e351f156fc3485be7d0b09701b48ac56a617c48b5a19991d36d6990024265"
+        }
+      }
+    }
+  },
+  "profiles": {
+    "4.20": {
+      "xlim": [
+        100,
+        2000
+      ],
+      "level_or_depth_ylim": [
+        182,
+        202
+      ],
+      "speed_ylim": [
+        0,
+        10
+      ],
+      "pdf_page_1based": 69,
+      "embedded_image_sha256": [
+        "2f2c316b4a36185af75988e2bd612deca98949d9832958289bf3a0f139ee5857",
+        "59bb3d351889312ca992e23a563a7d86193d8ab1dafe2e2dccf0c7dc21a97d44"
+      ]
+    },
+    "4.21": {
+      "xlim": [
+        2000,
+        5000
+      ],
+      "level_or_depth_ylim": [
+        165,
+        185
+      ],
+      "speed_ylim": [
+        0,
+        7
+      ],
+      "pdf_page_1based": 70,
+      "embedded_image_sha256": [
+        "df1db77f73e639177fc4f2c62a7b8e5e933efd0b39e687f36680c360dddd9128",
+        "ddf2946660ddece44faa51ea648c2c414bf0ff983e2196446dcc8aab6c5c2a68"
+      ]
+    },
+    "4.22": {
+      "xlim": [
+        5000,
+        10000
+      ],
+      "level_or_depth_ylim": [
+        147,
+        167
+      ],
+      "speed_ylim": [
+        0,
+        7
+      ],
+      "pdf_page_1based": 71,
+      "embedded_image_sha256": [
+        "7802a0afea3d9dace99b75b7269f47ada07f9b77a5f4bc6e4bd3215784138187",
+        "709cafef32168e16dc796124a2ab31953c7b1cad3a74f2cd040ab3830be74fad"
+      ]
+    },
+    "4.23": {
+      "xlim": [
+        10000,
+        15000
+      ],
+      "level_or_depth_ylim": [
+        142,
+        154
+      ],
+      "speed_ylim": [
+        0,
+        7
+      ],
+      "pdf_page_1based": 72,
+      "embedded_image_sha256": [
+        "c47e1cee6b55e78d694e0adf748ee414314b3f783a4c243115b2178748d05d41",
+        "dd502c1b59ec63d347ef804d1798205ad52f2f0ee44011fff72162215c1f3bed"
+      ]
+    },
+    "4.30": {
+      "xlim": [
+        0,
+        160
+      ],
+      "level_or_depth_ylim": [
+        0,
+        9
+      ],
+      "speed_ylim": [
+        1,
+        10
+      ],
+      "pdf_page_1based": 89,
+      "embedded_image_sha256": [
+        "8bf80359a48ec8c53024bd59b191323293d7f732f78901921f152ca4a7d64166",
+        "efdfc79f7e535c69eef02a3a8d4ecdd413ea58cbae2022701100369cf20c42f8"
+      ]
+    },
+    "4.31": {
+      "xlim": [
+        0,
+        80
+      ],
+      "level_or_depth_ylim": [
+        0,
+        3.5
+      ],
+      "speed_ylim": [
+        0,
+        7
+      ],
+      "pdf_page_1based": 90,
+      "embedded_image_sha256": [
+        "fd9088c7339097cf4ba807f5352aa452862d6485ccc962d1558c4124024f0a4f",
+        "83433bf61771c1362a9742148926707f5ee5af9ba6888d1a901c3f1be515869b"
+      ]
+    }
+  }
+}

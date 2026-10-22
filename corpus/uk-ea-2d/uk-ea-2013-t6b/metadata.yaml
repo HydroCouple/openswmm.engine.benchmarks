@@ -1,0 +1,18 @@
+id: uk-ea-2013-t6b
+title: 'UK EA 2013 Test 6b: Scaled dam break'
+tags:
+- hydraulics
+- 2d
+- finite_volume_2d
+- regression
+- uk_ea_2d
+units: SI
+routing: DYNWAVE
+size_class: XL
+tiers:
+- nightly
+- weekly
+reference:
+  class: self_consistency
+notes: Dedicated uk_2d suite; excluded from engine-to-engine parity. See case.json
+  for geometry and source identity.

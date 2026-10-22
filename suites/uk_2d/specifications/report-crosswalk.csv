@@ -1,0 +1,62 @@
+source_item,uk_test,caption_pdf_page_1based,quantity_or_view,evidence_class,rendering_requirement
+Figure 4.1,1,28,Terrain profile,setup,Regenerate from imported terrain
+Figure 4.2,1,28,Stage boundary hydrograph,forcing,Replot supplied Test1BC.csv
+Figure 4.3,1,29,Water-level histories at both pond probes,equilibrium_only,Own solution with boundary and scoped equilibrium markers
+Figure 4.4,2,32,"Terrain, depression probes and inflow hydrograph",setup,Regenerate from source inputs
+Figure 4.5,2,39,12 published depression level histories (points 4/3/2/1/8/7/6/5/12/11/10/9); all 16 retained separately,diagnostic,Own solution only; preserve depression panel arrangement
+Figure 4.6,2,40,Final inundation extent,diagnostic,Own extent; no model-consensus reference mask
+Figure 4.7,3,46,Terrain profile,setup,Regenerate from source DEM
+Figure 4.8,3,48,Two depression level histories and first depression speed; multipage figure,diagnostic,Own solution only
+Figure 4.9,4,51,"Domain, probes and flood distribution at 3 h",diagnostic,Own terrain/probes and 3 h field
+Figure 4.10,4,53,Level histories at points 1/3/5/6; multipage figure,diagnostic,Own solution only
+Figure 4.11,4,55,Speed histories at points 1/3/5/6; multipage figure,diagnostic,Own solution only
+Figure 4.12,4,56,0.15 m depth contours at 1 h and 3 h,diagnostic,Own solution; exact map extents to transcribe
+Figure 4.13,4,57,Depth section at 1 h along Figure 4.12 line,diagnostic,Freeze profile geometry and chainage
+Figure 4.14,4,57,Speed section at 1 h along Figure 4.12 line,diagnostic,Same profile as depth
+Figure 4.15,5,62,"Valley map, inlet and seven probes",setup,Regenerate from DEM and boundary/probe files
+Figure 4.16,5,64,Level histories at points 1/3/5/7; multipage figure,diagnostic,All seven probes additionally retained
+Figure 4.17,5,66,Speed histories at points 1/3/4/7; multipage figure,diagnostic,All seven probes additionally retained
+Figure 4.18,5,67,0.5 m peak-depth contours near points 1/2/3/6,diagnostic,Own solution only
+Figure 4.19,5,68,3 m/s peak-speed contours in same region,diagnostic,Own solution only
+Figure 4.20,5,69,Peak level and speed centreline profiles 0-2 km,diagnostic,Use supplementary Test5CrossSection.xlsx geometry after audit
+Figure 4.21,5,70,Peak level and speed centreline profiles 2-5 km,diagnostic,Same source centreline and chainage
+Figure 4.22,5,71,Peak level and speed centreline profiles 5-10 km,diagnostic,Same source centreline and chainage
+Figure 4.23,5,72,Peak level and speed centreline profiles 10-15 km,diagnostic,Same source centreline and chainage
+Figure 4.24,6a,78,"Laboratory domain, gate, block and gauges",setup,Author new geometry diagram; no copied source artwork
+Figure 4.25,6a,80,"Water levels G2/G4/G5/G6, first 60 s; multipage figure",observed,Only SWMM2D and UCL measurements; acquire original observations
+Figure 4.26,6a,81,"Speeds G2/G4, first 60 s",observed,Only SWMM2D and UCL measurements; preserve measurement gaps
+Figure 4.27,6b,86,Water levels G2/G4/G5/G6; multipage figure,diagnostic,Own solution; no scaled observed trace
+Figure 4.28,6b,87,Speeds G2/G4,diagnostic,Own solution only
+Figure 4.29,6b,88,"Peak-level plan, jump and section positions",diagnostic,Own field with audited section geometry
+Figure 4.30,6b,89,Peak level and speed section 1,diagnostic,Use Test6BCrossSection1.xlsx after geometry audit
+Figure 4.31,6b,90,Peak level and speed section 2,diagnostic,Use Test6BCrossSection2.xlsx after geometry audit
+Figure 4.32,7,95,River levels M015/M025/M035/M045; multipage figure,diagnostic,Own channel solution
+Figure 4.33,7,96,River speeds M025/M035,diagnostic,Also retain Appendix A speeds at all four requested sections
+Figure 4.34,7,98,Floodplain 1 level histories; multipage figure,diagnostic,Probe selection and axes to transcribe from panels
+Figure 4.35,7,99,Floodplain 2 level histories,diagnostic,Probe selection and axes to transcribe from panels
+Figure 4.36,7,100,Floodplain 3 level histories,diagnostic,Probe selection and axes to transcribe from panels
+Figure 4.37,7,101,Selected speeds across floodplains,diagnostic,Probe selection and axes to transcribe from panels
+Figure 4.38,7,102,Peak-speed map,diagnostic,Own map with UK display region
+Figure 4.39,7,103,Final-depth map,diagnostic,Own map at 72 h
+Figure 4.40,7,104,Peak-depth map originally illustrating one named package,diagnostic,Replace model-specific illustration with own peak-depth diagnostic
+Figure 4.41,8a,110,"Urban DEM, point source, roads and probes",setup,Requires missing authoritative Test 8 dataset
+Figure 4.42,8a,112,Level histories at points 1/2/3/6; multipage figure,diagnostic,Own solution after data recovery
+Figure 4.43,8a,113,Speed histories at points 2/6,diagnostic,Own solution after data recovery
+Figure 4.44,8a,114,0.20 m peak-depth contours,diagnostic,Own solution after data recovery
+Figure 4.45,8b,119,"Urban DEM, pipe and manhole location",setup,Requires missing authoritative Test 8 dataset
+Figure 4.46,8b,120,Manhole discharge history,diagnostic,Historical surface-independent discharge only
+Figure 4.47,8b,122,Water levels at points 1/2/3; multipage figure,diagnostic,Own solution after data and coupling qualification
+Figure 4.48,8b,122,Speed at point 3,diagnostic,Own solution after data and coupling qualification
+Table 4.1,all,26,Participation,coverage,Replace package participation with requested/executed/reference-compared case coverage
+Table 4.2,1,30,Settings,configuration,SWMM2D settings only
+Table 4.3,2,43,Settings,configuration,SWMM2D settings only
+Table 4.4,3,49,Settings,configuration,SWMM2D settings only
+Table 4.5,4,59,Settings,configuration,SWMM2D settings only
+Table 4.6,5,75,Settings,configuration,SWMM2D settings only
+Table 4.7,6a,83,Settings,configuration,SWMM2D settings and observed-data provenance
+Table 4.8,6b,91,Settings,configuration,SWMM2D settings only
+Table 4.9,7,107,Settings,configuration,SWMM2D settings and coupling/structure decisions
+Table 4.10,8a,116,Settings,configuration,SWMM2D settings after data recovery
+Table 4.11,8b,120,Total manhole discharge volume,diagnostic,Own volume and independent ledger integration only
+Table 4.12,8b,123,Settings,configuration,SWMM2D settings and one-way surcharge assumptions
+Table 4.13,all,126,Run times,own_performance,Own measured runtime/resources only; no historical speed ratios

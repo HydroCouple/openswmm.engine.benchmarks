@@ -1,0 +1,499 @@
+{
+  "audited_date": "2026-10-22",
+  "scope": "Source identities for the reports and every nested benchmark archive member; hydraulic outcomes are recorded separately.",
+  "official_landing_url": "https://www.gov.uk/flood-and-coastal-erosion-risk-management-research-reports/2d-benchmarking-evaluating-the-latest-generation-of-the-hydraulic-models-for-fcrm",
+  "files": [
+    {
+      "path": "_SC080035_Desktop_review_of_2D_hydraulic_modelling_packages_Phase_1_Summary.pdf",
+      "bytes": 60431,
+      "sha256": "4a844082ad44f86715f0fcb7ee5f5f31265297204361b436d46d67e083c5babf",
+      "role": "report",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "_SC080035_Desktop_review_of_2D_hydraulic_packages_Phase_1_Report.pdf",
+      "bytes": 3370563,
+      "sha256": "0f2e42d7cd82799a8c96b7fa89d5a0da8ed378914953dbdbe09430085ee203a9",
+      "role": "report",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "_SC120002_Benchmarking_2D_hydraulic_models_Report.pdf",
+      "bytes": 8824927,
+      "sha256": "e2c03b52f28c9f85cd11f6509b40d190bf16d18e8ff69c59c4b965e776f95dea",
+      "role": "report",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "_SC120002_Benchmarking_2D_hydraulic_models_Summary.pdf",
+      "bytes": 97508,
+      "sha256": "e4c3181c4d652b3c70a43f9fd7c13a2e9cf0ab5d9e92d3560b5973f4a6f20838",
+      "role": "report",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip",
+      "bytes": 52456734,
+      "sha256": "388c2789570e5975fe909033e34bedbe5d7bde5e6d7f9b7d7c1eaf04e58bc732",
+      "role": "source_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip",
+      "bytes": 84587,
+      "sha256": "04e41e2078bf44f520b948004b0981dc2de1c899d0ca360ac59cc7dad9b9e622",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/EA2DTest1 - May2010.pdf",
+      "bytes": 110202,
+      "sha256": "407516d8d5b9725afeca053c7bd96f2330413f3c7d2a7b9ba68bc586b3315fdc",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/Test1BC.csv",
+      "bytes": 83,
+      "sha256": "c0a001dd8971b25b7f1ee87b491aa92b8ae20d39d74e82db9b67a7c4cc50fd93",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/test1DEM.asc",
+      "bytes": 193693,
+      "sha256": "96dc6541a3e53f6fcae5d1984452a87b3892a9f5f097bb2b86e9fa614104616a",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/Test1output.csv",
+      "bytes": 34,
+      "sha256": "6b89f16db52d41d135979c93418c0c56a21a39f426993cbba70ed5fc619318f5",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip",
+      "bytes": 3339300,
+      "sha256": "4692cd4415bfcccaddfab6703552c82117bd9ecc7f3a9d9d3fde6d8908a8c3a3",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/EA2DTest2 - May2010.pdf",
+      "bytes": 237310,
+      "sha256": "548e8babd3c4e7ced7ff2ba258814221727c9d66a396026a297df90a673f891a",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2_BC.csv",
+      "bytes": 66,
+      "sha256": "533033b11da4356efbf94c4518667a9e2fa9ce80f6f6142b64f4d230908b4b44",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2ActiveArea_region.dbf",
+      "bytes": 77,
+      "sha256": "3f6e6da595b989dc40190999e798bf09c8c953efede1a245ed07132d9055a3b0",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2ActiveArea_region.shp",
+      "bytes": 236,
+      "sha256": "427f2f26033aa07b39f62278c69c903d19308588bd4fc0781d108069d5d633a3",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2ActiveArea_region.shx",
+      "bytes": 108,
+      "sha256": "a10b8e4147ca5cea842f7a961edad176b3f6080cfa0a322846bd4fe07511f9ba",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2BC_polyline.dbf",
+      "bytes": 77,
+      "sha256": "3f6e6da595b989dc40190999e798bf09c8c953efede1a245ed07132d9055a3b0",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2BC_polyline.shp",
+      "bytes": 188,
+      "sha256": "3d92137a8d4c44e5c1f679a207fd2c1c406315258d260f109c2902b2684dab5d",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2BC_polyline.shx",
+      "bytes": 108,
+      "sha256": "1e75a3f832f0179dc00d0594a9fc52fc9514e8a90216ea681fe63363279b85c3",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/test2DEM.asc",
+      "bytes": 9965074,
+      "sha256": "92d85335a20c1b0dfeccc92d49df1bded32e5244be10a4a81a353d42d255f473",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test2_dataset_2010.zip!/Test2 dataset 2010/Test2output.csv",
+      "bytes": 213,
+      "sha256": "8ead735333d9e563851b4f669ff1afd43770ff206aeff1a6ea75032939ea5861",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test3_dataset_2010.zip",
+      "bytes": 91265,
+      "sha256": "3c5b4a6cfa6c182cc74ddd3b31a952e7cbff92b32ac55b1a9e1ce743b01a40da",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test3_dataset_2010.zip!/Test3 dataset 2010/EA2DTest3 - May2010.pdf",
+      "bytes": 132439,
+      "sha256": "703452c687b73ab72857f727c46090270bc21a6d7704e54e0e388df91b0d35cd",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test3_dataset_2010.zip!/Test3 dataset 2010/Test3BC.csv",
+      "bytes": 67,
+      "sha256": "d3923341418fdcfc60163d4e2ef69e2f12d8cc702f5d15dc4a04f7e6a10d336f",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test3_dataset_2010.zip!/Test3 dataset 2010/test3DEM.asc",
+      "bytes": 98630,
+      "sha256": "da13f216f2d81c036e2cead67baf67f65e6a063f0b60db6f1295b991c762c9a8",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip",
+      "bytes": 59757,
+      "sha256": "89360f1be4cd2ce25d566d704ce023ec5b2c1092f62c2814e0d7b975f0730ec4",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/EA2DTest4 - May2010.pdf",
+      "bytes": 78670,
+      "sha256": "87681480c4705259b9baaa39070ec9afd2705fc8ebf4d639daf44ba63cab8c41",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/Test4BC.csv",
+      "bytes": 60,
+      "sha256": "c640e05f6bf9c2d1a9c3ce85ca4e10f72a3559ea2c818b7e106ba69bd07cc4a1",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/Test4output.csv",
+      "bytes": 85,
+      "sha256": "77fb98ecea8712f3d2d2aad76f0fd522c94077c8d5a0492255fdbb8dd960b327",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip",
+      "bytes": 1139437,
+      "sha256": "b41ee64f474292060e0f5ba4b7b1745696f4c43d42e6521686ac311519d039be",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/EA2DTest5 - May2010.pdf",
+      "bytes": 133378,
+      "sha256": "1d0bc6e51b0c71164b861ef6b9c169f055aef5875e7bb9d9828c9554ef60d8f5",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5ActiveArea_region.dbf",
+      "bytes": 650,
+      "sha256": "9773eeb0e5ab91a3bbe83c59aba52e06145f3ff6fee54e9dc0afd146bfb1facb",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5ActiveArea_region.shp",
+      "bytes": 1356,
+      "sha256": "cb3af8927f6203b459bd24e59f73c084bf3a8a72d055eefd875ff2bbc843c09a",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5ActiveArea_region.shx",
+      "bytes": 108,
+      "sha256": "8ce2f5cfdd81aa8e5c94789d067a004d34fb71ccfe324f55c4f094b1b20a9b2b",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC.csv",
+      "bytes": 71,
+      "sha256": "bd464cffa339c0612478d6315f4d2915b86511d15d59f0dd6df3445726bc2bfb",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC_backup.txt",
+      "bytes": 112,
+      "sha256": "14c9465f59b53350d11eff564e4a598ade64a1ef0e721c660b41bc5b77df6fae",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC_polyline.dbf",
+      "bytes": 650,
+      "sha256": "f74fd641f36f163c02c2a9dc0e63c90e815704156eae07f48360ef98056bae18",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC_polyline.shp",
+      "bytes": 188,
+      "sha256": "412c7193ab3bb2e95c964359bdf5b2924f8a4f4165583eb90ce79693d09fff3f",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC_polyline.shx",
+      "bytes": 108,
+      "sha256": "14fef235447ced4278bc10903403d81e4db92e41c50aadcf3cfbb8e00196684d",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5DEM.asc",
+      "bytes": 10701974,
+      "sha256": "bab3711e9fdcfa4b3599c91894d9dff216eca252f4deafb25e9923c39309c488",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5output.csv",
+      "bytes": 133,
+      "sha256": "e8c8eccab28f5581441cd0d6dcc92eb4151f4f2e1322e4c52246aa20510f0fac",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip",
+      "bytes": 92981,
+      "sha256": "6d938d0177f9a9eb31f546cd93b88e0a4992497f31c219ae112bacb0fb692a05",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/EA2DTest6 - May2010.pdf",
+      "bytes": 99138,
+      "sha256": "1492ff8fb525339010c8de63c471f2bfb539b86a8164cc74835f0c867fd313ca",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6ADEM.asc",
+      "bytes": 2430578,
+      "sha256": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Aoutput.csv",
+      "bytes": 90,
+      "sha256": "78123efa0ea4aee66c8469a6e02bb8546175fa5c02b498de1b98bf35d4c5498b",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6BDEM.asc",
+      "bytes": 2430568,
+      "sha256": "24662db2c97e32cf94ab5447c872e64a9e8f4a6bece3433006a34e47214122df",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Boutput.csv",
+      "bytes": 79,
+      "sha256": "899ece35706df841f358e4cc1b0e5990c15c45d3fe71c6e9e41f8041dfeed6a3",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip",
+      "bytes": 48131417,
+      "sha256": "e3b60d30c973e9245c49336df5eb90cf367ce821282ef46c2ebe1f6ffb4cf834",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/EA2DTest7 - May2010.pdf",
+      "bytes": 191094,
+      "sha256": "9f4efb6db79d7468176f2f5c107f65abc875034710ac686179b0de228a69491e",
+      "role": "test_specification",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-1DLoc-Spacing.csv",
+      "bytes": 1270,
+      "sha256": "2d01ae9638e12aee15a0a6fd4106186a3ed074dfab3c1cb436ca13ba71746986",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-1DXS.txt",
+      "bytes": 123677,
+      "sha256": "11c02d23f0cf6cdd8d4ed6b3dfbbf218aa422b43fd21a10599a269ad07de200e",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-A4104Bridge.JPG",
+      "bytes": 54244,
+      "sha256": "3edfda263f4371501bae3b3e94b647ce66d84aee8044f4007800e73a6ff660b9",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-A4104bridge.xls",
+      "bytes": 13824,
+      "sha256": "4e9c5d533bb0572429fda0ad86e74edfb5f56f62ee680d2e96363ccb38e5ec2e",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-Bank-bklines.csv",
+      "bytes": 3136,
+      "sha256": "2f5f6f4380690181f9a673b111f6b00213a508abe8773cf13def60224c3151e6",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-DSRatingCurve.csv",
+      "bytes": 14336,
+      "sha256": "2da7a3ea3376a8820bb03bae44394252e594411c12fbe4b4291b99721b7ebafa",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-FP-bklines.csv",
+      "bytes": 2112,
+      "sha256": "0d6e414267e4210e454e6bd1302849ec131c9a7713d22d3bfc0f9c630809c6e0",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-FP-OuterBoundaries_polyline.dbf",
+      "bytes": 99,
+      "sha256": "ec545523589f4a4807a184224a580961c4f30d013e5078912d1fb5b847ae2e35",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-FP-OuterBoundaries_polyline.shp",
+      "bytes": 2428,
+      "sha256": "11546294173c0dc8561b4013c0a92e80f916d020aa1c79f204c1a2c643c33fb6",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-FP-OuterBoundaries_polyline.shx",
+      "bytes": 124,
+      "sha256": "1274bb1d9ce7e2ca262bf54b9b152cf20a59a5b0591ba95fea8e76b45e0c24a2",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-Output.csv",
+      "bytes": 323,
+      "sha256": "1459c28c1a809c186287c5bb527de3180a70a3fa9321df35a74211ac44563b4c",
+      "role": "probe_coordinates_not_results",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-PoolBrookCulvert.JPG",
+      "bytes": 108177,
+      "sha256": "eb5ec7bdcc2f07c191c6a3b1df9d48cc9863e28fe8045bcbf2829e976f9618f3",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-PoolBrookCulvert.xls",
+      "bytes": 13824,
+      "sha256": "9ccaf426955d344b04ebb6984579e921a5c935d3df2dd22e8b55c3073bb1ca7b",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7-USInflow.csv",
+      "bytes": 231,
+      "sha256": "9ed6ce9f6b32ea73c098a8df29b8abcc4307cee4c695a2ecd6056e77a8347643",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7DEM.asc",
+      "bytes": 186428029,
+      "sha256": "c02e2c0c121b529228445136f75b8ca13cd27680e4fe423fb961fb5a5d6fb18d",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/Test7_dataset_2010.zip!/Test7DEM_10m.asc",
+      "bytes": 1871603,
+      "sha256": "b761a7926f304fdcf2610ce57027bb173ffd646d32e0602d0526814b49866601",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/XS info Tests_5&6.zip",
+      "bytes": 80643,
+      "sha256": "d2f1f14929bcbce8ca22872554f304ed9783cca25f12f630dedccf88a9e2830e",
+      "role": "nested_archive",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/XS info Tests_5&6.zip!/GPJune2011/Test5CrossSection.xlsx",
+      "bytes": 28443,
+      "sha256": "fddc535e5d4358284fbe1244f6d60ba95163d3aa267ede09955e3056cb3fad91",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/XS info Tests_5&6.zip!/GPJune2011/Test6BCrossSection1.xlsx",
+      "bytes": 29619,
+      "sha256": "b008e711b4063d0d5aae8fef4ce6ca3709929df776cadb8e7ab097b9baa84d86",
+      "role": "input",
+      "redistribution_status": "unverified"
+    },
+    {
+      "path": "Benchmarking_Model_Data.zip!/XS info Tests_5&6.zip!/GPJune2011/Test6BCrossSection2.xlsx",
+      "bytes": 29442,
+      "sha256": "a3779dd445bcd850048db03a881a3795618fb9875cb8c5debe6eeacec08b48ba",
+      "role": "input",
+      "redistribution_status": "unverified"
+    }
+  ],
+  "missing": [
+    "Test 6A measured water-level and velocity time series",
+    "Test 8A/8B input datasets"
+  ],
+  "notes": [
+    "TestNoutput.csv files are probe coordinates, not measured results.",
+    "Checksums establish local identity, not byte equality with a newly downloaded official archive.",
+    "No source binaries are copied into the repository."
+  ]
+}

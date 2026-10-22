@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "uk_test": "1",
+      "id": "uk-ea-2013-t01",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "equilibrium constraints only",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "2",
+      "id": "uk-ea-2013-t02",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "3",
+      "id": "uk-ea-2013-t03",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "4",
+      "id": "uk-ea-2013-t04",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "5",
+      "id": "uk-ea-2013-t05",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "6a",
+      "id": "uk-ea-2013-t6a",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "Conservative digitized UCL subset; original records missing; G6 unrecoverable",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "6b",
+      "id": "uk-ea-2013-t6b",
+      "implementation": "executable",
+      "blocker": null,
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "7",
+      "id": "uk-ea-2013-t07",
+      "implementation": "blocked",
+      "blocker": "Faithful river/structure/coupling import pending",
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "8a",
+      "id": "uk-ea-2013-t8a",
+      "implementation": "blocked",
+      "blocker": "Authoritative input dataset missing",
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    },
+    {
+      "uk_test": "8b",
+      "id": "uk-ea-2013-t8b",
+      "implementation": "blocked",
+      "blocker": "Authoritative input dataset missing",
+      "independent_reference": "none supplied",
+      "scientific_status": "unvalidated",
+      "historical_reproduction": "geometry/output qualification pending"
+    }
+  ]
+}

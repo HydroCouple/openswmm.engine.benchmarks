@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "uk-ea-2013-t04",
+  "uk_test": "4",
+  "title": "Flood propagation",
+  "dx": 5.0,
+  "end": 18000,
+  "step": 20.0,
+  "n": 0.05,
+  "bounds": [
+    0,
+    1000,
+    0,
+    2000
+  ],
+  "inlet": [
+    0,
+    0,
+    990,
+    1010
+  ],
+  "volume": 285000,
+  "cell_count": 80000,
+  "area_m2": 2000000.0,
+  "initial_volume_m3": 0.0,
+  "probe_count": 6,
+  "reference_class": "self_consistency",
+  "observed_status": "not_applicable",
+  "deviations": [],
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/Test4BC.csv": "c640e05f6bf9c2d1a9c3ce85ca4e10f72a3559ea2c818b7e106ba69bd07cc4a1",
+    "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/Test4output.csv": "77fb98ecea8712f3d2d2aad76f0fd522c94077c8d5a0492255fdbb8dd960b327"
+  },
+  "model_sha256": "7ca31bb09a1ef38dff55cdab77115603ef4b4de6a45ae3c63caf9ee37bfa996a",
+  "probes_sha256": "40132f14324f661f30a3cec42b88599e1cf3353c1f3e7db2d70f449043975bc9",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  },
+  "forcing": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      300.0,
+      0.0
+    ],
+    [
+      3600.0,
+      20.0
+    ],
+    [
+      14400.0,
+      20.0
+    ],
+    [
+      18000.0,
+      0.0
+    ]
+  ],
+  "boundary_kind": "flow",
+  "boundary_width_m": 20.0
+}

@@ -337,6 +337,8 @@ def run(argv: list[str] | None = None) -> dict | None:
     scores = RESULTS / f"scores_{args.tier}.json"
 
     cases = corpus.select(corpus.load(), manifest.get("select"), tier=args.tier)
+    # UK evidence is owned by uk_2d, including explicit --only requests.
+    cases = [c for c in cases if "uk_ea_2d" not in c.tags]
     if args.only:
         wanted = set(args.only.split(","))
         cases = [c for c in cases if c.id in wanted]

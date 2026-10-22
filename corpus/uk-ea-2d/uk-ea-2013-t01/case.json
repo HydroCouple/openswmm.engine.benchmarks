@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "uk-ea-2013-t01",
+  "uk_test": "1",
+  "title": "Disconnected water body",
+  "dx": 10.0,
+  "end": 72000,
+  "step": 60.0,
+  "n": 0.03,
+  "bounds": [
+    0,
+    700,
+    0,
+    100
+  ],
+  "initial_stage": 9.7,
+  "cell_count": 700,
+  "area_m2": 70000.0,
+  "initial_volume_m3": 64.34999999999924,
+  "probe_count": 2,
+  "reference_class": "self_consistency",
+  "observed_status": "not_applicable",
+  "deviations": [],
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/test1DEM.asc": "96dc6541a3e53f6fcae5d1984452a87b3892a9f5f097bb2b86e9fa614104616a",
+    "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/Test1BC.csv": "c0a001dd8971b25b7f1ee87b491aa92b8ae20d39d74e82db9b67a7c4cc50fd93",
+    "Benchmarking_Model_Data.zip!/Test1_dataset_2010.zip!/Test1 dataset 2010/Test1output.csv": "6b89f16db52d41d135979c93418c0c56a21a39f426993cbba70ed5fc619318f5"
+  },
+  "model_sha256": "a7c60d0cc8dc2485f497efaa13f043f0266716c03ebbee72fbec24e570a43c96",
+  "probes_sha256": "ad2cc641e32ad67d5a8e9dc0acf3469d9023306a26b5860607a4435cead0327c",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  },
+  "forcing": [
+    [
+      0.0,
+      9.7
+    ],
+    [
+      300.0,
+      9.7
+    ],
+    [
+      3600.0,
+      10.35
+    ],
+    [
+      39600.0,
+      10.35
+    ],
+    [
+      43200.0,
+      9.7
+    ],
+    [
+      72000.0,
+      9.7
+    ]
+  ],
+  "boundary_kind": "stage",
+  "boundary_width_m": 100.0
+}

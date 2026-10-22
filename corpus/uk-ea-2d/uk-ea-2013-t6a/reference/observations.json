@@ -1,0 +1,24 @@
+{
+  "kind": "digitized_observed",
+  "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+  "citation": "Neelz and Pender (2013), SC120002/R, Figures 4.25-4.26; underlying IMPACT/UCL experiment cited therein",
+  "source_pdf_sha256": "e2c03b52f28c9f85cd11f6509b40d190bf16d18e8ff69c59c4b965e776f95dea",
+  "quantity_definitions": {
+    "level_m": "Water surface elevation in metres above the flat flume bed",
+    "speed_mps": "Scalar velocity magnitude in metres per second as labelled in Figure 4.26"
+  },
+  "datum": "Flat flume bed = 0 m, per UK specification",
+  "time_origin": "Gate release, chart elapsed-time origin",
+  "csv_sha256": "0bd2928bea92c21444bbe671d9a3a2a9e1cbf09df4b476875909813998c5f532",
+  "max_gap_s": 1.0,
+  "license": "unverified",
+  "uncertainty": {
+    "instrument": "unknown; not inferred from digitization",
+    "digitization": "Conservative +/-1 pixel per axis; per-series physical conversion in digitization-audit.json",
+    "time_binning": "Markers in the same x-pixel column are averaged; min/max and counts retained"
+  },
+  "coverage": "Visible isolated markers only; primarily first 30 s. G6 unrecoverable. Original raw observations remain unavailable.",
+  "selection_limitations": "Occluded/overlapping markers are omitted. This is a visibility-selected subset and does not estimate fit to the complete experiment.",
+  "extraction": "Exact magenta 5x5 radius-2 Manhattan diamond template, with non-diamond surroundings, inside plot axes; source legend excluded. No continuous model curve is sampled.",
+  "peer_review_status": "Algorithm and visual recovery audit only; independent second-person digitization pending"
+}

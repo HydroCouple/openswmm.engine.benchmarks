@@ -212,6 +212,15 @@ def badges(envelopes: list[dict], *, corpus_count: int | None = None) -> dict[st
     if corpus_count is not None:
         out["models"] = badge("models", f"{corpus_count:,}", "blue")
 
+    uk = [env for env in envelopes if env.get("suite") == "uk_2d" and env.get("coverage")]
+    if uk:
+        coverage = uk[-1]["coverage"]
+        executed = coverage.get("executed", 0)
+        requested = coverage.get("requested", 0)
+        out["uk-2d-coverage"] = badge(
+            "UK 2D coverage", f"{executed}/{requested} requested · validation pending",
+            BADGE_YELLOW if executed else BADGE_GREY)
+
     # A run that graded nothing must say so. Without this the only badge left
     # is a cheerful corpus count, which reads as health for a run that never
     # happened.

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "uk-ea-2013-t03",
+  "uk_test": "3",
+  "title": "Momentum over an obstruction",
+  "dx": 5.0,
+  "end": 900,
+  "step": 2.0,
+  "n": 0.01,
+  "bounds": [
+    0,
+    300,
+    0,
+    100
+  ],
+  "inlet": [
+    0,
+    0,
+    0,
+    100
+  ],
+  "volume": 1310,
+  "cell_count": 1200,
+  "area_m2": 30000.0,
+  "initial_volume_m3": 0.0,
+  "probe_count": 2,
+  "reference_class": "self_consistency",
+  "observed_status": "not_applicable",
+  "deviations": [],
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test3_dataset_2010.zip!/Test3 dataset 2010/test3DEM.asc": "da13f216f2d81c036e2cead67baf67f65e6a063f0b60db6f1295b991c762c9a8",
+    "Benchmarking_Model_Data.zip!/Test3_dataset_2010.zip!/Test3 dataset 2010/Test3BC.csv": "d3923341418fdcfc60163d4e2ef69e2f12d8cc702f5d15dc4a04f7e6a10d336f"
+  },
+  "model_sha256": "b52c72a4f57b9fe58fbf6a6b028325602161db51ad7a6ab84f0003e0697253eb",
+  "probes_sha256": "3f3f1d782eb43f5a714a3e72fee83623fefe6987e9988e2b602860cd9b1fcfd3",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  },
+  "forcing": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      5.0,
+      0.0
+    ],
+    [
+      15.0,
+      65.5
+    ],
+    [
+      25.0,
+      65.5
+    ],
+    [
+      35.0,
+      0.0
+    ],
+    [
+      900.0,
+      0.0
+    ]
+  ],
+  "boundary_kind": "flow",
+  "boundary_width_m": 100.0
+}

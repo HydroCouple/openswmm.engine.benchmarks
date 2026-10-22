@@ -3,7 +3,7 @@
 
 `run(exe, inp, rpt, out)` invokes ``<exe> <in.inp> <out.rpt> <out.out>`` with
 the harness.engines environment and returns
-{ok, launched, returncode, wall, stderr}.
+{ok, launched, returncode, wall, stdout, stderr}.
 `inp_sha` provides the input-hash used for result caching by suite runners.
 
 Report parsing lives in harness.rptparse — this module used to carry a second,
@@ -33,9 +33,10 @@ def run(exe: Path, inp: Path, rpt: Path, out: Path, reps: int = 1,
     e = engines.env(threads, dylib_dirs)
     if extra_env:
         e.update(extra_env)
-    best, rc, err = None, -1, ""
+    best, rc, err, stdout = None, -1, "", ""
     launched = True
     for _ in range(max(1, reps)):
+        stdout = ""
         for p in (rpt, out):
             if p and Path(p).exists():
                 Path(p).unlink()
@@ -45,8 +46,11 @@ def run(exe: Path, inp: Path, rpt: Path, out: Path, reps: int = 1,
                                  capture_output=True, text=True, env=e,
                                  cwd=str(cwd) if cwd else None, timeout=timeout)
             rc, err = res.returncode, res.stderr.strip()
-        except subprocess.TimeoutExpired:
+            stdout = res.stdout
+        except subprocess.TimeoutExpired as exc:
             rc, err = -9, f"timeout after {timeout}s"
+            partial = exc.stdout or ""
+            stdout = partial.decode("utf-8", errors="replace") if isinstance(partial, bytes) else partial
         except OSError as exc:
             # The executable exists but cannot be launched here — wrong
             # architecture, missing loader, permissions. A sweep must degrade
@@ -66,4 +70,5 @@ def run(exe: Path, inp: Path, rpt: Path, out: Path, reps: int = 1,
         if rc != 0:
             break
     return {"ok": rc == 0, "launched": launched, "returncode": rc,
+            "stdout": stdout[-20000:],
             "wall": best, "stderr": err[:500]}

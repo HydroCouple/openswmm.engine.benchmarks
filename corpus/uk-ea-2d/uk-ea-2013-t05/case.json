@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "uk-ea-2013-t05",
+  "uk_test": "5",
+  "title": "Valley flooding",
+  "dx": 50.0,
+  "end": 108000,
+  "step": 60.0,
+  "n": 0.04,
+  "volume": 9450000,
+  "bounds": [
+    232300.0,
+    245100.0,
+    829950.0,
+    841250.0
+  ],
+  "nodata_boundary_cells_excluded": 1,
+  "cell_count": 7643,
+  "area_m2": 19107500.0,
+  "initial_volume_m3": 0.0,
+  "probe_count": 7,
+  "reference_class": "self_consistency",
+  "observed_status": "not_applicable",
+  "deviations": [
+    "Active cells selected by centre inside supplied polygon; boundary is a nominal 50 m Cartesian staircase.",
+    "Inlet is mapped to exposed staircase edges near source line; total discharge normalized by selected edge length.",
+    "1 boundary cells excluded because their corners intersect source NODATA.",
+    "Polygon area, inlet geometry and refinement sensitivity remain to be qualified."
+  ],
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5DEM.asc": "bab3711e9fdcfa4b3599c91894d9dff216eca252f4deafb25e9923c39309c488",
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5ActiveArea_region.shp": "cb3af8927f6203b459bd24e59f73c084bf3a8a72d055eefd875ff2bbc843c09a",
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5ActiveArea_region.shx": "8ce2f5cfdd81aa8e5c94789d067a004d34fb71ccfe324f55c4f094b1b20a9b2b",
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC_polyline.shp": "412c7193ab3bb2e95c964359bdf5b2924f8a4f4165583eb90ce79693d09fff3f",
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC_polyline.shx": "14fef235447ced4278bc10903403d81e4db92e41c50aadcf3cfbb8e00196684d",
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5BC.csv": "bd464cffa339c0612478d6315f4d2915b86511d15d59f0dd6df3445726bc2bfb",
+    "Benchmarking_Model_Data.zip!/Test5_dataset_2010.zip!/Test5 dataset 2010/Test5output.csv": "e8c8eccab28f5581441cd0d6dcc92eb4151f4f2e1322e4c52246aa20510f0fac"
+  },
+  "model_sha256": "18b9561a63ab2a431f96c26c6e2f5a5b42b144003aa915aa922ae32333df19dd",
+  "probes_sha256": "834a28aa1c6925ada893d635dd8860a4bb026fea501cf322c6e4a9dc33675258",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  },
+  "forcing": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      300.0,
+      0.0
+    ],
+    [
+      600.0,
+      3000.0
+    ],
+    [
+      1200.0,
+      3000.0
+    ],
+    [
+      6000.0,
+      0.0
+    ],
+    [
+      108000.0,
+      0.0
+    ]
+  ],
+  "boundary_kind": "flow",
+  "boundary_width_m": 450.0
+}

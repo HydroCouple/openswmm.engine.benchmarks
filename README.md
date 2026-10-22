@@ -40,12 +40,13 @@ dimensions that matter to practitioners.
 
 ### Verification is not the same as regression
 
-Only cases with a genuine exact solution (`reference.class: analytic` or
-`manufactured`) can show an engine is **wrong**; the rest can only show that
-engines **differ**. The platform keeps these apart deliberately — error norms
-are computed for truth-class cases alone, and the `verification` and
-`regression` badges are separate numbers. "1,396 models pass" is a regression
-claim, not an accuracy claim, and is never presented as one.
+Exact-solution cases (`reference.class: analytic` or `manufactured`) support
+verification within the solution's assumptions. Measured references support
+validation with their uncertainty and coverage stated explicitly. Own-baseline
+agreement is change control. The platform keeps these apart: analytical
+verification and regression have separate badges, while the UK suite reports
+observed fit separately and makes no competitor comparison. "1,396 models
+pass" is a regression claim, not an accuracy claim.
 
 ## Quickstart
 
@@ -73,6 +74,16 @@ parent/product conversion across three network quality solvers, four rate
 units and element-specific coefficient overrides, plus rain-fed wet-pool
 conservation through each network solver. Run it with
 `python run_regression.py --suite quality/reactions --exe /path/to/openswmm`.
+
+The [UK 2D suite](suites/uk_2d/README.md) adds seven source-derived Environment
+Agency scenarios and keeps all ten historical scenarios visible in coverage.
+It compares SWMM2D only with measured/analytical references and reviewed own
+baselines. UK cases are excluded from cross-engine parity. Start with
+`python run_regression.py --suite uk_2d --tier pr --require-complete --require-regression`.
+The 22 October 2026 assessment has actual execution evidence under
+`results/uk_2d/assessment-2026-10-22/`; the older platform-status note above
+does not describe this dedicated suite. Partial numerical qualification and
+exploratory digitized laboratory fit are not complete experimental validation.
 
 ## Layout
 

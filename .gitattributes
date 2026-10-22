@@ -11,3 +11,10 @@
 # locally. `-text` stores and restores the exact bytes on every platform.
 suites/analytical/**/reference.csv -text
 suites/analytical/**/reference/** -text
+
+# UK inputs, observations and analysis sources carry SHA-256 byte identities.
+# Preserve their authored bytes in both the index and cross-platform checkouts.
+corpus/uk-ea-2d/** -text
+suites/uk_2d/** -text
+corpus/uk-ea-2d/**/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+suites/uk_2d/**/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

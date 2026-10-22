@@ -36,7 +36,7 @@ def options(argv):
 
 
 def read_csv(path):
-    with path.open(newline='') as f:
+    with path.open(newline='', encoding='utf-8') as f:
         return list(csv.DictReader(f))
 
 
@@ -64,7 +64,7 @@ def run(argv=None):
             continue
         manifest[exe.name] = digest(exe)
         try:
-            with (out / (kind+'.log')).open('w') as log:
+            with (out / (kind+'.log')).open('w', encoding='utf-8') as log:
                 result = subprocess.run([str(exe)], cwd=out, env=env, stdout=log,
                                         stderr=subprocess.STDOUT, timeout=args.max_wall)
             if result.returncode:
@@ -137,15 +137,15 @@ def run(argv=None):
                     work.mkdir(exist_ok=True)
                     deck = decks.unsteady_deck(rig, float(test['q3max_over_q1']), float(test['duration_s']))
                     preset = 'RUBINATO2017'+('_'+bound if bound != 'EXPECTED' else '')
-                    (work/'model.inp').write_text(deck.replace('COEFFS=RUBINATO2017','COEFFS='+preset))
+                    (work/'model.inp').write_text(deck.replace('COEFFS=RUBINATO2017','COEFFS='+preset), encoding='utf-8')
                     try:
-                        with (work/'run.log').open('w') as log:
+                        with (work/'run.log').open('w', encoding='utf-8') as log:
                             r = subprocess.run([sys.executable, str(Path(__file__).with_name('unsteady.py')),
                                 str(library), str(work/'model.inp'), str(work/'metrics.json')],
                                 env=env, stdout=log, stderr=subprocess.STDOUT, timeout=args.max_wall)
                         if r.returncode:
                             raise RuntimeError(f'worker exit {r.returncode}; see {work.name}/run.log')
-                        metrics = json.loads((work/'metrics.json').read_text())
+                        metrics = json.loads((work/'metrics.json').read_text(encoding='utf-8'))
                         checks = dict(nonnegative_depth=metrics['min_depth_m'] >= -1e-12,
                                       routing_continuity_2pct=abs(metrics['continuity_pct']) <= 2,
                                       both_directions=metrics['spill_m3'] > 1e-3 and metrics['drain_m3'] > 1e-3,
@@ -159,7 +159,7 @@ def run(argv=None):
                                     verdict='ERROR', note=str(exc))
                     scoring.save_cell(out/'scores.json', envelope, cell)
                     print(name, cell['verdict'], flush=True)
-    (out/'binary_manifest.json').write_text(json.dumps(manifest, indent=2))
+    (out/'binary_manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     return envelope
 
 
@@ -177,7 +177,7 @@ def report(argv=None):
         cont = f"{c['continuity_err']:.3f}" if 'continuity_err' in c else '-'
         lines.append(f"| {c['case']} | {c['verdict']} | {bias} | {cont} |")
     path = out/'comparison.md'
-    path.write_text('\n'.join(lines)+'\n')
+    path.write_text('\n'.join(lines)+'\n', encoding='utf-8')
     return [path]
 
 

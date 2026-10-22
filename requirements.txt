@@ -5,3 +5,6 @@ numpy>=1.24
 pyyaml>=6.0
 matplotlib>=3.7     # report figures
 h5py>=3.8           # 2D UGRID output reader (lazy import)
+pyshp>=2.3            # UK EA source domain/inlet shapefiles (source import only)
+jsonschema>=4.18      # UK EA suite-specific case contracts
+pypdf>=5             # reproducible local-report laboratory marker recovery

@@ -133,6 +133,8 @@ runs:
         -DOPENSWMM_BUILD_GPU_PLUGIN=OFF
         -DOPENSWMM_WITH_HYPRE=OFF
         -DOPENSWMM_WITH_GEOPACKAGE=ON
+        -DOPENSWMM_BUILD_2D=ON
+        -DOPENSWMM_2D_HDF5_OUTPUT=ON
 
     - name: Build engine CLIs
       shell: bash

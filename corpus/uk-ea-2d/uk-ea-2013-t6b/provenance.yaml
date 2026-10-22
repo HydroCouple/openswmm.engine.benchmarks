@@ -1,0 +1,12 @@
+source: Environment Agency SC120002/R Appendix A and Benchmarking_Model_Data.zip
+citation: Neelz and Pender (2013), SC120002/R, Appendix A
+url: https://www.gov.uk/flood-and-coastal-erosion-risk-management-research-reports/2d-benchmarking-evaluating-the-latest-generation-of-the-hydraulic-models-for-fcrm
+license: unverified
+contributed_by: HydroCouple
+date_added: '2026-10-22'
+original_units: SI
+modifications: Deterministic bilinear DEM sampling onto nominal Cartesian quads; SI
+  forcing. Raster cells with sampled height >= 1 m excluded as impermeable walls/building;
+  retained flume bed set to 0 m. Nominal Cartesian stair-step barrier representation;
+  must assess geometry sensitivity before measured validation. Original measured time
+  series not supplied; numerical diagnostics only.

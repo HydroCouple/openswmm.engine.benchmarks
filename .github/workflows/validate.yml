@@ -85,10 +85,9 @@ jobs:
       - name: Run changed cases
         if: steps.changed.outputs.cases != ''
         run: |
-          python -m suites.parity.suite --tier nightly \
+          python tools/smoke_cases.py \
             --only "${{ steps.changed.outputs.cases }}" \
-            --max-wall 300 \
-            --keep-out none | tee smoke.log
+            --max-wall 300 | tee smoke.log
         continue-on-error: true
 
       - name: Build the PR comment
@@ -97,14 +96,18 @@ jobs:
           {
             echo "### Model smoke run"
             echo
-            echo "Ran ${{ steps.changed.outputs.count }} changed case(s) through"
-            echo "\`openswmm-v6\` and \`swmm-5.3.0\`."
+            echo "Ran ${{ steps.changed.outputs.count }} changed case(s) through their owning suites."
             if [ "${{ steps.changed.outputs.truncated }}" = "true" ]; then
               echo
               echo "> Only the first 40 changed cases ran here; the nightly sweep covers the rest."
             fi
             echo
-            python tools/triage_sweep.py results/parity/scores_nightly.json --markdown
+            if [ -f results/parity/scores_nightly.json ]; then
+              python tools/triage_sweep.py results/parity/scores_nightly.json --markdown
+            fi
+            if [ -f results/uk_2d/scores.json ]; then
+              python -c "import json; print('UK 2D coverage:', json.load(open('results/uk_2d/scores.json'))['coverage'])"
+            fi
           } > smoke_comment.md
         continue-on-error: true
 

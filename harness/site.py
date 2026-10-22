@@ -140,6 +140,18 @@ def _all_cells(envelopes: list[dict]) -> list[dict]:
     return out
 
 
+def _coverage_note(env: dict) -> str:
+    coverage = env.get("coverage")
+    if not coverage:
+        return ""
+    return ("<div class=note><strong>" + html.escape(str(env.get("suite", ""))) +
+            " coverage:</strong> " + html.escape(str(coverage.get("executed", 0))) +
+            "/" + html.escape(str(coverage.get("requested", 0))) +
+            " requested scenarios executed; " + html.escape(str(coverage.get("observed_compared", 0))) +
+            " compared with observations; " + html.escape(str(coverage.get("regression_checked", 0))) +
+            " checked against own baselines. Numerical PASS does not establish observed validation.</div>")
+
+
 def _census() -> tuple[Counter, int]:
     try:
         from . import corpus
@@ -191,8 +203,9 @@ def build_site(envelopes: list[dict], dest: Path) -> list[Path]:
         "<div class=note><strong>Verification is not regression.</strong> "
         f"{len(truth):,} cell(s) here are graded against an exact solution and "
         f"can show an engine is <em>wrong</em>. The other {len(regression):,} "
-        "compare engines to each other or to a pinned baseline: they show that "
-        "results <em>differ</em>, not which is right.</div>",
+        "cover baseline changes, observations or numerical consistency. Their "
+        "verdicts must be interpreted according to their reference and check scope.</div>",
+        "".join(_coverage_note(env) for env in envelopes),
         "<h2>Results by suite</h2>", _counts_table(cells),
         "<h2>Failures</h2>", _failures_table(cells),
     ]
@@ -258,6 +271,7 @@ def _write_run_pages(envelopes: list[dict], dest: Path) -> list[Path]:
             f"<p class=sub>engine <code>{html.escape(sha)}</code> · "
             f"{html.escape(str(env.get('timestamp','')))} · "
             f"{len(cells)} cell(s)</p>",
+            _coverage_note(env),
             "<h2>Verdicts</h2>", _counts_table(cells),
             "<h2>Failures</h2>", _failures_table(cells, limit=200),
         ]

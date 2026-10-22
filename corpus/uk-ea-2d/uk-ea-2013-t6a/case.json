@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "uk-ea-2013-t6a",
+  "uk_test": "6a",
+  "title": "Laboratory dam break",
+  "dx": 0.1,
+  "end": 120,
+  "step": 0.1,
+  "n": 0.01,
+  "bounds": [
+    -7.6,
+    91.5,
+    -1.9,
+    1.8
+  ],
+  "cell_count": 36411,
+  "area_m2": 364.11000000000007,
+  "initial_volume_m3": 17.147000000000002,
+  "probe_count": 6,
+  "reference_class": "self_consistency",
+  "observed_status": "missing",
+  "deviations": [
+    "Raster cells with sampled height >= 1 m excluded as impermeable walls/building; retained flume bed set to 0 m.",
+    "Nominal Cartesian stair-step barrier representation; must assess geometry sensitivity before measured validation.",
+    "Original measured time series not supplied; numerical diagnostics only."
+  ],
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6ADEM.asc": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Aoutput.csv": "78123efa0ea4aee66c8469a6e02bb8546175fa5c02b498de1b98bf35d4c5498b"
+  },
+  "model_sha256": "05d12cb9ed7adef6a6d2aa9cb4fa4caa58341d382d17fa3bfc891909b8b0f9d3",
+  "probes_sha256": "38c986144f62b64c8099529acc93b509a5d184abe1e3f2b2f5f31fafea683448",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  }
+}

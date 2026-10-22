@@ -35,8 +35,8 @@ def run(argv=None):
         engine = engines.load().engines["openswmm-v6"]
         engines.resolve(engine)
         exe = engine.exe
-    template = (HERE / "pool.inp").read_text()
-    reaction = (HERE / "parent_product.rxn").read_text()
+    template = (HERE / "pool.inp").read_text(encoding='utf-8')
+    reaction = (HERE / "parent_product.rxn").read_text(encoding='utf-8')
     for solver in SOLVERS:
         for unit, rate in RATES.items():
             for override in (False, True):
@@ -48,11 +48,11 @@ def run(argv=None):
                 folder = RESULTS / case / solver
                 folder.mkdir(parents=True, exist_ok=True)
                 inp, rpt, out = (folder / name for name in ("pool.inp", "pool.rpt", "pool.out"))
-                inp.write_text(template.replace("QUALITY_SOLVER LEGACY", f"QUALITY_SOLVER {solver}"))
+                inp.write_text(template.replace("QUALITY_SOLVER LEGACY", f"QUALITY_SOLVER {solver}"), encoding='utf-8')
                 rx = reaction.replace("RATE_UNITS HR", f"RATE_UNITS {unit}").replace("PARAMETER k 0.3", f"PARAMETER k {rate:.17g}")
                 if override:
                     rx += f"\n[REACTION_PARAMETERS]\nNODE Tank k {rate * 2:.17g}\nLINK Pipe k {rate / 2:.17g}\n"
-                (folder / "parent_product.rxn").write_text(rx)
+                (folder / "parent_product.rxn").write_text(rx, encoding='utf-8')
                 cell["input_sha256"] = hashlib.sha256(inp.read_bytes() + rx.encode()).hexdigest()
                 result = runner.run(exe, inp.resolve(), rpt.resolve(), out.resolve(), cwd=folder, timeout=60)
                 if not result["ok"]:
@@ -85,8 +85,8 @@ def run(argv=None):
 
 
 def run_wet_pools(exe, scores, envelope):
-    template = (HERE / "wet_pool.inp").read_text()
-    rx = (HERE / "wet_pool.rxn").read_text()
+    template = (HERE / "wet_pool.inp").read_text(encoding='utf-8')
+    rx = (HERE / "wet_pool.rxn").read_text(encoding='utf-8')
     for solver in SOLVERS:
         cell = {"case": "wet_pool", "solver": solver, "reference_class": "self_consistency"}
         if not engines.available(exe):
@@ -95,8 +95,8 @@ def run_wet_pools(exe, scores, envelope):
         folder = RESULTS / "wet_pool" / solver
         folder.mkdir(parents=True, exist_ok=True)
         inp, rpt, out = (folder / name for name in ("wet_pool.inp", "wet_pool.rpt", "wet_pool.out"))
-        inp.write_text(template.replace("QUALITY_SOLVER LEGACY", f"QUALITY_SOLVER {solver}"))
-        (folder / "wet_pool.rxn").write_text(rx)
+        inp.write_text(template.replace("QUALITY_SOLVER LEGACY", f"QUALITY_SOLVER {solver}"), encoding='utf-8')
+        (folder / "wet_pool.rxn").write_text(rx, encoding='utf-8')
         cell["input_sha256"] = hashlib.sha256(inp.read_bytes() + rx.encode()).hexdigest()
         result = runner.run(exe, inp.resolve(), rpt.resolve(), out.resolve(), cwd=folder, timeout=60)
         if not result["ok"]:
@@ -155,7 +155,7 @@ def report(argv=None):
         lines.append(f"| {cell['case']} | {cell['solver']} | {cell['reference_class']} | {cell['verdict']} | `{json.dumps(metrics,sort_keys=True)}` |")
     lines.append("")
     path = RESULTS / "report.md"
-    path.write_text("\n".join(lines))
+    path.write_text("\n".join(lines), encoding='utf-8')
     return [path]
 
 
@@ -218,8 +218,8 @@ def run_extended(exe,scores,envelope):
                 scoring.save_cell(scores,envelope,{**cell,"verdict":"UNAVAILABLE","note":"OpenSWMM 6 executable missing"});continue
             folder=RESULTS/case/solver;folder.mkdir(parents=True,exist_ok=True)
             inp,rpt,out=(folder/(case+suffix) for suffix in (".inp",".rpt",".out"))
-            inp.write_text((HERE/(case+".inp")).read_text().replace("QUALITY_SOLVER LEGACY","QUALITY_SOLVER "+solver))
-            rx=(HERE/(case+".rxn")).read_text();(folder/(case+".rxn")).write_text(rx)
+            inp.write_text((HERE/(case+".inp")).read_text(encoding='utf-8').replace("QUALITY_SOLVER LEGACY","QUALITY_SOLVER "+solver), encoding='utf-8')
+            rx=(HERE/(case+".rxn")).read_text(encoding='utf-8');(folder/(case+".rxn")).write_text(rx, encoding='utf-8')
             cell["input_sha256"]=hashlib.sha256(inp.read_bytes()+rx.encode()).hexdigest()
             result=runner.run(exe,inp.resolve(),rpt.resolve(),out.resolve(),cwd=folder,timeout=60)
             if not result["ok"]:

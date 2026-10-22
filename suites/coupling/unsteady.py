@@ -56,7 +56,7 @@ def simulate(library: Path, inp: Path, output: Path, minimum_duration_s: float =
         previous_t = previous_v = spill = drain = 0.0
         last_sign = reversals = 0
         minimum_depth, maximum_depth = math.inf, 0.0
-        with output.with_suffix('.csv').open('w', newline='') as stream:
+        with output.with_suffix('.csv').open('w', newline='', encoding='utf-8') as stream:
             writer = csv.writer(stream)
             writer.writerow(['time_s', 'net_to_surface_m3', 'q_to_surface_lps'])
             while True:
@@ -93,7 +93,7 @@ def simulate(library: Path, inp: Path, output: Path, minimum_duration_s: float =
                       net_to_surface_m3=previous_v, reversals=reversals,
                       min_depth_m=minimum_depth, max_depth_m=maximum_depth,
                       continuity_pct=100 * continuity.value)
-        output.write_text(json.dumps(result, indent=2, allow_nan=False))
+        output.write_text(json.dumps(result, indent=2, allow_nan=False), encoding='utf-8')
         return result
     finally:
         lib.swmm_engine_destroy(engine)

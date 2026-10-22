@@ -9,6 +9,7 @@ other engine's results for the whole corpus.
 from __future__ import annotations
 
 import sys
+import subprocess
 
 from harness import runner
 
@@ -93,3 +94,15 @@ def test_inp_sha_is_content_addressed(tmp_path):
     c.write_text("[TITLE]\ny\n", encoding="utf-8")
     assert runner.inp_sha(a) == runner.inp_sha(b)
     assert runner.inp_sha(a) != runner.inp_sha(c)
+
+
+def test_timeout_keeps_current_progress_instead_of_previous_repeat(tmp_path,monkeypatch):
+    attempts=iter([subprocess.CompletedProcess(['engine'],0,stdout='first successful attempt',stderr=''),
+                   subprocess.TimeoutExpired(['engine'],1,output=b'current timeout progress')])
+    def execute(*args,**kwargs):
+        result=next(attempts)
+        if isinstance(result,Exception):raise result
+        return result
+    monkeypatch.setattr(runner.subprocess,'run',execute)
+    result=runner.run(tmp_path/'engine',tmp_path/'m.inp',tmp_path/'m.rpt',tmp_path/'m.out',reps=2,timeout=1)
+    assert not result['ok'] and result['stdout']=='current timeout progress'

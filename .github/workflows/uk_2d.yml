@@ -1,0 +1,65 @@
+name: UK 2D regression
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - 'suites/uk_2d/**'
+      - 'corpus/uk-ea-2d/**'
+      - 'harness/readers.py'
+      - 'harness/runner.py'
+      - 'tests/test_uk_2d*.py'
+      - '.github/workflows/uk_2d.yml'
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: PR pilot or full weekly coverage
+        type: choice
+        options: [pr, weekly]
+        default: pr
+      engine_ref:
+        description: Engine revision
+        default: develop
+  schedule:
+    - cron: '30 8 * * 0'
+
+env:
+  OMP_NUM_THREADS: 1
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt pytest
+      - run: python -m pytest tests/test_uk_2d.py -q
+      - uses: ./.github/actions/build-engine
+        with:
+          ref: ${{ inputs.engine_ref || 'develop' }}
+      - name: Surface output freshness
+        env:
+          UK_2D_ENGINE_TEST: "1"
+        run: python -m pytest tests/test_uk_2d_engine.py -q
+      - name: Run complete pilot cases and own regression
+        id: pilot
+        run: python run_regression.py --suite uk_2d --tier pr --require-complete --require-regression --max-wall 300
+      - name: Exact equilibrium supplement
+        run: python -m suites.uk_2d.analytical --output-dir results/uk_2d/analytical
+      - name: Weekly evidence sweep with explicit partial coverage
+        if: github.event_name == 'schedule'
+        run: python run_regression.py --suite uk_2d --tier nightly --max-wall 600 --output-dir results/uk_2d/weekly
+      - name: Full coverage qualification
+        if: inputs.tier == 'weekly'
+        run: python run_regression.py --suite uk_2d --tier weekly --require-complete --max-wall 3600 --output-dir results/uk_2d/weekly
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uk-2d-evidence
+          path: results/uk_2d/
+          retention-days: 60

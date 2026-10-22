@@ -1,0 +1,17 @@
+{
+  "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+  "model_sha256": "18b9561a63ab2a431f96c26c6e2f5a5b42b144003aa915aa922ae32333df19dd",
+  "probes_sha256": "834a28aa1c6925ada893d635dd8860a4bb026fea501cf322c6e4a9dc33675258",
+  "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
+  "reviewer": "Codex",
+  "reason": "Initial corrected-output local numerical anchor: complete canonical duration, finite nonnegative depths and independently checked water conservation. Measured fit is report-only; material G2 mismatch is not accepted as validation. No cross-platform qualification.",
+  "date": "2026-10-22T18:27:47.837720+00:00",
+  "binary_sha256": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e"
+  },
+  "atol": 1e-06,
+  "rtol": 1e-05,
+  "data_sha256": "e005a22ad050e832da51a9c129c490dc9a0568b33bdbc9eee3d7584af7635c72",
+  "qualification": "Initial local numerical regression anchor; no observed accuracy or cross-platform qualification implied"
+}
