@@ -1,0 +1,13 @@
+source: Original model reconstruction from Rubinato et al. (2017), Journal of Hydrology 552, 421-432.
+citation: "Rubinato, M., Martins, R., Kesserwani, G., Leandro, J., Djordjevic, S., and Shucksmith, J. (2017). Experimental calibration and validation of sewer/surface flow exchange equations in steady and unsteady flow conditions."
+doi: 10.1016/j.jhydrol.2017.06.024
+url: https://doi.org/10.1016/j.jhydrol.2017.06.024
+license: CC-BY-4.0
+contributed_by: OpenSWMM project
+date_added: "2026-10-21"
+original_units: SI
+modifications: >
+  Reconstructed inflows and outfall stage, 0.2 m mesh, central manhole assumed. Absolute fit is report-only; inspect mass balance and steady-state drift separately. Map-row CD/AREA omitted. Current reconstruction is not experimentally qualified.
+notes: >
+  Reference tables are reproduced under CC-BY-4.0; the original input decks are CC0-1.0.
+  This is a reconstructed numerical demonstration, not the authors numerical model.

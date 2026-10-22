@@ -1,0 +1,18 @@
+id: rubinato-2017-flume-unsteady-synthetic
+title: Synthetic manhole surcharge demonstration (not measured T1-T9)
+tags: [2d, dual_drainage, hydraulics, dynamic_wave, finite_volume_2d, physical_model, synthetic, stability]
+units: SI
+routing: DYNWAVE
+size_class: L
+runtime_class: fast
+tiers: [nightly]
+reference:
+  class: self_consistency
+  source: synthetic_table1_constraints
+  files: [reference/table1_unsteady_tests.csv, reference/rig_geometry.yaml]
+tolerances:
+  gate: report
+  continuity_warn_pct: 0.5
+  continuity_fail_pct: 2
+notes: >
+  Synthetic ramp/plateau hydrograph, not an observed event or validation against Figure 11. Table 1 constrains only the peak ratio and duration.

@@ -86,6 +86,7 @@ tags:
   long_term:          Continuous / multi-year simulation
 
   # ── provenance ────────────────────────────────────────────────────────────
+  physical_model:     Derived from a laboratory physical scale model with measured data
   real_world:         Derived from an actual drainage system
   synthetic:          Constructed for testing, not a real system
   textbook:           From published documentation or a manual

@@ -1,0 +1,18 @@
+id: rubinato-2017-flume-steady-s3
+title: Rubinato 2017 reconstructed flume S3
+tags: [2d, dual_drainage, hydraulics, dynamic_wave, finite_volume_2d, physical_model, calibration]
+units: SI
+routing: DYNWAVE
+size_class: L
+runtime_class: fast
+tiers: [nightly]
+reference:
+  class: observed
+  source: rubinato2017_table2
+  files: [reference/table2_steady_exchange.csv, reference/table3_coefficients.csv, reference/rig_geometry.yaml]
+tolerances:
+  gate: report
+  continuity_warn_pct: 0.5
+  continuity_fail_pct: 2
+notes: >
+  Reconstructed inflows and outfall stage, 0.2 m mesh, central manhole assumed. Absolute fit is report-only; inspect mass balance and steady-state drift separately. Map-row CD/AREA omitted. Current reconstruction is not experimentally qualified.
