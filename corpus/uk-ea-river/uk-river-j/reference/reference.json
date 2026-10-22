@@ -1,0 +1,16 @@
+{
+  "kind": "observed",
+  "source": "Test_J_SCHO0305BIXX-E-E_pdf.sflb.pdf",
+  "pdf_pages_1based": [
+    20
+  ],
+  "citation": "Environment Agency W5-105/TR1 (2004) or the named W5-105/TR2 results report",
+  "csv_sha256": "e0ce75716eb8b502f60088e75f086839efaa6e9d9fecb90bad00c95b2e8af8d4",
+  "description": "Measured Table 4.1 row only. Afflux is the upstream bridge/no-bridge depth difference at the same flow.",
+  "rights": "Source rights not independently verified",
+  "instrument_uncertainty": "Not reported",
+  "rounding_m": 0.0005,
+  "source_hashes": {
+    "Test_J_SCHO0305BIXX-E-E_pdf.sflb.pdf": "4de9085cd15b435f1ba9d44f9231052ef2c2ad3816b25cc3f1954c5688aaf36e"
+  }
+}

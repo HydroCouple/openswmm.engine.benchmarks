@@ -16,5 +16,7 @@ suites/analytical/**/reference/** -text
 # Preserve their authored bytes in both the index and cross-platform checkouts.
 corpus/uk-ea-2d/** -text
 suites/uk_2d/** -text
+corpus/uk-ea-river/** -text
+suites/uk_river/** -text
 corpus/uk-ea-2d/**/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 suites/uk_2d/**/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

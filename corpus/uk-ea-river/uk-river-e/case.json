@@ -1,0 +1,28 @@
+{
+  "id": "uk-river-e",
+  "key": "e",
+  "title": "Test E Ippen tidal-wave scenario",
+  "length": 100000.0,
+  "width": 1000.0,
+  "nx": 200,
+  "ny": 2,
+  "end": 14400.0,
+  "step": 60.0,
+  "n": 0.025,
+  "deviations": [
+    "Full nonlinear SWE with quadratic Manning friction; Ippen's linearized equation is an approximate comparator.",
+    "Use the specified sine stage forcing and initial 20 m still water. Published reference phase/linear-friction ambiguity remains unresolved; no analytical accuracy verdict is issued."
+  ],
+  "uk_test": "river",
+  "cell_count": 400,
+  "area_m2": 100000000.0,
+  "initial_volume_m3": 2000000000.0,
+  "initial_state": "Physical still-water initial state",
+  "source_reference": "uk-river-e/reference",
+  "model_sha256": "5e01616c433844922dc94d3f719de646ece442cb40b92697ef0913e76ce1468c",
+  "probes_sha256": "2391b861658b9c508044332dc1686460642fba59e3d848d084d43f1762181a91",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  }
+}

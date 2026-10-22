@@ -1,0 +1,22 @@
+id: uk-river-f-high
+title: Test F monoclinal wave, Manning 0.0256
+tags:
+- hydraulics
+- 2d
+- finite_volume_2d
+- regression
+- uk_ea_river
+- analytical
+units: SI
+routing: DYNWAVE
+size_class: M
+tiers:
+- nightly
+- weekly
+reference:
+  class: analytic
+notes: Dedicated uk_river suite; never engine-to-engine parity. Reference is the published
+  analytical initial profile translated at 3.7989396 m/s, using linear interpolation
+  of its 5 km samples. Constant Manning roughness reproduces the reported variants
+  but differs from the constant Chezy law defining the analytical wave. Reference
+  errors include this model-form difference.

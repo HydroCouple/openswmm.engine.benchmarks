@@ -1,0 +1,16 @@
+{
+  "model_sha256": "a9e33257d5ad87483d6bec2dd0dddfea00dd8112a8cd9b0cd36c4b56d937e5ea",
+  "probes_sha256": "929f5245ed463f2e15cb41116fe46f22b8d6da3f915fbd260ccd402959cc442d",
+  "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+  "reference_sha256": "3c5394e19251cf8fb4caa8ec63451d3509ebc4b35b5001df388695531390f495",
+  "data_sha256": "d2ca2db84b4dbd2a0a77774fdaccdfe93b264f9fe0b55c540024344a1b5b0015",
+  "rtol": 1e-07,
+  "atol": 1e-08,
+  "review": "Initial numerical anchors reviewed against checksum-locked source inputs and full-duration output; finite fields, conservation, original laboratory tables and analytical profile sampling checked. Gate opening, sidewall/friction-law differences and pending physical qualification remain explicit. No fit calibration. UTF-8 and probe identity bindings verified; cross-platform tolerances remain unqualified.",
+  "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+  "binaries": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e"
+  },
+  "meaning": "Initial numerical change-control anchor only; not laboratory/analytical acceptance or qualified cross-platform tolerance."
+}

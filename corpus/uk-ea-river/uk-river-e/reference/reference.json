@@ -1,0 +1,8 @@
+{
+  "kind": "unavailable",
+  "source": "Test_E_SCHO0305BIXT-E-E_pdf.sflb.pdf",
+  "source_hashes": {
+    "Test_E_SCHO0305BIXT-E-E_pdf.sflb.pdf": "3b869ba32dd877d6b8a6a719569ccc7004d09c1c71ddd31f9bade8d92b510eae"
+  },
+  "reason": "TR2E section 4.3 identifies a sine/cosine boundary phase conflict. Appendix A also leaves the representative velocity for linear friction unspecified. No parameter fitting or phase shift is applied to manufacture agreement."
+}

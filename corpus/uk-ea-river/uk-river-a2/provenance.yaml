@@ -1,0 +1,7 @@
+source: Environment Agency W5-105/TR1 and TR2
+citation: Crowder et al. (2004), W5-105 river benchmarks
+license: unverified
+contributed_by: HydroCouple
+date_added: '2026-10-22'
+original_units: SI
+modifications: SWMM2D representation; see case.json.

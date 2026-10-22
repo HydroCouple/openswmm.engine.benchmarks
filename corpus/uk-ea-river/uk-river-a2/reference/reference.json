@@ -1,0 +1,21 @@
+{
+  "kind": "analytic",
+  "source": "W5-105-TR1-Test-Specifications.pdf",
+  "pdf_pages_1based": [
+    77,
+    78
+  ],
+  "citation": "Environment Agency W5-105/TR1 (2004) or the named W5-105/TR2 results report",
+  "csv_sha256": "5b66fe8459fce4a9e16b90522270de8792269104c5631b13db35ee91fd714659",
+  "description": "Published analytical water elevations, not competitor output. Source chainage decreases in the flow direction.",
+  "rights": "Source rights not independently verified",
+  "instrument_uncertainty": "Not applicable",
+  "rounding_m": 5e-05,
+  "rounding_note": "Conservative half unit of the coarsest displayed four-decimal entry; 503 of 505 elevations display five decimals.",
+  "source_hashes": {
+    "W5-105-TR1-Test-Specifications.pdf": "56e637c1efcd6cb5c80e4291219d169b729bccc088b8e961162c20d51b4eedfb",
+    "Test A/hec-ras/Part 1/Test A-P1.g01": "05c697ed74b2dd66954b616b33864752db6e68ee0d6e27ad4843ceffe668252a",
+    "Test A/hec-ras/Part 2/Test A-P2.g01": "a1f1a1fe036fe3c3e087f976b2249aede5f09c2b5faef5d6e8a1b38f79fa7161"
+  },
+  "geometry_source": "Test A/hec-ras/Part 2/Test A-P2.g01"
+}

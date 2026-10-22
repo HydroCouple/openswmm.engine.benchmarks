@@ -1,0 +1,21 @@
+id: uk-river-e
+title: Test E Ippen tidal-wave scenario
+tags:
+- hydraulics
+- 2d
+- finite_volume_2d
+- regression
+- uk_ea_river
+units: SI
+routing: DYNWAVE
+size_class: M
+tiers:
+- nightly
+- weekly
+reference:
+  class: self_consistency
+notes: Dedicated uk_river suite; never engine-to-engine parity. Full nonlinear SWE
+  with quadratic Manning friction; Ippen's linearized equation is an approximate comparator.
+  Use the specified sine stage forcing and initial 20 m still water. Published reference
+  phase/linear-friction ambiguity remains unresolved; no analytical accuracy verdict
+  is issued.

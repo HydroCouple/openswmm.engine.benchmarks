@@ -1,0 +1,28 @@
+{
+  "id": "uk-river-f-mean",
+  "key": "f-mean",
+  "title": "Test F monoclinal wave, Manning 0.0241",
+  "length": 1000000.0,
+  "width": 1000.0,
+  "nx": 200,
+  "ny": 2,
+  "end": 108000.0,
+  "step": 360.0,
+  "n": 0.0241,
+  "deviations": [
+    "Reference is the published analytical initial profile translated at 3.7989396 m/s, using linear interpolation of its 5 km samples.",
+    "Constant Manning roughness reproduces the reported variants but differs from the constant Chezy law defining the analytical wave. Reference errors include this model-form difference."
+  ],
+  "uk_test": "river",
+  "cell_count": 400,
+  "area_m2": 1000000000.0,
+  "initial_volume_m3": 3672750000.0,
+  "initial_state": "Source analytical depth and discharge",
+  "source_reference": "uk-river-f/reference",
+  "model_sha256": "ce30396efb9ab7ed94c47f8c1649fff95db1d06d8fe697e14a2866df04b96bca",
+  "probes_sha256": "1a5f1b42ce2faeafb5ae5f36371fc59f6624f8c4cac686a1fc616d014e03ea88",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  }
+}

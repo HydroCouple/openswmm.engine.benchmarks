@@ -1,0 +1,16 @@
+{
+  "collection": "Environment Agency W5-105 river benchmarks",
+  "solver": "SWMM2D CPU FULL_SWE",
+  "cases": {
+    "a1": "Executable source-derived quasi-steady reproduction",
+    "a2": "Executable source-derived quasi-steady reproduction",
+    "a3": "Executable source-derived quasi-steady reproduction",
+    "a4": "Executable source-derived quasi-steady reproduction",
+    "a5": "Executable source-derived quasi-steady reproduction",
+    "e": "Executable full scenario; published analytical reference qualification pending",
+    "f": "Executable report Manning variants; translated analytical initial-profile reference",
+    "l": "Executable physical laboratory geometry; original measured table recovered",
+    "j": "Measured targets imported; bridge and paired no-bridge geometry implementation pending"
+  },
+  "not_in_scope": "A6 transient has no independent analytical history; numbered SC120002 2D tests remain a separate suite."
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "observed",
+  "source": "W5-105-TR1-Test-Specifications.pdf",
+  "pdf_pages_1based": [
+    89,
+    90,
+    91,
+    92
+  ],
+  "citation": "Environment Agency W5-105/TR1 (2004) or the named W5-105/TR2 results report",
+  "csv_sha256": "b8e2d171338fcda25e386552ee0e72fdec053a68e59d9213ca27a9e8f66d97a7",
+  "description": "Tabulated CADAM laboratory water levels above the flat bed; 251 times at 0.04 s, including t=0 and t=10.",
+  "rights": "Source rights not independently verified",
+  "instrument_uncertainty": "Not reported",
+  "rounding_m": 0.0005,
+  "time_origin": "Physical gate release; no fitted time shift",
+  "source_hashes": {
+    "W5-105-TR1-Test-Specifications.pdf": "56e637c1efcd6cb5c80e4291219d169b729bccc088b8e961162c20d51b4eedfb"
+  }
+}

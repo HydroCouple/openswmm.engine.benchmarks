@@ -1,0 +1,30 @@
+{
+  "id": "uk-river-l-fine",
+  "key": "l-fine",
+  "title": "Test L CADAM constricted-channel dam break (finer mesh)",
+  "length": 19.3,
+  "width": 0.5,
+  "nx": 772,
+  "ny": 20,
+  "end": 10.0,
+  "step": 0.04,
+  "n": 0.01,
+  "deviations": [
+    "The physical 19.3 m laboratory channel is represented directly. This differs from the result report's extended 40 m reservoir and delayed analytical initialization.",
+    "The initial dam is removed instantaneously at t=0; the physical gate opened in approximately 0.2 s. No fitted time shift.",
+    "The 45-degree constriction tapers are fitted by nonrectangular quads; no staircase or artificial raised terrain substitutes for the walls.",
+    "Gauge predictions use the containing cell. Instrument spatial averaging and uncertainty are not supplied."
+  ],
+  "uk_test": "river",
+  "cell_count": 15440,
+  "area_m2": 9.17,
+  "initial_volume_m3": 0.9333599999999824,
+  "initial_state": "Physical still-water initial state",
+  "source_reference": "uk-river-l/reference",
+  "model_sha256": "b5b6161f15db85685edb78384a8fa8202f767f919b2f4384f084d120658308a4",
+  "probes_sha256": "403ab63b0a88e78871883522e7fbadee5e1a58bf1c2fb536933d37d08d31fd24",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  }
+}

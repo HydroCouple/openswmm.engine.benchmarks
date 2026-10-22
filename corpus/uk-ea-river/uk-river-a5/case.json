@@ -1,0 +1,30 @@
+{
+  "id": "uk-river-a5",
+  "key": "a5",
+  "title": "Test A Part 5 quasi-steady flow",
+  "length": 100.0,
+  "width": 10.0,
+  "nx": 100,
+  "ny": 2,
+  "end": 3600.0,
+  "step": 20.0,
+  "n": 0.03,
+  "deviations": [
+    "A transient SWMM2D march initialized from the analytical profile reproduces the source quasi-steady duration; no independent direct steady solver is claimed.",
+    "SWMM2D applies bed Manning friction using depth; the source 1D solution includes finite-width hydraulic radius. Sidewall shear is not added or calibrated.",
+    "The 1 m source spacing is retained along the flow; two 5 m-wide cells span the uniform 10 m section.",
+    "Source cross sections/analytical levels are tabulated at 1 m. Linear interpolation onto cell centres is disclosed, especially across hydraulic jumps."
+  ],
+  "uk_test": "river",
+  "cell_count": 200,
+  "area_m2": 1000.0,
+  "initial_volume_m3": 668.0833,
+  "initial_state": "Source analytical depth and discharge",
+  "source_reference": "uk-river-a5/reference",
+  "model_sha256": "7601ef523b3e2c71f9666869cd41c7e8e5e0af62cc9252e2de4a50855bd6b6cd",
+  "probes_sha256": "929f5245ed463f2e15cb41116fe46f22b8d6da3f915fbd260ccd402959cc442d",
+  "numerical_limits": {
+    "continuity_pct": 0.5,
+    "min_depth_m": -1e-10
+  }
+}

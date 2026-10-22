@@ -1,0 +1,43 @@
+name: UK river independent references
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - 'suites/uk_river/**'
+      - 'corpus/uk-ea-river/**'
+      - 'suites/uk_2d/sampling.py'
+      - 'tests/test_uk_river.py'
+      - '.github/workflows/uk_river.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '15 9 * * 0'
+
+env:
+  OMP_NUM_THREADS: 1
+
+jobs:
+  independent-references:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt pytest
+      - run: python -m pytest tests/test_uk_river.py -q
+      - uses: ./.github/actions/build-engine
+      - name: Complete numerical pilot with separate reference fit
+        run: python run_regression.py --suite uk_river --tier pr --require-complete --require-regression --max-wall 600
+      - name: Full available-evidence sweep with visible bridge gap
+        if: github.event_name != 'pull_request'
+        run: python run_regression.py --suite uk_river --output-dir results/uk_river/full --max-wall 600
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uk-river-independent-reference-evidence
+          path: results/uk_river/
+          retention-days: 60

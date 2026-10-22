@@ -22,6 +22,9 @@ def main(argv=None):
     ap.add_argument('--only',required=True);ap.add_argument('--max-wall',type=float,default=300)
     args=ap.parse_args(argv)
     generic,uk=partition(args.only.split(','));rc=0
+    records={c.id:c for c in corpus.load()}
+    river=[ident for ident in generic if 'uk_ea_river' in records[ident].tags]
+    generic=[ident for ident in generic if ident not in river]
     if generic:
         from suites.parity import suite
         env=suite.run(['--tier','nightly','--only',','.join(generic),'--max-wall',str(args.max_wall),'--keep-out','none'])
@@ -30,7 +33,11 @@ def main(argv=None):
         from suites.uk_2d import suite
         opts=['--tier','nightly','--only',','.join(uk),'--max-wall',str(args.max_wall)]
         env=suite.run(opts);suite.report(opts);rc|=scoring.exit_code(env)
-    if not generic and not uk:return 1
+    if river:
+        from suites.uk_river import suite
+        opts=['--only',','.join(ident.removeprefix('uk-river-') for ident in river),'--max-wall',str(args.max_wall)]
+        env=suite.run(opts);suite.report(opts);rc|=scoring.exit_code(env)
+    if not generic and not uk and not river:return 1
     return rc
 
 if __name__=='__main__':sys.exit(main())

@@ -1,0 +1,25 @@
+id: uk-river-l-fine
+title: Test L CADAM constricted-channel dam break (finer mesh)
+tags:
+- hydraulics
+- 2d
+- finite_volume_2d
+- regression
+- uk_ea_river
+- physical_model
+units: SI
+routing: DYNWAVE
+size_class: L
+tiers:
+- nightly
+- weekly
+reference:
+  class: observed
+notes: Dedicated uk_river suite; never engine-to-engine parity. The physical 19.3
+  m laboratory channel is represented directly. This differs from the result report's
+  extended 40 m reservoir and delayed analytical initialization. The initial dam is
+  removed instantaneously at t=0; the physical gate opened in approximately 0.2 s.
+  No fitted time shift. The 45-degree constriction tapers are fitted by nonrectangular
+  quads; no staircase or artificial raised terrain substitutes for the walls. Gauge
+  predictions use the containing cell. Instrument spatial averaging and uncertainty
+  are not supplied.

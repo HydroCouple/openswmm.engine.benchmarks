@@ -85,6 +85,15 @@ The 22 October 2026 assessment has actual execution evidence under
 does not describe this dedicated suite. Partial numerical qualification and
 exploratory digitized laboratory fit are not complete experimental validation.
 
+The separate [UK river supplement](suites/uk_river/README.md) imports published
+W5-105 analytical profiles and original tabulated laboratory histories. Its
+SWMM2D reproductions report independent-reference errors, conservation and
+explicit own-baseline changes separately. Run it with
+`python run_regression.py --suite uk_river --tier pr --require-complete --require-regression`.
+The bridge representation and Ippen analytical-reference qualification remain
+pending and visible; this earlier collection does not fill the numbered 2D
+suite's missing urban data.
+
 ## Layout
 
 ```

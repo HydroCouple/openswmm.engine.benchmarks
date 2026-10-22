@@ -1,0 +1,16 @@
+{
+  "kind": "analytic",
+  "source": "Test F/isis/n=0.0241/Monoclinial5KHT.dat",
+  "pdf_pages_1based": [],
+  "citation": "Environment Agency W5-105/TR1 (2004) or the named W5-105/TR2 results report",
+  "csv_sha256": "00bf030838a3fd5eacae58326e3f18ce3d5dcdf007f8b054e0bef7e1541d216e",
+  "description": "Source-declared analytical initial state (TR2F section 2.3), translated at the independently specified wave celerity. Linear interpolation of tabulated values, not a new closed-form calculation.",
+  "rights": "Source rights not independently verified",
+  "instrument_uncertainty": "Not applicable",
+  "wave_celerity_mps": 3.7989396,
+  "rounding_depth_m": 0.0005,
+  "source_hashes": {
+    "Test F/isis/n=0.0241/Monoclinial5KHT.dat": "5c6ae7f63961c3695a9b247ff4bee1eb22dbfb4aa664b5aed73f75afdc3d11d6"
+  },
+  "friction": "Analytical wave uses constant Chezy C=55; model uses the report's constant Manning n approximations."
+}
