@@ -8,27 +8,30 @@
   "step": 0.1,
   "n": 0.01,
   "bounds": [
-    -7.6,
-    91.5,
-    -1.9,
+    -7.55,
+    91.45,
+    -1.8,
     1.8
   ],
-  "cell_count": 36411,
-  "area_m2": 364.11000000000007,
-  "initial_volume_m3": 17.147000000000002,
+  "cell_count": 61642,
+  "area_m2": 354.0,
+  "initial_volume_m3": 16.617999999999995,
   "probe_count": 6,
   "reference_class": "self_consistency",
   "observed_status": "missing",
   "deviations": [
-    "Raster cells with sampled height >= 1 m excluded as impermeable walls/building; retained flume bed set to 0 m.",
-    "Nominal Cartesian stair-step barrier representation; must assess geometry sensitivity before measured validation.",
-    "Original measured time series not supplied; numerical diagnostics only."
+    "GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments, 1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by 20 for 6B).",
+    "Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155 m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the supplied DEM.",
+    "Bank toes and X=0 depth discontinuity are internal mesh constraints, not walls. All exposed edges are explicit reflective WALL boundaries.",
+    "Initial conditions are uniform water depths, as specified, including over the bank slopes; no fitted time shift or roughness calibration.",
+    "Original measured series missing; recovered isolated UCL markers provide exploratory 6A comparison only."
   ],
   "source_hashes": {
     "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6ADEM.asc": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/EA2DTest6 - May2010.pdf": "1492ff8fb525339010c8de63c471f2bfb539b86a8164cc74835f0c867fd313ca",
     "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Aoutput.csv": "78123efa0ea4aee66c8469a6e02bb8546175fa5c02b498de1b98bf35d4c5498b"
   },
-  "model_sha256": "05d12cb9ed7adef6a6d2aa9cb4fa4caa58341d382d17fa3bfc891909b8b0f9d3",
+  "model_sha256": "df34c584ed3989df4b4f017a63941df182962a6610237feb1e64576f77f87027",
   "probes_sha256": "38c986144f62b64c8099529acc93b509a5d184abe1e3f2b2f5f31fafea683448",
   "numerical_limits": {
     "continuity_pct": 0.5,

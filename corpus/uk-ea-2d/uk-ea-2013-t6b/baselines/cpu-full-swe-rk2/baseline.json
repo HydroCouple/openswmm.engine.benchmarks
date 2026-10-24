@@ -1,17 +1,17 @@
 {
   "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
-  "model_sha256": "157619342160d9a79400bba58da2df07ea47f7f1e5f5527ee57823963817202c",
+  "model_sha256": "cee692cb474b8dc49ef4eaa95e2b78d50b1112799a024097dc831c285e253fed",
   "probes_sha256": "b6a91ad194fa0deb268923dee7ee77613db3b6145164edcd248ddc4bfee4f02b",
   "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
-  "reviewer": "Codex",
-  "reason": "Initial corrected-output local numerical anchor: complete canonical duration, finite nonnegative depths and independently checked water conservation. Measured fit is report-only; material G2 mismatch is not accepted as validation. No cross-platform qualification.",
-  "date": "2026-10-22T18:27:47.845287+00:00",
+  "reviewer": "Codex: Test 6 constrained geometry review 2026-10-24",
+  "reason": "User explicitly selected full 20-fold XYZ scaling per written specification despite unchanged DEM elevations. GUI TIN constraints, scaled area/volume and complete 1800 s numerical checks reviewed. This is a local regression anchor only; no measured full-scale accuracy or dynamic similarity implied.",
+  "date": "2026-10-24T19:55:56.633442+00:00",
   "binary_sha256": {
     "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",
     "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e"
   },
   "atol": 1e-06,
   "rtol": 1e-05,
-  "data_sha256": "6308a0188e9e0e3026cddfa8cac8d4fbc27bd99b0924ddc847d0ad8dc70f8c47",
+  "data_sha256": "18efe2e6c1bcc75d906dfb3e8c1608f90a5745558ed67ec81959ce2aa03d8ea3",
   "qualification": "Initial local numerical regression anchor; no observed accuracy or cross-platform qualification implied"
 }

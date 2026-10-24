@@ -1,0 +1,25 @@
+{
+  "finding": "Test6B DEM horizontal coordinates/cell size scale by 20 but elevations are numerically identical to Test6A DEM",
+  "equal_elevation_arrays": true,
+  "a_header": {
+    "nx": 2021,
+    "ny": 112,
+    "cell_size": 0.05,
+    "x0": -8.549999999999999,
+    "y0": -2.8000000000000003
+  },
+  "b_header": {
+    "nx": 2021,
+    "ny": 112,
+    "cell_size": 1.0,
+    "x0": -171.0,
+    "y0": -56.0
+  },
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6ADEM.asc": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6BDEM.asc": "24662db2c97e32cf94ab5447c872e64a9e8f4a6bece3433006a34e47214122df"
+  },
+  "interpretation": "User explicitly selected written-specification scaling of elevations by 20 on 2026-10-24; canonical Test 6B drawing banks are 3.1 m high. No physical or numerical parameters fitted to hydraulic outcomes.",
+  "decision_date": "2026-10-24",
+  "selected_vertical_interpretation": "specification"
+}

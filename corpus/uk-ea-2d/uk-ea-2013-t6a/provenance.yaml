@@ -5,8 +5,14 @@ license: unverified
 contributed_by: HydroCouple
 date_added: '2026-10-22'
 original_units: SI
-modifications: Deterministic bilinear DEM sampling onto nominal Cartesian quads; SI
-  forcing. Raster cells with sampled height >= 1 m excluded as impermeable walls/building;
-  retained flume bed set to 0 m. Nominal Cartesian stair-step barrier representation;
-  must assess geometry sensitivity before measured validation. Original measured time
-  series not supplied; numerical diagnostics only.
+modifications: GUI constrained Delaunay triangulation of specification geometry; SI
+  depths. GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments,
+  1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by
+  20 for 6B). Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155
+  m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This
+  is a drawing-based geometric reconstruction, not a vertexwise reproduction of the
+  supplied DEM. Bank toes and X=0 depth discontinuity are internal mesh constraints,
+  not walls. All exposed edges are explicit reflective WALL boundaries. Initial conditions
+  are uniform water depths, as specified, including over the bank slopes; no fitted
+  time shift or roughness calibration. Original measured series missing; recovered
+  isolated UCL markers provide exploratory 6A comparison only.

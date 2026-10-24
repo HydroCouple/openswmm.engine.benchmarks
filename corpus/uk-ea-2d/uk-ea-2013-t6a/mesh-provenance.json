@@ -1,0 +1,796 @@
+{
+  "generator": "openswmm.gui mesh::MeshGenerator / ConstrainedDelaunay",
+  "generator_executable_sha256": "19754075ea8fc6789bbf4c2b53f403630cb9f178cedabb8f11734f00bbffa701",
+  "gui_source_hashes": {
+    "include/mesh/boundaryconditioning.h": "763545f52f400592698a56e505f65d7cc5d0702e9dd9dfd146922acc209e88df",
+    "include/mesh/breaklinestrips.h": "590a0e464f8a54039833aa2385717bd41c1bc2311330b812016b1d7620aff00e",
+    "include/mesh/burnedrasterwriter.h": "40488b18c4103cc90f2b7fa0382dddef463cb78cded0c8c3a8ad9f7a66b73e5a",
+    "include/mesh/channelburn.h": "c2887fd0ae8d72505a3238037fec0b931dd154953e75256e2dfa72b88a5faebd",
+    "include/mesh/channelburnboundary.h": "4aa626dd0381044c0f857b38f2e1f3e0f67348d6ae7899e8ee3a898d700a2654",
+    "include/mesh/channelburnexport.h": "302312f3b7e369710dc42001ad59a799cd73ba66f04a821760daa37b7fcd2928",
+    "include/mesh/channelburnlattice.h": "da38f34e110342ad6c7ddb44fe7daac02da3355d57ec6cb6102cceb6b3097c0a",
+    "include/mesh/channelburnmesh.h": "56e62ce69ebf21df2f5ddb0d2e2fd89ea7ee7ed3373450ca4d30393b1b29b4a2",
+    "include/mesh/channelburnnetwork.h": "0a2102aff3443c107c0b287a6c5e0fdbac983ee3d6533f9ffab513e55dcf9bc6",
+    "include/mesh/channelburnprofile.h": "38f95d8da69edd38256689651494f8777a5a38f182149edfd3352135b059f8d8",
+    "include/mesh/channelburnselector.h": "876194fefaa099380dac869499adc5d427da58da04cf38fb307b4e53a17f86f9",
+    "include/mesh/corridorsource.h": "633788b1d7b0ca40c14a9479ad3e2c428381610e2a0dba221cb1ba5aaedffffd",
+    "include/mesh/dtmraster.h": "a5ed200d3365173fc717143d79d49976741a5db6ffc6781f3a28ebc24b0d968f",
+    "include/mesh/dtmsampler.h": "1ae7d1f919945b13fcae0d394297bb7d98e84d727dd2bf2ef5ee4ef5756dc324",
+    "include/mesh/inpmeshreader.h": "58de8e299099c2af727be6c631a8f83cc3603f160d35d184fe3fdd10d0ea8f8d",
+    "include/mesh/inpmeshwriter.h": "49997e9f4a99d3ccc0dd716fca076cbe710d77ebead18ebf686d2585107a7ca0",
+    "include/mesh/meshautocouple.h": "17272a93d7abe5f6bce26a5451d7aef5e51c1adcd832c2a5f2f6fb8e1c18b980",
+    "include/mesh/meshbctype.h": "0870878bf002ede7b03dc2b031a956d92353d9e17bc3d6ef39ea9c6662db67b6",
+    "include/mesh/meshboundarygraph.h": "bbbf7807dfe5ad7de5d51ee4155b88de508d1057e2072b75df1f9fd4ab90a026",
+    "include/mesh/meshcavity.h": "5cfa1086e6b1e72f39aafcdcf2d4d29a3d81f0ea01b4c4c9ab42d6d27ae8f90d",
+    "include/mesh/meshcdt.h": "e8a1823b0e415353bc61053d6cba552de84e3271d6224c10ced187acc057c011",
+    "include/mesh/meshcellgeom.h": "78433e7ab882d59db5db3e53163264269800645596f005ad266d6de264a4a6ad",
+    "include/mesh/meshcellparams.h": "d0235426f80b3c32bbb1adc3fc5a4324e9e8ba7e7ce524b2a5985f95712dbbc4",
+    "include/mesh/meshcellstats.h": "96530d4b6b0435098697a14726420b813de7db4ba41d7d9b9329948346e58baa",
+    "include/mesh/meshedgebc.h": "d721251b67b7cb6f8da6881c935acbc8f346fe996532e6f31f2a52abae7ee798",
+    "include/mesh/meshedgebcremap.h": "828bd0b25663cf34acda85b1b2f6b8bd6a2c12643691f7d202f6de55e9eeae67",
+    "include/mesh/meshedgekey.h": "dc14966aa25e3c669493e3d5f7fc10e74bf14d6346254653264c716538fdf1c5",
+    "include/mesh/meshenginesync.h": "d139925db4bfa834c9422b2092bc1a9fd24e41924bc0aca6bde04b2fdd86dd5f",
+    "include/mesh/meshgenerator.h": "e7e5c46d05a94b74f3c7f964fc43c18dc8a358e14f14867a0fc2bd0835ab22c7",
+    "include/mesh/meshgwpreview.h": "5b70485d5a35619eee60ed33fd606e5815e774ac0a9b60599d7b90a0a47fa632",
+    "include/mesh/meshhoverprobe.h": "69d2e7e8323169365437075dbfe20f5bee1fb1182fb596da7839aee75640b4ae",
+    "include/mesh/meshinfil.h": "d1db933192f6a3bbfe5ba12134c3aad4b138819eaa9574766354aaba3aac7217",
+    "include/mesh/meshnodemapper.h": "93fe6a77c1d2ed60c6b897435352a058ad5d1239d16c0f638c0c2606257918d3",
+    "include/mesh/meshobjectref.h": "19d1e9eea1502f9f7f9cc80e5d8a5b7d9288efa1755c4aa653f4e32fd6e88b8f",
+    "include/mesh/meshpatch.h": "a02d2f25c49d620cefeec438d686e843cb2b5e5f4bf79a2b36c573a1abbfad30",
+    "include/mesh/meshquadcleanup.h": "263e472f9c664f4084b615e15d5adfd8c3377b7c5043956f666ca10e8fe14633",
+    "include/mesh/meshquadmatch.h": "5e6e4d54988bc88ac670e87e3164244a5c44d1f377ef39592cdce7bc3174c3d8",
+    "include/mesh/meshquadquality.h": "3133fbe59ba64fa51934cc21e726a77ec32bb535ed5aeb071c7f59400f4286cc",
+    "include/mesh/meshquadregion.h": "57dfaf9052e55f69bb15d6a32946b4ce8f3626ef9efaee37c2772ff1cadfa403",
+    "include/mesh/meshreorder.h": "072d20a9cc4b69403a1780644ea8a8989cfbe4efe5654a8578f57b223bdb1e68",
+    "include/mesh/meshresolution.h": "3b3c022eae9aeb29cff74ccfacce8155ed5a36554382b7fbde90c06455085630",
+    "include/mesh/meshresult.h": "7ebcd04bfac4af34823b59c4d0fcf3042e01a38732861c5b384fc3b61a234cab",
+    "include/mesh/meshstagecache.h": "2559c4a94a3c129c0b98be8f496c028ade7db0cda18e02a1a5ab7635a0b0b365",
+    "include/mesh/naturalnbinterpolator.h": "e79c951d6c5b8e7780744c619115599578469163ca54ff266dce2775ee748e8c",
+    "include/mesh/pslgprep.h": "158f3c275055bfd4042451e8f35f2aa4506ded9ca152455698904de61ab1a96b",
+    "include/mesh/quadblocks.h": "26eab0fe24a19db3347b2c18aee99882f2893cb1117d6ca1e17784d6b8624b54",
+    "include/mesh/sizefield.h": "5e418e2431b4ee4dbfa009d3d880c3388b8a10316e4b32dcf1d74e00a1964ded",
+    "include/mesh/sms2dmreader.h": "0825c3e62f8b7dce51e0bbb03d3aa57c55eccad970b3e196a1f9d30bcb3704af",
+    "include/mesh/terrainbreaklines.h": "b6c4ed695b4650fa31d93083236efc239e220d6663c3c87ae03064ce8080aa04",
+    "include/mesh/terrainerrorfield.h": "774cba9ed6b395170c94dda29a61bcce64cfc3dc05874fa21eebb043a3e3c81b",
+    "include/mesh/terrainlocalcopy.h": "f333b4b38dc9c09fdfabba65f4c29fa8016abde8fe2ebba7e7150dd8e44083fe",
+    "include/mesh/terrainsizefield.h": "42696b80b2953cf6189ea0fb6d3f40bdd0bb5180b6293238177464c67c544ec3",
+    "src/mesh/boundaryconditioning.cpp": "4a6d68600bdd3469a930a430763fc7982e4a7f48e2888a6869206d1c805214a6",
+    "src/mesh/breaklinestrips.cpp": "762e783c2179d4abbe6ad48608e48504e2619218c062500bd81363db4f104ac3",
+    "src/mesh/burnedrasterwriter.cpp": "5114c15e7bc1a90e7707994fe668a8d65acf1fb8adf01404eee0a5b6c8c70539",
+    "src/mesh/channelburn.cpp": "8eec247fc2688a3b7eb4d813b9d482be7bfceaebf34eaebcc83dcc276b237c4c",
+    "src/mesh/channelburnboundary.cpp": "f93fc0b5a2788e1db0dca9af4711078e1d02b7ddd041140f9c076fa5b96d243d",
+    "src/mesh/channelburnexport.cpp": "6264a2982942dcb433cadd5fd769ffb3eb492445d8a5e9a3e554ef14b1acdf8b",
+    "src/mesh/channelburnlattice.cpp": "4c8a5531610d3365fee05cd285c3c661e7486bfff3e0cb61de7afeb90032cc29",
+    "src/mesh/channelburnmesh.cpp": "d273fd63268ab40061179ca2e0bfed3ab6bfd2a3525579b57b799e2cc5d7cf3e",
+    "src/mesh/channelburnnetwork.cpp": "f0c8e20635a17fb0c37ba796ef7b60e803d0fffde8818b85d142dc9ef49ae0ad",
+    "src/mesh/channelburnprofile.cpp": "d0a42dfc3b973459a62d96d83c62c8e38f485f8bfdb39c8532d7ea577b50c3b2",
+    "src/mesh/channelburnselector.cpp": "c1144758aa9c0931e1c39ca082cc5bba2edce0d628886e9058ca69d84624a622",
+    "src/mesh/corridorsource.cpp": "ea9f5f2bbce92dfdead1cd88a8c715c3ee70bfc53b3a365d15e10d6984676f7c",
+    "src/mesh/dtmraster.cpp": "cb67131decac15dbb8b2c6868f346d06a33203d9c24c8c22b1ef615d9903739c",
+    "src/mesh/dtmsampler.cpp": "0f1cf8e2cd566ec3bce474d19360d3e3606971ce1a269e16f0620c926f18bce8",
+    "src/mesh/inpmeshreader.cpp": "343d9c9405f9865ae8d567baf22ea1d964d238ce229d370b3a9a0195d057f298",
+    "src/mesh/inpmeshwriter.cpp": "2ac5e5c620d58318ae37c00cd7b06c7b54ecceaabc24de0edccc2793a1ba0128",
+    "src/mesh/meshautocouple.cpp": "3463f98a238cf905c2310f71eb22fccbd9d0e13a6ce09fff8dc4686c53feabd6",
+    "src/mesh/meshbctype.cpp": "866ba8b98ae7cfdb606a9e6ecd30b3f141845df0e40892225873bd04e7f41252",
+    "src/mesh/meshboundarygraph.cpp": "235f48aceebcd240c4355e857049d71b7e801f1548d4cb7f2e0fd2b21c850993",
+    "src/mesh/meshcavity.cpp": "aee2971ab4c264291bb97c494a7aad9aa7495e96e95ceed61d7793fb02cdca7c",
+    "src/mesh/meshcdt.cpp": "ec5afad471c46f30fda8c60ea05f23c0aed9c47c59b6503d0004b46fc3ff8e0f",
+    "src/mesh/meshcellparams.cpp": "829e785f1636a01c956efd02b1c5cbb0bfb4c5559b6e43da5f999cbf3ba643d0",
+    "src/mesh/meshcellstats.cpp": "3bbe5012b8dc3f6a75a46b610ad32d643eb1b0bbfa57137fce54b94efbf5a4c5",
+    "src/mesh/meshedgebcremap.cpp": "7417b605e6250b0bbf5d935eb9cabd167ff26bd62f9c7347b6200cbab1d644a9",
+    "src/mesh/meshenginesync.cpp": "77aff80a6ef099533ae5ccdaa5b4c777ec8c6dc30719a5d9a9a983a527f355e1",
+    "src/mesh/meshgenerator.cpp": "c0d8f0ea6092ceb895a13a6941437530df351f4a619cb15c5a823ec0f85392fc",
+    "src/mesh/meshgwpreview.cpp": "d63bc2472b2f12a0bcf190d78abcb0f7170fa09b24785008d77faab40c7d5f5b",
+    "src/mesh/meshhoverprobe.cpp": "515b3e99afe76cd7ea1ebbe30ee4eba3e3ffcb5f690f8c6e2dcd57b97efc6055",
+    "src/mesh/meshinfil.cpp": "aacbc56109c7fd1d37a356c2a0108c19bfa233f09a03fc08d38aeacb888eeff9",
+    "src/mesh/meshnodemapper.cpp": "5fb67fd55314353f4fc139c69d320da689fcc82f68d0cc9e5f4026a53c5e7771",
+    "src/mesh/meshobjectref.cpp": "04defc99c68490d23ec5128d3f7d550115e03529843027b3e8e0bae7b211fa7a",
+    "src/mesh/meshpatch.cpp": "14f1f812ac301abf4d474477f328e77d07c3c983e99b180ee0329a9832cce5da",
+    "src/mesh/meshquadcleanup.cpp": "81e652208754f40d94c2eb30fa602426af9d27565e125497fd172b576038c7d9",
+    "src/mesh/meshquadmatch.cpp": "2b692cebf998a4108012cecdc07a667584eaeab3129a26c7e901fbdf9e841cc4",
+    "src/mesh/meshquadregion.cpp": "3c7318697d62d16390b6de6e8d68c22a84eb76e304029bdb056f85890ba4554a",
+    "src/mesh/meshreorder.cpp": "d93d248c9ba625a8038db9c952c77ff40c4dded3f1afeab1975c4394c0868f6f",
+    "src/mesh/meshstagecache.cpp": "896efc7d6df80eb2a0e2928c959e895ec1c9bfe73f0091fccfdde4b91efceac9",
+    "src/mesh/naturalnbinterpolator.cpp": "1fd2a8fd400de9abfad83d7f6746e265a457922d0415dfa1e00b00074b9008e9",
+    "src/mesh/pslgprep.cpp": "1ce3bbdccad1c41608394a72d26dbe73b52ccabd004e28cfe111e75da2c8cdd1",
+    "src/mesh/quadblocks.cpp": "c638b7cb7f824f573f41f00fe20ad71ef056e5d0cbbe9fa523f4c871cba05d8f",
+    "src/mesh/sizefield.cpp": "c7674c16da34d9735e5522bf811b5ed612147ae8ea26d793e72632f32d142210",
+    "src/mesh/sms2dmreader.cpp": "100608eb3c7db0384ac3cea8d85a1c25922e60b8b107083a52edc51d4d9c9666",
+    "src/mesh/terrainbreaklines.cpp": "2515da293446398dcd0a00e0e60fce365a792af3cae1b9398a98a65a93561813",
+    "src/mesh/terrainerrorfield.cpp": "ee27df067f6852eea2b9cb17c234e6cdce8dfd88cbe594dda42efdcc436cbf42",
+    "src/mesh/terrainlocalcopy.cpp": "064dbf2f1002d4adb00d3ce44c13cab2b2d1524d47ba2d570de11052ff2b03f3",
+    "src/mesh/terrainsizefield.cpp": "fc2f28ed50131e5c50d34173b4836a198b0614599be526bf8868b93e960efd3d",
+    "src/core/editgeometry.cpp": "732d4d8203e6be0fe23ef1c3f782c9a850dca5556c390378c070b6322cdeedf5",
+    "include/core/editgeometry.h": "9dbc7e8c96dd0676500dd8c7487e2e7dace19cd279dc319fdfad03e239730431",
+    "vendor/predicates/predicates.c": "eaa353f2dd4f7cc4e69a3965a9f3ab419521962ba0bfa9a01788e16231e3a48c",
+    "vendor/predicates/predicates.h": "130d035904d26e195bae624f0505a42fe124bf2a4242fd2011f35a1671f98657"
+  },
+  "adapter_hashes": {
+    "tin.py": "e568139e64ba09da2207847ee70870e4bff91bff489a6ab1aaaa0a2d0d8b0343",
+    "main.cpp": "28909913a87599e76b00c72c1a98ba3ab7aae0f1be812cb2728425e9a31ba2ce",
+    "CMakeLists.txt": "01d8d91095827bfc9b82349914ca3e492c1e45b69cb4097f9146d7326a1b0588"
+  },
+  "vertices_sha256": "2cdb6e78abb8c8c63059f6669f91c496c6ef0ff8c5104db3987769ac9ad0bae5",
+  "cells_sha256": "e48c09b9cb9e16cac0b7616a46c9f8fb34b2fef59c8005dcbd80abb2224e193b",
+  "geometry_request": {
+    "domain": [
+      [
+        -7.55,
+        -1.8
+      ],
+      [
+        -0.8,
+        -1.8
+      ],
+      [
+        -0.8,
+        -0.5
+      ],
+      [
+        0,
+        -0.5
+      ],
+      [
+        0,
+        -1.8
+      ],
+      [
+        91.45,
+        -1.8
+      ],
+      [
+        91.45,
+        1.8
+      ],
+      [
+        0,
+        1.8
+      ],
+      [
+        0,
+        0.5
+      ],
+      [
+        -0.8,
+        0.5
+      ],
+      [
+        -0.8,
+        1.8
+      ],
+      [
+        -7.55,
+        1.8
+      ]
+    ],
+    "constraints": [
+      {
+        "marker": 10,
+        "tag": "building-wall",
+        "points": [
+          [
+            3.44,
+            -0.05
+          ],
+          [
+            3.799517618519667,
+            -0.22534845871563097
+          ],
+          [
+            4.150214535950929,
+            0.4936867783237026
+          ],
+          [
+            3.790696917431262,
+            0.6690352370393335
+          ],
+          [
+            3.44,
+            -0.05
+          ]
+        ]
+      },
+      {
+        "marker": 20,
+        "tag": "initial-depth-interface-NOT-a-wall",
+        "points": [
+          [
+            0,
+            -0.5
+          ],
+          [
+            0,
+            0.5
+          ]
+        ]
+      },
+      {
+        "marker": 30,
+        "tag": "bank-toe-NOT-a-wall",
+        "points": [
+          [
+            -7.55,
+            -1.46
+          ],
+          [
+            -0.8,
+            -1.46
+          ]
+        ]
+      },
+      {
+        "marker": 30,
+        "tag": "bank-toe-NOT-a-wall",
+        "points": [
+          [
+            0,
+            -1.46
+          ],
+          [
+            91.45,
+            -1.46
+          ]
+        ]
+      },
+      {
+        "marker": 30,
+        "tag": "bank-toe-NOT-a-wall",
+        "points": [
+          [
+            -7.55,
+            1.46
+          ],
+          [
+            -0.8,
+            1.46
+          ]
+        ]
+      },
+      {
+        "marker": 30,
+        "tag": "bank-toe-NOT-a-wall",
+        "points": [
+          [
+            0,
+            1.46
+          ],
+          [
+            91.45,
+            1.46
+          ]
+        ]
+      }
+    ],
+    "holes": [
+      [
+        3.7951072679754647,
+        0.2218433891618513
+      ]
+    ],
+    "max_area": 0.004330127018922194,
+    "min_cell_size": 0.025
+  },
+  "request_sha256": "0e7ee5b66ef08e1d210402f4a6455bf4efe911342a14cd37ac9722bce84c7431",
+  "stats": {
+    "quality_inserted": 3,
+    "refine_capped": false,
+    "segment_splits": 0,
+    "size_inserted": 3673,
+    "triangles_below_angle": 0
+  },
+  "audit": {
+    "vertex_count": 31890,
+    "triangle_count": 61642,
+    "area_m2": 354.0,
+    "min_angle_deg": 29.999999999999922,
+    "max_triangle_area_m2": 0.007239785125542686,
+    "min_edge_m": 0.05678216588038414,
+    "max_edge_m": 0.15573460205830347,
+    "wall_edge_count": 2138,
+    "constraints": [
+      {
+        "tag": "domain-wall",
+        "length_m": 6.75,
+        "covered_m": 6.749999999999999,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 1.3,
+        "covered_m": 1.3,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 0.8,
+        "covered_m": 0.8,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 1.3,
+        "covered_m": 1.3,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 91.45,
+        "covered_m": 91.45,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 3.6,
+        "covered_m": 3.6,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 91.45,
+        "covered_m": 91.44999999999999,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 1.3,
+        "covered_m": 1.3000000000000003,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 0.8,
+        "covered_m": 0.8,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 1.3,
+        "covered_m": 1.3,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 6.75,
+        "covered_m": 6.75,
+        "wall": true
+      },
+      {
+        "tag": "domain-wall",
+        "length_m": 3.6,
+        "covered_m": 3.5999999999999996,
+        "wall": true
+      },
+      {
+        "tag": "building-wall",
+        "length_m": 0.40000000000000013,
+        "covered_m": 0.4000000000000001,
+        "wall": true
+      },
+      {
+        "tag": "building-wall",
+        "length_m": 0.8,
+        "covered_m": 0.8,
+        "wall": true
+      },
+      {
+        "tag": "building-wall",
+        "length_m": 0.4000000000000001,
+        "covered_m": 0.4000000000000001,
+        "wall": true
+      },
+      {
+        "tag": "building-wall",
+        "length_m": 0.8,
+        "covered_m": 0.8,
+        "wall": true
+      },
+      {
+        "tag": "initial-depth-interface-NOT-a-wall",
+        "length_m": 1.0,
+        "covered_m": 1.0,
+        "wall": false
+      },
+      {
+        "tag": "bank-toe-NOT-a-wall",
+        "length_m": 6.75,
+        "covered_m": 6.749999999999999,
+        "wall": false
+      },
+      {
+        "tag": "bank-toe-NOT-a-wall",
+        "length_m": 91.45,
+        "covered_m": 91.45,
+        "wall": false
+      },
+      {
+        "tag": "bank-toe-NOT-a-wall",
+        "length_m": 6.75,
+        "covered_m": 6.749999999999999,
+        "wall": false
+      },
+      {
+        "tag": "bank-toe-NOT-a-wall",
+        "length_m": 91.45,
+        "covered_m": 91.45,
+        "wall": false
+      }
+    ]
+  },
+  "geometry_source": "EA2DTest6 - May2010.pdf, Figure (a); exact dimensioned straight boundaries and planar bank slopes",
+  "interpretation": "Drawing geometry is used rather than fitting pixelated DEM barrier transitions. Initial values are depths, as specified, not uniform water-surface elevations. The 6B vertical interpretation must be explicitly selected when its deck is built; no dynamic similarity claim.",
+  "scale": 1,
+  "model_sha256": "df34c584ed3989df4b4f017a63941df182962a6610237feb1e64576f77f87027",
+  "source_dem_cross_section_audit": {
+    "source": "Test6ADEM.asc, checksum in case.json; elevated wall pixels excluded",
+    "x_m": 10.000000000000002,
+    "max_absolute_bed_difference_m": 0.017635811764706022,
+    "columns": [
+      "y_m",
+      "supplied_dem_m",
+      "drawing_bed_m"
+    ],
+    "samples": [
+      [
+        -1.8000000000000003,
+        0.137383,
+        0.15500000000000014
+      ],
+      [
+        -1.7500000000000002,
+        0.115104,
+        0.13220588235294128
+      ],
+      [
+        -1.7000000000000002,
+        0.0923669,
+        0.10941176470588244
+      ],
+      [
+        -1.6500000000000001,
+        0.0693249,
+        0.0866176470588236
+      ],
+      [
+        -1.6,
+        0.0464356,
+        0.06382352941176477
+      ],
+      [
+        -1.5500000000000003,
+        0.0233936,
+        0.04102941176470602
+      ],
+      [
+        -1.5000000000000002,
+        0.0030984,
+        0.018235294117647176
+      ],
+      [
+        -1.4500000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.4000000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.35,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.3000000000000003,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.2500000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.2000000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.1500000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.1,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.0500000000000003,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -1.0000000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.9500000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.9000000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.8500000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.8000000000000003,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.75,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.7000000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.6500000000000004,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.6000000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.5500000000000003,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.5,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.4500000000000002,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.3999999999999999,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.3500000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.30000000000000027,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.25,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.20000000000000018,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.1499999999999999,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.10000000000000009,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        -0.050000000000000266,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.0,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.04999999999999982,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.10000000000000009,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.1499999999999999,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.19999999999999973,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.25,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.2999999999999998,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.3500000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.3999999999999999,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.44999999999999973,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.5,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.5499999999999998,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.6000000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.6499999999999999,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.6999999999999997,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.75,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.7999999999999998,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.8500000000000001,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.8999999999999999,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        0.9499999999999997,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.0,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.0499999999999998,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.1,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.15,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.1999999999999997,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.2499999999999996,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.3000000000000003,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.35,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.4,
+        4.64856e-05,
+        0.0
+      ],
+      [
+        1.4499999999999997,
+        0.0101178,
+        0.0
+      ],
+      [
+        1.4999999999999996,
+        0.0314812,
+        0.01823529411764687
+      ],
+      [
+        1.5500000000000003,
+        0.0545231,
+        0.04102941176470602
+      ],
+      [
+        1.6,
+        0.0774125,
+        0.06382352941176477
+      ],
+      [
+        1.65,
+        0.0995389,
+        0.08661764705882351
+      ],
+      [
+        1.6999999999999997,
+        0.122428,
+        0.10941176470588225
+      ],
+      [
+        1.7499999999999996,
+        0.145318,
+        0.13220588235294098
+      ]
+    ],
+    "scope": "Source-interpretation diagnostic at one unobstructed cross-section, not a global DEM error bound or a fit to hydraulic measurements."
+  }
+}

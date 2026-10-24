@@ -109,6 +109,9 @@ def run(argv=None):
                     raise ValueError(f'Insufficient output space: need conservative {estimate/1024**3:.2f} GiB plus 1 GiB reserve')
                 work.mkdir(parents=True,exist_ok=True)
                 for name in ['model.inp','case.json']:shutil.copy2(path/name,work/name)
+                for sidecar in ['mesh-provenance.json','source-scale-audit.json']:
+                    if (path/sidecar).exists():shutil.copy2(path/sidecar,work/sidecar)
+                    else:(work/sidecar).unlink(missing_ok=True)
                 shutil.copy2(path/'probes.csv',work/'probe-locations.csv')
                 for directory in ['reference','profiles']:
                     if (work/directory).exists():shutil.rmtree(work/directory)

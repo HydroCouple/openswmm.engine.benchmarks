@@ -8,29 +8,33 @@
   "step": 1.0,
   "n": 0.05,
   "bounds": [
-    -152,
-    1830,
-    -38,
-    36
+    -151.0,
+    1829.0,
+    -36.0,
+    36.0
   ],
-  "cell_count": 36411,
-  "area_m2": 145644.0,
-  "initial_volume_m3": 137176.0,
+  "cell_count": 61642,
+  "area_m2": 141600.0,
+  "initial_volume_m3": 132944.00000000175,
   "probe_count": 6,
   "reference_class": "self_consistency",
   "observed_status": "not_applicable",
   "deviations": [
-    "Raster cells with sampled height >= 1 m excluded as impermeable walls/building; retained flume bed set to 0 m.",
-    "Nominal Cartesian stair-step barrier representation; must assess geometry sensitivity before measured validation.",
-    "Original measured time series not supplied; numerical diagnostics only."
+    "GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments, 1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by 20 for 6B).",
+    "Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155 m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the supplied DEM.",
+    "Bank toes and X=0 depth discontinuity are internal mesh constraints, not walls. All exposed edges are explicit reflective WALL boundaries.",
+    "Initial conditions are uniform water depths, as specified, including over the bank slopes; no fitted time shift or roughness calibration.",
+    "Original measured series missing; recovered isolated UCL markers provide exploratory 6A comparison only.",
+    "Supplied 6B DEM elevations are numerically identical to 6A despite the written instruction to scale all physical dimensions by 20. This input follows the written vertical scaling (side banks 3.1 m high)."
   ],
   "source_hashes": {
     "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6ADEM.asc": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/EA2DTest6 - May2010.pdf": "1492ff8fb525339010c8de63c471f2bfb539b86a8164cc74835f0c867fd313ca",
     "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Aoutput.csv": "78123efa0ea4aee66c8469a6e02bb8546175fa5c02b498de1b98bf35d4c5498b",
     "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6BDEM.asc": "24662db2c97e32cf94ab5447c872e64a9e8f4a6bece3433006a34e47214122df",
     "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Boutput.csv": "899ece35706df841f358e4cc1b0e5990c15c45d3fe71c6e9e41f8041dfeed6a3"
   },
-  "model_sha256": "157619342160d9a79400bba58da2df07ea47f7f1e5f5527ee57823963817202c",
+  "model_sha256": "cee692cb474b8dc49ef4eaa95e2b78d50b1112799a024097dc831c285e253fed",
   "probes_sha256": "b6a91ad194fa0deb268923dee7ee77613db3b6145164edcd248ddc4bfee4f02b",
   "numerical_limits": {
     "continuity_pct": 0.5,

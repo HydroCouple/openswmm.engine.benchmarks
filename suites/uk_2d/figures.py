@@ -42,7 +42,7 @@ def build_report(out):
         text += ['','## Execution exclusions and failures','','| Case | State | Detail |','|---|---|---|']
         for cell in exclusions:text.append(f"| {cell['case']} | {cell['verdict']} | {str(cell.get('note',cell.get('checks',''))).replace('|','/')} |")
     if (out/'assessment-history.json').exists():
-        text += ['','[Assessment assembly history](assessment-history.json). Test 4 replaced an initial budget exclusion with a separate complete canonical run. The earlier timeout evidence is preserved; no incomplete run is scored as a pass.','']
+        text += ['','[Assessment assembly history](assessment-history.json). This assessment retains the original run identities and identifies later complete replacement executions. Earlier evidence is preserved; incomplete runs are not scored as passes.','']
     if (out/'hardware.json').exists():
         hardware=json.loads((out/'hardware.json').read_text(encoding='utf-8'))
         text += ['','## Hardware and runtime scope','',
@@ -66,7 +66,7 @@ def build_report(out):
         repeat=json.loads(repeated.read_text(encoding='utf-8'))
         text += ['## Independent repeated-run regression checks','',
                  'These are separate executions against initially reviewed SWMM2D baselines. Agreement is change control, not experimental validation. Cross-platform tolerance qualification remains outstanding.','',
-                 'The main cohort’s own-regression column records baseline availability at execution time. Initial anchors were reviewed afterwards; the independent repeated executions below establish the two actual repeat checks.','',
+                 'The main cohort’s own-regression column records baseline availability at execution time. Initial anchors were reviewed afterwards; the independent repeated executions below establish the actual repeat checks.','',
                  '| Case | Own baseline verdict | Maximum absolute probe change |','|---|---|---:|']
         for cell in repeat['cells']:
             if cell['solver']=='swmm2d-own-baseline':text.append(f"| {cell['case']} | {cell['verdict']} | {cell['max_absolute_change']:.6g} |")
@@ -87,11 +87,29 @@ def build_report(out):
         observed_rows=list(csv.DictReader((reference/'observations.csv').open(encoding='utf-8'))) if (reference/'observations.csv').exists() else []
         figdir=work/'figures';figdir.mkdir(exist_ok=True)
         key=case['uk_test']
+        mesh_record=work/'mesh-provenance.json'
+        kind='constrained Delaunay triangles' if mesh_record.exists() else 'Cartesian quads'
         text += [f'## Test {key.upper()}: {case["title"]}','',
-                 f'Historical spacing {case["dx"]:g} m; {case["cell_count"]:,} Cartesian quads; duration {case["end"]:g} s; saved interval {case["step"]:g} s.',
+                 f'Nominal spacing {case["dx"]:g} m; {case["cell_count"]:,} {kind}; duration {case["end"]:g} s; saved interval {case["step"]:g} s.',
                  '',f'Final volume {metrics["final_volume_m3"]:.9g} m³; independent volume residual {metrics["volume_residual_m3"]} m³.',
                  '',f'Maximum calendar-clock rounding to the authored output grid: {metrics["clock_rounding_max_s"]:.6g} s.','']
         text += ['Geometry/setup qualifications: '+ ' '.join(case['deviations'])] if case['deviations'] else []
+        if mesh_record.exists():
+            mesh=json.loads(mesh_record.read_text(encoding='utf-8'));audit=mesh['audit'];scale=mesh['scale']
+            text += ['',f"GUI mesh: {audit['vertex_count']:,} vertices; minimum angle {audit['min_angle_deg']:.3f}°; "
+                     f"edge lengths {scale*audit['min_edge_m']:.5g}–{scale*audit['max_edge_m']:.5g} m; {audit['wall_edge_count']:,} explicit wall edges. "
+                     "The requested spacing is nominal, not a bound on every edge. The bank toes and release interface remain internal. "
+                     f"[Source, generator and constraint audit]({work.name}/mesh-provenance.json).",'']
+            text += ['Initialization follows the local depth values stated in Appendix A.6.3, including over the side-bank slopes. '
+                     'The main report summary also uses the term water level. A flat water-surface initialization would be a different configuration; '
+                     'that sensitivity has not been tested here. The initial-condition interpretation remains explicit rather than being fitted to the measurements.','']
+            if key=='6b' and (work/'source-scale-audit.json').exists():
+                choice=mesh.get('vertical_interpretation','specification')
+                height=3.1 if choice=='specification' else .155
+                text += [f"The 6B elevation interpretation is **{choice}**, with side banks {height:g} m high. "
+                         "The supplied 6A/6B DEM elevation arrays are identical, although the written specification scales all physical dimensions by 20. "
+                         "The user selected the written-specification scaling for this assessment. "
+                         f"[Source-scale audit and decision]({work.name}/source-scale-audit.json).",'']
         if metrics['observed']['status']=='compared':
             text += ['### Exploratory comparison with digitized UCL markers','',
                      'Only visible isolated laboratory diamonds were recovered. Overlapped/occluded markers and G6 were omitted. '
@@ -176,23 +194,60 @@ def build_report(out):
         if key=='6a':text+=['Figures 4.25–4.26 are reproduced with the recoverable digitized measurement subset only; G6 and the original full records remain unavailable.','']
         data=np.load(work/'fields.npz')
         verts=data['vertices'];conn=data['cells'];polys=[verts[c[c>=0]] for c in conn]
+        if mesh_record.exists():
+            fig,ax=plt.subplots(figsize=(12,5))
+            scale=mesh['scale'];near=(data['x']>-2*scale)&(data['x']<6*scale)
+            collection=PolyCollection([p for p,keep in zip(polys,near) if keep],array=data['z'][near],
+                                      cmap='terrain',edgecolors='#576975',linewidths=.23)
+            ax.add_collection(collection)
+            request=mesh['geometry_request']
+            ring=np.array(request['domain']+[request['domain'][0]])*scale
+            ax.plot(ring[:,0],ring[:,1],color='#a62d37',lw=1.4,label='Reflective walls')
+            for segment in request['constraints']:
+                p=np.array(segment['points'])*scale
+                ax.plot(p[:,0],p[:,1],color='#a62d37' if segment['marker']==10 else '#17678c',
+                        lw=1.3,ls='-' if segment['marker']==10 else '--')
+            ax.plot([],[],color='#17678c',ls='--',label='Internal constraints (open to flow)')
+            for point in json.loads((work/'probe-map.json').read_text(encoding='utf-8')):
+                ax.plot(point['x'],point['y'],'o',ms=3,color='#762746')
+                ax.annotate(point['id'],(point['x'],point['y']),xytext=(4,4),textcoords='offset points',fontsize=8)
+            ax.set(xlim=(-2*scale,6*scale),ylim=(-1.95*scale,1.95*scale),aspect='equal',
+                   xlabel='x (m)',ylabel='y (m)',title=f'Test {key.upper()}: GUI constrained TIN, near-field detail')
+            ax.legend(fontsize=8,loc='lower left');fig.colorbar(collection,ax=ax,label='Represented bed elevation (m)',shrink=.65)
+            fig.tight_layout();fig.savefig(figdir/'constrained-mesh.png',dpi=170);plt.close(fig)
+            text += [f'![Test {key.upper()} GUI mesh and wall/internal constraints, near-field detail]({work.name}/figures/constrained-mesh.png)','']
+            if 'source_dem_cross_section_audit' in mesh:
+                audit=mesh['source_dem_cross_section_audit'];points=np.array(audit['samples'])
+                fig,ax=plt.subplots(figsize=(9,3.5))
+                ax.plot(points[:,0],points[:,1],'.-',label='Supplied DEM, wall pixels excluded',color='#8c7858',ms=3)
+                ax.plot(points[:,0],points[:,2],label='Represented drawing cross-section',color='#17678c')
+                ax.set(xlabel='y (m)',ylabel='Bed elevation (m)',title=f"Test {key.upper()}: source geometry audit at x={audit['x_m']:g} m")
+                ax.grid(alpha=.2);ax.legend(fontsize=8);fig.tight_layout();fig.savefig(figdir/'source-bed-audit.png',dpi=160);plt.close(fig)
+                text += [f'![Test {key.upper()} drawing versus supplied DEM cross-section]({work.name}/figures/source-bed-audit.png)','',
+                         f"At this one unobstructed source cross-section the largest sampled bed difference is {audit['max_absolute_bed_difference_m']:.6g} m. "
+                         "This quantifies the source interpretation locally, not a global DEM error bound. The geometry was not adjusted to improve the measured fit.",'']
         fields=[('max_depth','Output-sampled peak depth (m)'),('max_speed','Output-sampled peak speed (m/s)'),('final_depth','Final depth (m)')]
+        if mesh_record.exists():fields.insert(0,('max_level','Output-sampled peak water elevation (m)'))
         for variable,label in fields:
-            fig,ax=plt.subplots(figsize=(9,4));collection=PolyCollection(polys,array=data[variable],cmap='viridis',edgecolors='none')
+            values=data['z']+data['max_depth'] if variable=='max_level' else data[variable]
+            fig,ax=plt.subplots(figsize=(9,4));collection=PolyCollection(polys,array=values,cmap='viridis',edgecolors='none')
             ax.add_collection(collection);ax.autoscale();ax.set_aspect('equal');ax.set(xlabel='x (m)',ylabel='y (m)',title=f'Test {key.upper()}: {label}')
             fig.colorbar(collection,ax=ax,label=label);fig.tight_layout();fig.savefig(figdir/(variable+'.png'),dpi=160);plt.close(fig)
             text += [f'![Test {key.upper()}: {label}]({work.name}/figures/{variable}.png)','']
         snapshots=sorted((name for name in data.files if name.startswith('depth_') and name.endswith('s')),key=lambda name:float(name[6:-1]))
         if snapshots:text += ['### Required Appendix A field snapshots','','These are instantaneous saved fields; peak maps above have a different time basis.','']
         for variable in snapshots:
-            suffix=variable[6:];seconds=float(suffix[:-1]);fig,axes=plt.subplots(1,2,figsize=(11,6 if key=='4' else 3))
-            for ax,field,label in [(axes[0],variable,'Depth (m)'),(axes[1],'speed_'+suffix,'Speed (m/s)')]:
-                collection=PolyCollection(polys,array=data[field],cmap='viridis',edgecolors='none');ax.add_collection(collection);ax.autoscale();ax.set_aspect('equal')
+            suffix=variable[6:];seconds=float(suffix[:-1])
+            panels=[(data[variable],'Depth (m)'),(data['speed_'+suffix],'Speed (m/s)')]
+            if mesh_record.exists():panels.insert(0,(data['z']+data[variable],'Water elevation (m)'))
+            fig,axes=plt.subplots(1,len(panels),figsize=(15 if len(panels)==3 else 11,6 if key=='4' else 3))
+            for ax,(values,label) in zip(axes,panels):
+                collection=PolyCollection(polys,array=values,cmap='viridis',edgecolors='none');ax.add_collection(collection);ax.autoscale();ax.set_aspect('equal')
                 if key=='6a':ax.set(xlim=(-8,10),ylim=(-2,2))
                 if key=='6b':ax.set(xlim=(-155,210),ylim=(-40,40))
                 ax.set(xlabel='x (m)',ylabel='y (m)',title=label);fig.colorbar(collection,ax=ax,label=label,fraction=.04,pad=.04,shrink=.5 if key in ('6a','6b') else 1)
             fig.suptitle(f'Test {key.upper()}: saved fields at {seconds:g} s');fig.tight_layout();name=f'snapshot-{suffix}.png';fig.savefig(figdir/name,dpi=140);plt.close(fig)
-            text += [f'![Test {key.upper()} depth and speed at {seconds:g} s]({work.name}/figures/{name})','']
+            text += [f'![Test {key.upper()} saved fields at {seconds:g} s]({work.name}/figures/{name})','']
         # Regenerate setup illustrations from the actual represented geometry.
         setup_field=data['z']+data['max_depth'] if key=='6b' else data['z']
         setup_label='Output-sampled peak level (m)' if key=='6b' else 'Bed elevation (m)'
@@ -264,7 +319,6 @@ def build_report(out):
                         ax.plot(values[mask,0],values[mask,column],color='#17678c',label='SWMM2D')
                         if column==3:ax.plot(values[mask,0],values[mask,5],color='#8c7858',ls='--',label='Represented bed (geometry)')
                         ax.set(xlabel='Source chainage (m)',ylabel=label,xlim=(left,right));ax.grid(alpha=.25);ax.legend(fontsize=8)
-                    if key=='6b':axes[0].set_ylabel('Peak depth (m)')
                     fig.suptitle(f'UK Figure {source}: source profile; output-sampled peaks');fig.tight_layout();name='uk-'+source.replace('.','-')+'.png'
                     full_name=name.replace('.png','-full-range.png');fig.savefig(figdir/full_name,dpi=160)
                     frame=display_record['profiles'][source]

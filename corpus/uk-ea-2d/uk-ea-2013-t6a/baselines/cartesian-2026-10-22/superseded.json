@@ -1,0 +1,5 @@
+{
+  "reason": "User requested domain-constrained GUI TIN; previous raster-mask flat-bed Cartesian input superseded, not a compatible baseline for corrected geometry.",
+  "original_benchmark_commit": "8559d0d",
+  "superseded_date": "2026-10-24"
+}
