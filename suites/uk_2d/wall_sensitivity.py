@@ -225,12 +225,18 @@ def write_report(output):
     lines += bias_table(records)
     lines += ['', '## Corresponding UK report panels', '',
               'The first image of each pair retains the source panel axes; '
-              'the companion exposes values outside those limits and the full duration.']
-    display=json.loads(Path(__file__).with_name('figure-display-specs.json').read_text())['figures']
+              'the companion exposes values outside those limits and the full duration. '
+              '[Axis display specifications](figure-display-specs.json).']
+    display_source=Path(__file__).with_name('figure-display-specs.json')
+    shutil.copy2(display_source,output/display_source.name)
+    display=json.loads(display_source.read_text())['figures']
     for key in sorted({r[1]['uk_test'] for r in records}):
         for cs in sorted({r[1]['cs'] for r in records if r[1]['uk_test']==key}):
             selected=[r for r in records if r[1]['uk_test']==key and r[1]['cs']==cs]
             refs=list(csv.DictReader((selected[0][0]/'reference/observations.csv').open())) if key=='6a' else []
+            lines += ['', f'### Test {key.upper()}, Cs={cs:g}', '',
+                      'Comparison uses the recovered UCL measurement subset.' if key=='6a' else
+                      'Numerical sensitivity histories. An independent measured or analytical reference is unavailable.']
             for quantity,points,source in [('level_m',['G2','G4','G5','G6'],'4.25' if key=='6a' else '4.27'),('speed_mps',['G2','G4'],'4.26' if key=='6a' else '4.28')]:
                 frame=display[source];scale=frame['seconds_per_unit']
                 fig,axes=plt.subplots(len(points),1,figsize=(8,2.7*len(points)),squeeze=False)
@@ -243,6 +249,8 @@ def write_report(output):
                     obs=[r for r in refs if r['probe']==point and r['quantity']==quantity]
                     if obs:ax.scatter([float(r['time_s'])/scale for r in obs],[float(r['value']) for r in obs],s=14,marker='D',facecolors='none',edgecolors='black',label='UCL digitized subset',zorder=10)
                     elif key=='6a':ax.text(.02,.95,'Measured series unavailable',va='top',transform=ax.transAxes,fontsize=8)
+                    else:ax.text(.02,.95,'Numerical sensitivity; no independent reference',va='top',transform=ax.transAxes,fontsize=8,
+                                 bbox=dict(facecolor='white',edgecolor='none',alpha=.8))
                     ax.set(title=point,xlabel='Time ('+frame['time_unit']+')',ylabel='Level (m)' if quantity=='level_m' else 'Speed (m/s)')
                     ax.grid(alpha=.25);ax.legend(fontsize=8)
                 fig.suptitle(f'Test {key.upper()}, Cs={cs:g}; UK Figure {source} panels',y=1.002)
@@ -259,6 +267,7 @@ def write_report(output):
     (output/'report-provenance.json').write_text(json.dumps(dict(
         renderer_sha256=digest(Path(__file__).read_bytes()),
         methods_sha256=digest(Path(__file__).with_name('wall_report.py').read_bytes()),
+        display_specs_sha256=digest(display_source.read_bytes()),
         cases={work.name:manifest['input_sha256'] for work,manifest,metric,rows in records},
         note='Report generation is separate from execution; per-case manifests retain the execution driver identity.'
     ),indent=2)+'\n')

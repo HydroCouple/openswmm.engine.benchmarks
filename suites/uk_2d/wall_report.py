@@ -124,11 +124,11 @@ def methods(records, output):
         'The errors below are '
         'report-only diagnostics and are not regression pass/fail thresholds.', '',
         '## Numerical evidence and reproducibility', '',
-        '| Case | Depth / continuity / volume checks | Input | Audit | Gauge histories |',
-        '|---|---|---|---|---|']
+        '| Case | Depth / continuity / volume checks | Elapsed time (s) | Input | Audit | Gauge histories |',
+        '|---|---|---:|---|---|---|']
     for work, manifest, metric, rows in records:
         status = ' / '.join('PASS' if value else 'FAIL' for value in metric['checks'].values())
-        lines.append(f'| {work.name} | {status} | [INP]({work.name}/model.inp) | '
+        lines.append(f"| {work.name} | {status} | {metric['wall_s']:.1f} | [INP]({work.name}/model.inp) | "
             f'[metrics]({work.name}/metrics.json), [identity]({work.name}/manifest.json) | '
             f'[CSV]({work.name}/probes.csv) |')
     lines += ['', 'The extractor requires every scheduled output through the full '
