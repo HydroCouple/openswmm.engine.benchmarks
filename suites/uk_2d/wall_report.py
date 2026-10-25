@@ -93,7 +93,10 @@ def methods(records, output):
         group = sample['wall_groups'][name]
         length = sum(row['length_m'] for row in group)/scale
         lines.append(f'| {name} | {len(group)} | {length:g} | {20*length:g} |')
-    lines += ['', 'OTHER_WALLS remain free slip in every planned case. Named assignments '
+    all_walls=any(set(record[1]['selected_groups'])==set(record[1]['wall_groups']) for record in records)
+    coverage=('The all-walls control also applies the same Cw to OTHER_WALLS; regional cases retain free slip there.'
+              if all_walls else 'OTHER_WALLS remain free slip in the configurations shown.')
+    lines += ['', coverage+' Named assignments '
         'are retained in the executed inputs. In the GUI, select exterior edges, '
         'choose Wall, set the Wall friction Cw field, and use the boundary Group '
         'control to keep throat and obstruction selections separate. Undo/redo, '

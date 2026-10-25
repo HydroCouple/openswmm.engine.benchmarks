@@ -245,7 +245,8 @@ def write_report(output):
                         history=[r for r in rows if r['probe']==point]
                         ax.plot([float(r['time_s'])/scale for r in history],
                                 [float(r[quantity]) if float(r['depth_m'])>1e-4 else np.nan for r in history],
-                                label=' + '.join(manifest['selected_groups']) or 'Free slip')
+                                label=('All walls (coverage control)' if set(manifest['selected_groups'])==set(manifest['wall_groups']) else
+                                       ' + '.join(manifest['selected_groups']) or 'Free slip'))
                     obs=[r for r in refs if r['probe']==point and r['quantity']==quantity]
                     if obs:ax.scatter([float(r['time_s'])/scale for r in obs],[float(r['value']) for r in obs],s=14,marker='D',facecolors='none',edgecolors='black',label='UCL digitized subset',zorder=10)
                     elif key=='6a':ax.text(.02,.95,'Measured series unavailable',va='top',transform=ax.transAxes,fontsize=8)
