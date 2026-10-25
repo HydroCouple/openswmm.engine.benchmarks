@@ -1,6 +1,6 @@
 {
   "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
-  "model_sha256": "df34c584ed3989df4b4f017a63941df182962a6610237feb1e64576f77f87027",
+  "model_sha256": "3d638a9d5aaf2cdf0890c6c86e9d847a3e05c390c8dc2757cda190e56999edca",
   "probes_sha256": "38c986144f62b64c8099529acc93b509a5d184abe1e3f2b2f5f31fafea683448",
   "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
   "reviewer": "Codex: Test 6 constrained geometry review 2026-10-24",
@@ -13,5 +13,6 @@
   "atol": 1e-06,
   "rtol": 1e-05,
   "data_sha256": "194fa3c6682a1ef404913f54b7fab55406757f5b0ddc12dc7486ca8bfb4e653e",
-  "qualification": "Initial local numerical regression anchor; no observed accuracy or cross-platform qualification implied"
+  "qualification": "Initial local numerical regression anchor; no observed accuracy or cross-platform qualification implied",
+  "clock_migration": "clock-migration-2026-10-25.json"
 }

@@ -165,6 +165,21 @@ def test_preflight_rejects_wrong_report_unit_even_with_matching_input_hash(tmp_p
     with pytest.raises(ValueError,match='REPORT_STEP'):suite.validate_case(tmp_path)
 
 
+@pytest.mark.parametrize('key',['REPORT_STEP','WET_STEP','DRY_STEP'])
+def test_preflight_rejects_ambiguous_numeric_clock_matching_declared_seconds(tmp_path,key):
+    from suites.uk_2d.build import COLLECTION
+    import shutil,re
+    source=COLLECTION/'uk-ea-2013-t01'
+    for name in ['case.json','model.inp','probes.csv']:shutil.copy2(source/name,tmp_path/name)
+    inp=tmp_path/'model.inp';text=inp.read_text()
+    for field in ['REPORT_STEP','WET_STEP','DRY_STEP']:
+        text=re.sub(r'^'+field+r'\s+.*$',field+' 0:00:00.1',text,flags=re.M)
+    text=text.replace(key+' 0:00:00.1',key+' 0.1');inp.write_text(text)
+    case=json.loads((tmp_path/'case.json').read_text());case['step']=.1;case['model_sha256']=sources.digest(inp.read_bytes())
+    (tmp_path/'case.json').write_text(json.dumps(case))
+    with pytest.raises(ValueError,match=key):suite.validate_case(tmp_path)
+
+
 def test_partial_coverage_stays_visible_in_dashboard_and_badge():
     from harness.site import _coverage_note
     env=dict(suite='uk_2d',coverage=dict(requested=10,executed=7,observed_compared=1,regression_checked=2),cells=[])

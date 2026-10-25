@@ -110,5 +110,10 @@ for Test 6A) and performs native 0.1 s / 1 s report-grid and analytical-velocity
 preflights before launching TIN runs. Bare decimal time-step tokens are
 reader-dependent: the current legacy-compatible reader interprets them as
 hours. A successful process with no saved gauge frames is rejected, and its
-output cannot be used for a measured comparison. The original committed
-corpus is preserved when generating these sensitivity inputs.
+output cannot be used for a measured comparison. Sensitivity inputs are generated separately from the corpus. The canonical
+Test 6A input now uses explicit `0:00:00.1` clocks for REPORT_STEP, WET_STEP
+and DRY_STEP. Its full 120-second repeat matched every existing regression
+probe value and time exactly; the baseline data and tolerances remain unchanged.
+The original producing-engine identity is retained, with the spelling migration
+and verification recorded in `baselines/cpu-full-swe-rk2/clock-migration-2026-10-25.json`.
+Case preflight rejects ambiguous bare global clock values before execution.

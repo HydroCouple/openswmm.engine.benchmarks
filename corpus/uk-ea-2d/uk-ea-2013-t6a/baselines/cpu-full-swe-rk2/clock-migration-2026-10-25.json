@@ -1,0 +1,37 @@
+{
+  "change": "REPORT_STEP, WET_STEP and DRY_STEP: bare 0.1 to explicit 0:00:00.1",
+  "reason": "Legacy-compatible readers interpret bare global time-step values as hours. Explicit clock units preserve the intended 0.1-second schedule.",
+  "previous_model_sha256": "df34c584ed3989df4b4f017a63941df182962a6610237feb1e64576f77f87027",
+  "corrected_model_sha256": "3d638a9d5aaf2cdf0890c6c86e9d847a3e05c390c8dc2757cda190e56999edca",
+  "reviewer": "Codex: full 120-second repeat, exact agreement at every saved probe value and time",
+  "verification_engine_sha": "50e14675",
+  "verification": {
+    "status": "PASS",
+    "returncode": 0,
+    "numerical": {
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true,
+        "independent_volume": true
+      },
+      "continuity_err": -2.672338487483904e-12,
+      "volume_residual_m3": -7.105427357601002e-15,
+      "initial_volume_m3": 16.617999999999995,
+      "final_volume_m3": 16.617999999999988,
+      "prescribed_inflow_m3": 0.0
+    },
+    "maximum_absolute_probe_change": 0.0,
+    "completed_utc": "2026-10-25T15:41:33.265718+00:00",
+    "wall_s": 842.4009338339965,
+    "binaries": {
+      "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/bin/openswmm": "dfed00230923d1e664b23c4a2724742b93fb5c958787f4d45a519472c7392e34",
+      "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/engine/libopenswmm.engine.6.0.0.dylib": "d849b8688aeb39be8c3a3d5f836b851a466e754367799cf1b9b96c6330dbf042"
+    },
+    "corrected_model_sha256": "3d638a9d5aaf2cdf0890c6c86e9d847a3e05c390c8dc2757cda190e56999edca",
+    "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
+    "baseline_data_sha256": "194fa3c6682a1ef404913f54b7fab55406757f5b0ddc12dc7486ca8bfb4e653e"
+  },
+  "baseline_data_unchanged": true,
+  "tolerances_unchanged": true,
+  "original_producing_engine_identity_unchanged": true
+}

@@ -49,6 +49,10 @@ def validate_case(path):
     for field,file in [('model_sha256','model.inp'),('probes_sha256','probes.csv')]:
         if digest((path/file).read_bytes())!=c[field]:raise ValueError('Case input hash mismatch: '+file)
     text=(path/'model.inp').read_text(encoding='utf-8')
+    for key in ['REPORT_STEP','WET_STEP','DRY_STEP']:
+        field=re.search(r'^'+key+r'\s+(\S+)',text,re.M)
+        if field is not None and field.group(1).count(':')!=2:
+            raise ValueError(key+' must use explicit HH:MM:SS clock units; bare numbers use legacy hours')
     token=re.search(r'^REPORT_STEP\s+(\S+)',text,re.M)
     if token is None:raise ValueError('Missing REPORT_STEP')
     value=token.group(1)
