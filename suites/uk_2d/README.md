@@ -103,3 +103,12 @@ The source PDF hash is locked. The algorithm uses the exact isolated 5×5 magent
 ## Required engine output correction
 
 The assessment exposed a 30-second velocity cache in the engine output path. `SurfaceRouter2D::refreshRenderFields` now refreshes RT0 face velocity when output is prepared. `tests/test_uk_2d_engine.py` fails on the original engine and passes after this correction, checking every 0.1-second velocity against current edge flux and depth. The UK workflow requires this native integration test; the engine fix (`1397f7bc5e3756c501996771d617ab91ca0c691e`) must be included in its engine revision. See [the output-freshness finding](OUTPUT_VELOCITY_FRESHNESS.md) and the visible evidence/patch in `results/uk_2d/output-freshness-fix/`.
+
+
+The wall-sensitivity runner uses explicit fractional clock strings (`0:00:00.1`
+for Test 6A) and performs native 0.1 s / 1 s report-grid and analytical-velocity
+preflights before launching TIN runs. Bare decimal time-step tokens are
+reader-dependent: the current legacy-compatible reader interprets them as
+hours. A successful process with no saved gauge frames is rejected, and its
+output cannot be used for a measured comparison. The original committed
+corpus is preserved when generating these sensitivity inputs.

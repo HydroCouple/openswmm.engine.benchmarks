@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+from decimal import Decimal
 import json
 from pathlib import Path
 import numpy as np
@@ -22,11 +23,19 @@ SPECS = {
 
 
 def clock(seconds):
-    return f'{seconds:.12g}' if seconds % 1 else f'{int(seconds)//3600}:{int(seconds)%3600//60:02d}:{int(seconds)%60:02d}'
+    # Explicit HMS is portable across readers that disagree about the units
+    # of bare decimal step tokens (seconds versus decimal hours).
+    value=Decimal(str(seconds))
+    if not value.is_finite() or value<0:raise ValueError('Clock seconds must be finite and nonnegative')
+    hours,remainder=divmod(value,Decimal(3600))
+    minutes,sec=divmod(remainder,Decimal(60))
+    whole=int(sec);fraction=sec-whole
+    suffix=format(fraction,'f')[1:].rstrip('0') if fraction else ''
+    return f'{int(hours)}:{int(minutes):02d}:{whole:02d}'+suffix
 
 
 def series_clock(seconds):
-    # SWMM time-series scalars use hours; option-step scalars use seconds.
+    # Time-series scalars use hours. Step options use explicit clock strings.
     return f'{seconds/3600:.12g}' if seconds % 1 else clock(seconds)
 
 

@@ -144,7 +144,7 @@ def test_digitizer_recovers_only_isolated_diamonds_and_excludes_legend():
 
 def test_subsecond_output_interval_is_seconds_not_timeseries_hours():
     from suites.uk_2d.build import clock
-    assert clock(.1)=='0.1'
+    assert clock(.1)=='0:00:00.1'
     assert clock(60)=='0:01:00'
 
 

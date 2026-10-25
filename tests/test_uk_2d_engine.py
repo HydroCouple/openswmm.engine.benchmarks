@@ -25,9 +25,9 @@ START_DATE 01/01/2026
 START_TIME 00:00:00
 END_DATE 01/01/2026
 END_TIME 00:00:03
-REPORT_STEP 0.1
-WET_STEP 0.1
-DRY_STEP 0.1
+REPORT_STEP 0:00:00.1
+WET_STEP 0:00:00.1
+DRY_STEP 0:00:00.1
 ROUTING_STEP 0.1
 [JUNCTIONS]
 J 0 10 0 0 0
@@ -77,3 +77,16 @@ OUTPUT_FILE surface.h5
                 specific=np.linalg.lstsq(normal[c],flux[t,c]/length[c],rcond=None)[0]
                 expected=specific/h[t,c]
                 np.testing.assert_allclose([u[t,c],v[t,c]],expected,rtol=1e-9,atol=1e-10)
+
+
+@pytest.mark.skipif(os.environ.get('UK_2D_ENGINE_TEST')!='1',reason='Explicit native engine integration run')
+@pytest.mark.parametrize('step',[.1,1.])
+def test_native_report_clock_preflight(step):
+    from suites.uk_2d.suite import binary_manifest
+    from suites.uk_2d.wall_sensitivity import verify_report_clock
+    exe=Path(os.environ.get('UK_2D_ENGINE_EXE',str(engines.REFACT_EXE))).resolve()
+    identity=binary_manifest(exe)
+    key=digest(json.dumps(identity,sort_keys=True).encode())[:12]
+    output=ROOT/'results/uk_2d/report-clock-test'/key
+    output.mkdir(parents=True,exist_ok=True)
+    verify_report_clock(exe,output,step,identity)

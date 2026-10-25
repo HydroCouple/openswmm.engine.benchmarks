@@ -19,6 +19,7 @@ from harness import engines
 from . import sampling, checks, observations, tin
 from .sources import ROOT, digest
 from .suite import binary_manifest, analysis_hash
+from .build import clock
 
 
 def solid_groups(text, scale):
@@ -53,7 +54,7 @@ def solid_groups(text, scale):
     return groups
 
 
-def model_text(base,groups,selected,cw,cs):
+def model_text(base,groups,selected,cw,cs,report_step):
     # All controls use the same accepted-cell velocity publication and global
     # stage schedule. Cs=0 disables SGS stress while retaining that output path.
     options={'CORIOLIS':'OFF','TURBULENCE_MODEL':'SMAGORINSKY','SMAGORINSKY_CS':f'{cs:.17g}',
@@ -61,6 +62,8 @@ def model_text(base,groups,selected,cw,cs):
     for key,value in options.items():
         if re.search(r'^'+key+r'\s+',base,re.M):base=re.sub(r'^'+key+r'\s+.*$',key+' '+value,base,flags=re.M)
         else:base=base.replace('[2D_OPTIONS]','[2D_OPTIONS]\n'+key+' '+value)
+    for key in ['REPORT_STEP','WET_STEP','DRY_STEP']:
+        base=re.sub(r'^'+key+r'\s+.*$',key+' '+clock(report_step),base,flags=re.M)
     rows=[]
     for group,edges in groups.items():
         for row in edges:
@@ -74,10 +77,40 @@ def model_text(base,groups,selected,cw,cs):
                   '[2D_BOUNDARY_CONDITIONS]\n'+'\n'.join(rows)+'\n',base)
 
 
+def verify_report_clock(exe,output,step,identity):
+    """Require actual native HDF5 frames before launching costly TIN runs."""
+    import h5py
+    from harness import runner
+    from suites.analytical.momentum2d.suite import deck
+    work=Path(output)/f'preflight-clock-{step:g}s';work.mkdir(exist_ok=True)
+    text=deck('wall',2,.2).replace('END_TIME 00:00:20','END_TIME 00:00:01')
+    text=re.sub(r'^REPORT_STEP\s+.*$','REPORT_STEP '+clock(step),text,flags=re.M)
+    text=re.sub(r'^ROUTING_STEP\s+.*$','ROUTING_STEP '+str(min(step,1.)),text,flags=re.M)
+    model=work/'model.inp';model.write_text(text);(work/'surface.h5').unlink(missing_ok=True)
+    execution=runner.run(exe,model,work/'model.rpt',work/'model.out',cwd=work,timeout=60,
+                         dylib_dirs=[str(exe.parent),str(exe.parent.parent/'engine')])
+    (work/'execution.json').write_text(json.dumps(execution,indent=2))
+    if not execution['ok']:raise ValueError('Native report-clock preflight failed: '+str(execution))
+    with h5py.File(work/'surface.h5','r') as data:
+        times=data['time'][:]
+        expected=np.arange(step,1+step/2,step)
+        if times.shape!=expected.shape:raise ValueError(f'Report-clock preflight: {len(times)} frames, expected {len(expected)}')
+        actual=(times-np.floor(times[0]))*86400
+        error=float(np.max(abs(actual-expected)))
+        if error>.002:raise ValueError(f'Report-clock preflight: incorrect native time grid, error {error}')
+        u=data['Mesh2_face_vx'][:];v=data['Mesh2_face_vy'][:]
+        velocity_error=float(max(np.max(abs(u-(.2/(1+.04*.2*expected))[:,None])),np.max(abs(v))))
+        if velocity_error>2e-6:raise ValueError('Report-clock analytical velocity preflight failed')
+    if binary_manifest(exe)!=identity:raise ValueError('Pinned binary changed during preflight')
+    (work/'verification.json').write_text(json.dumps(dict(status='PASS',step_s=step,frames=len(times),clock_error_max_s=error,velocity_error_max_m_s=velocity_error,input_sha256=digest(text.encode()),binaries=identity),indent=2))
+
+
 def run(args):
     output=args.output_dir.resolve();output.mkdir(parents=True,exist_ok=True)
     exe=args.exe.resolve();identity=binary_manifest(exe)
     if len(identity)<2:raise ValueError('Pin both CLI and engine library next to it before assessment')
+    verify_report_clock(exe,output,.1,identity)
+    verify_report_clock(exe,output,1.,identity)
     requests=[]
     for key in args.tests.split(','):
         if key not in ('6a','6b'):raise ValueError('Only 6a and 6b are supported')
@@ -91,7 +124,7 @@ def run(args):
                 selected={'none':[],'throat':['THROAT'],'obstruction':['OBSTRUCTION'],'both':['THROAT','OBSTRUCTION'],'all':list(groups)}[location]
                 name=f'{key}-cs{cs:g}-{location}-cw{args.cw:g}'
                 work=output/name;work.mkdir(exist_ok=True)
-                text=model_text(base,groups,selected,args.cw,cs)
+                text=model_text(base,groups,selected,args.cw,cs,case['step'])
                 (work/'model.inp').write_text(text)
                 (work/'canonical-case.json').write_text(json.dumps(case,indent=2))
                 variant=dict(case,id=name,model_sha256=digest(text.encode()))
@@ -103,6 +136,7 @@ def run(args):
                 manifest=dict(case=name,uk_test=key,selected_groups=selected,cw=args.cw,cs=cs,
                               coefficient_scope='declared diagnostic sensitivity; not fitted material roughness',
                               velocity_operator='accepted cell q/h for every control and treatment',
+                              report_step_encoding=clock(case['step']),
                               wall_groups=groups,corpus_revision=args.corpus_revision,canonical_input_sha256=case['model_sha256'],
                               input_sha256=digest(text.encode()),binaries=identity,analysis_sha256=analysis_hash(),
                               driver_sha256=digest(Path(__file__).read_bytes()),
