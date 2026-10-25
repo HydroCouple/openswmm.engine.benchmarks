@@ -78,6 +78,13 @@ def methods(records, output):
         seen.add(key)
         case = json.loads((work/'canonical-case.json').read_text())
         lines.append(f"| {key.upper()} | {case['end']} | {case['step']} | {case['n']} | {case['area_m2']:g} |")
+    provenance = output/'build-provenance.json'
+    hardware = json.loads(provenance.read_text()).get('hardware') if provenance.exists() else None
+    if hardware:
+        lines += ['', f"Execution host: {hardware['cpu']} ({hardware['model']}), "
+            f"{hardware['memory_bytes']/2**30:g} GiB RAM, {hardware['physical_cores']} physical cores. "
+            'Each case uses one solver thread. A fixed CPU clock frequency and minimum '
+            'hardware requirement are not established by this experiment.']
     lines += ['', '| Selected solid-wall region | Faces | Length in 6A (m) | Length in 6B (m) |',
         '|---|---:|---:|---:|']
     sample = records[0][1]

@@ -124,6 +124,7 @@ def run(args):
                 selected={'none':[],'throat':['THROAT'],'obstruction':['OBSTRUCTION'],'both':['THROAT','OBSTRUCTION'],'all':list(groups)}[location]
                 name=f'{key}-cs{cs:g}-{location}-cw{args.cw:g}'
                 work=output/name;work.mkdir(exist_ok=True)
+                (work/'metrics.json').unlink(missing_ok=True) # a failed rerun must not retain a completed verdict
                 text=model_text(base,groups,selected,args.cw,cs,case['step'])
                 (work/'model.inp').write_text(text)
                 (work/'canonical-case.json').write_text(json.dumps(case,indent=2))
@@ -192,7 +193,17 @@ def write_report(output):
         metric=json.loads(path.read_text());manifest=json.loads(path.with_name('manifest.json').read_text())
         rows=list(csv.DictReader(path.with_name('probes.csv').open()))
         records.append((path.parent,manifest,metric,rows))
+    status='Completed configurations are listed below.'
+    plan_path=output/'assessment-plan.json'
+    if plan_path.exists():
+        plan=json.loads(plan_path.read_text())
+        expected={f"{p['test']}-cs{p['cs']:g}-{location}-cw{plan['cw']:g}"
+                  for p in plan['phases'] for location in p['locations']}
+        complete=expected <= {r[0].name for r in records}
+        status=(f'All {len(expected)} planned configurations have completed.' if complete else
+                f'Interim report: {len(records)} of {len(expected)} planned configurations have completed. The assessment is unfinished.')
     lines=['# Test 6: selective wall-friction sensitivity','',
+           status,'',
            'These runs compare HydroCouple configurations only with the available measured subset. '
            'Cw is a declared diagnostic coefficient, not calibrated wall-material roughness. '
            'Bed roughness, mesh, initial depths and Coriolis OFF are held fixed. '
