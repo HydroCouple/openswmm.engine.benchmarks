@@ -185,6 +185,7 @@ def write_report(output):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from .wall_report import methods, bias_table
     output=Path(output)
     records=[]
     for path in sorted(output.glob('*/metrics.json')):
@@ -202,6 +203,7 @@ def write_report(output):
            'Test 6A observations are digitized isolated UCL markers, not the original complete '
            'measurement series. G6 is unavailable. Reported errors apply only to the recoverable '
            'sample intervals. Test 6B has no independent measured reference.','',
+           *methods(records, output),
            '| Case | G2 speed RMSE (m/s) | G4 speed RMSE (m/s) | G2 level RMSE (m) | '
            'G4 level RMSE (m) | G5 level RMSE (m) | Volume residual (m³) | Wall energy/rho (m⁵/s²) |',
            '|---|---:|---:|---:|---:|---:|---:|---:|']
@@ -209,6 +211,10 @@ def write_report(output):
         values={(r['probe'],r['quantity']):r['rmse'] for r in metric['observed']['metrics']}
         cells=[f"{values[k]:.6g}" if k in values else '—' for k in [('G2','speed_mps'),('G4','speed_mps'),('G2','level_m'),('G4','level_m'),('G5','level_m')]]
         lines.append('| '+work.name+' | '+' | '.join(cells)+f" | {metric['volume_residual_m3']:.6g} | {metric['wall_energy_removed_over_rho_m5_s2']:.6g} |")
+    lines += bias_table(records)
+    lines += ['', '## Corresponding UK report panels', '',
+              'The first image of each pair retains the source panel axes; '
+              'the companion exposes values outside those limits and the full duration.']
     display=json.loads(Path(__file__).with_name('figure-display-specs.json').read_text())['figures']
     for key in sorted({r[1]['uk_test'] for r in records}):
         for cs in sorted({r[1]['cs'] for r in records if r[1]['uk_test']==key}):
@@ -239,6 +245,12 @@ def write_report(output):
             'A reduction at one gauge alone does not establish wall friction as the missing cause. '
             'Joint level/speed histories and mesh/timestep sensitivity must support any selected closure.']
     (output/'report.md').write_text('\n'.join(lines)+'\n')
+    (output/'report-provenance.json').write_text(json.dumps(dict(
+        renderer_sha256=digest(Path(__file__).read_bytes()),
+        methods_sha256=digest(Path(__file__).with_name('wall_report.py').read_bytes()),
+        cases={work.name:manifest['input_sha256'] for work,manifest,metric,rows in records},
+        note='Report generation is separate from execution; per-case manifests retain the execution driver identity.'
+    ),indent=2)+'\n')
 
 
 def main():
