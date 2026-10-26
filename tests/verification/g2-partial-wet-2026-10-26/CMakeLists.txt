@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.21)
+project(partial_wet_audit LANGUAGES CXX)
+add_executable(partial_wet_audit partial_wet_audit.cpp)
+target_compile_features(partial_wet_audit PRIVATE cxx_std_20)
+target_include_directories(partial_wet_audit PRIVATE ${ENGINE_SOURCE}/src/engine ${ENGINE_SOURCE}/include)
+target_link_libraries(partial_wet_audit PRIVATE ${ENGINE_LIBRARY})
