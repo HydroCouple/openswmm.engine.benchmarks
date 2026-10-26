@@ -117,3 +117,14 @@ probe value and time exactly; the baseline data and tolerances remain unchanged.
 The original producing-engine identity is retained, with the spelling migration
 and verification recorded in `baselines/cpu-full-swe-rk2/clock-migration-2026-10-25.json`.
 Case preflight rejects ambiguous bare global clock values before execution.
+
+The GUI mesher adapter also accepts optional `refinement_boxes` in its JSON
+request. Each entry has `xmin`, `xmax`, `ymin`, `ymax`, `max_area` and a positive
+`transition_width`. Its target area increases linearly with distance outside
+the box to the background `max_area`; the GUI's existing size callback performs
+the refinement. Omitted or empty boxes retain the original mesh exactly.
+These are target sizes, not a bound on every final edge after quality work.
+Run the native adapter checks with `UK_GUI_MESHER=/path/to/uk_gui_mesher pytest
+tests/test_uk_2d_mesher_refinement.py`. The separate
+`analytical/hydraulic_jumps` suite verifies jump states and wall reflection;
+it does not establish the correct front location around the Test 6 building.

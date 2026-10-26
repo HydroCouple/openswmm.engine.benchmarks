@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QTextStream>
+#include <algorithm>
+#include <cmath>
 
 static QVector<QPointF> points(const QJsonArray &array)
 {
@@ -42,6 +44,33 @@ int main(int argc, char **argv)
     options.latticeSeeding = true;
     options.smoothingPasses = 3;
     generator.setOptions(options);
+    // Optional graded local refinement uses the GUI's existing size callback.
+    const auto boxes = request["refinement_boxes"].toArray();
+    if (!boxes.isEmpty()) {
+        for (const auto &value : boxes) {
+            const auto box = value.toObject();
+            for (const auto &key : {"xmin", "xmax", "ymin", "ymax", "max_area", "transition_width"})
+                if (!box[key].isDouble() || !std::isfinite(box[key].toDouble())) return 2;
+            if (!(options.maxArea > 0.0) || box["xmin"].toDouble() >= box["xmax"].toDouble() ||
+                box["ymin"].toDouble() >= box["ymax"].toDouble() ||
+                box["max_area"].toDouble() <= 0.0 || box["max_area"].toDouble() > options.maxArea ||
+                box["transition_width"].toDouble() <= 0.0) return 2;
+        }
+        mesh::RefineHook hook;
+        hook.targetAreaAt = [boxes, background = options.maxArea](double x, double y) {
+            double area = background;
+            for (const auto &value : boxes) {
+                const auto box = value.toObject();
+                const double distance = std::hypot(std::max({box["xmin"].toDouble()-x, 0.0, x-box["xmax"].toDouble()}),
+                                                   std::max({box["ymin"].toDouble()-y, 0.0, y-box["ymax"].toDouble()}));
+                const double weight = std::clamp(distance / box["transition_width"].toDouble(), 0.0, 1.0);
+                const double fine = box["max_area"].toDouble();
+                area = std::min(area, fine + weight * (background-fine));
+            }
+            return area;
+        };
+        generator.setRefineHook(hook);
+    }
     const auto result = generator.generate();
     if (!result.ok || result.hasQuads() || generator.stats().refineCapped) {
         QTextStream(stderr) << result.errorMsg << " refinement capped: "
