@@ -44,7 +44,7 @@ def run(argv: list[str] | None = None) -> dict | None:
         case_glob = argv[argv.index("--cases") + 1]
     if "--solvers" in argv:
         solver_ids = argv[argv.index("--solvers") + 1].split(",")
-    # Honoured for uniformity with the rest of the platform, though no case
+    # Honored for uniformity with the rest of the platform, though no case
     # here comes close: the slowest cell in this suite is bend00-gentle on
     # 1d-dynwave-vj at ~50 s, a sixth of the 300 s CI threshold. Every case
     # therefore keeps running on Actions and keeps being graded against the

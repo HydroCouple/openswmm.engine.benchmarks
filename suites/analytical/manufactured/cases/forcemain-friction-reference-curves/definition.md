@@ -2,7 +2,7 @@
 
 ## Purpose
 Verify the Hazen-Williams and Darcy-Weisbach friction slope computations against
-exact analytical reference values across a velocity range typical of pressurised
+exact analytical reference values across a velocity range typical of pressurized
 force mains.
 
 ## Physical setup

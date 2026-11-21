@@ -20,7 +20,7 @@ def _fake_engine(tmp_path, *, posix: str, windows: str, name: str = "engine"):
     runner.run execs `[exe, inp, rpt, out]` directly, so the fixture has to be
     something the platform will start on its own. A `#!/bin/sh` script is not
     that on Windows, and skipping there would drop coverage of the single most
-    important behaviour — "the engine ran and failed" being reported with its
+    important behavior — "the engine ran and failed" being reported with its
     exit code — on a platform where the whole sweep runs.
     """
     if sys.platform == "win32":

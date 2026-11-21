@@ -21,7 +21,7 @@ The clean CI build enables the CPU 2D HDF5 writer. The final local assessment us
 
 The current technical report is `results/uk_2d/assessment-2026-10-24/report.html`. Its assembly history retains the unchanged 22 October executions of Tests 1–5 and replaces Test 6 with the constrained-mesh runs. It includes the analytical supplement and four repeated-run checks. Test 6A still shows material G2 discrepancies (level RMSE 0.05597 m; speed RMSE 0.81879 m/s); it does not establish successful laboratory validation. The final automated harness check passed 291 tests, including the native output-freshness integration test. That integration test was also demonstrated to fail before the engine correction and pass after it.
 
-The independent 6B repeat completed before the first-run anchor review. Its saved probe series was compared after review, with zero change. `post-run-baseline-comparison.json` and `comparison-history/` retain that sequence and the original unavailable-baseline coverage error; no engine failure was changed to a pass and no execution was relabelled.
+The independent 6B repeat completed before the first-run anchor review. Its saved probe series was compared after review, with zero change. `post-run-baseline-comparison.json` and `comparison-history/` retain that sequence and the original unavailable-baseline coverage error; no engine failure was changed to a pass and no execution was relabeled.
 
 ## Rebuild source-derived models
 
@@ -77,7 +77,7 @@ The CSV is long-format:
 time_s,probe,quantity,value
 ```
 
-`probe` must identify a source gauge; `quantity` is `level_m` (water elevation in metres in the declared datum) or `speed_mps` (scalar speed in m/s). Times are elapsed seconds from the documented gate release. Blank observations remain missing. CSV records for each gauge/quantity must have strictly increasing times. The manifest requires `kind` (`observed` or `digitized_observed`), `source`, `citation`, `quantity_definitions`, `datum`, `time_origin`, `csv_sha256` and positive `max_gap_s`. Include documented instrument/digitization uncertainty and acquisition rights as additional provenance. Missing uncertainty must be identified as unknown.
+`probe` must identify a source gauge; `quantity` is `level_m` (water elevation in meters in the declared datum) or `speed_mps` (scalar speed in m/s). Times are elapsed seconds from the documented gate release. Blank observations remain missing. CSV records for each gauge/quantity must have strictly increasing times. The manifest requires `kind` (`observed` or `digitized_observed`), `source`, `citation`, `quantity_definitions`, `datum`, `time_origin`, `csv_sha256` and positive `max_gap_s`. Include documented instrument/digitization uncertainty and acquisition rights as additional provenance. Missing uncertainty must be identified as unknown.
 
 The comparison interpolates predictions only onto supported observation times, excludes extrapolation and separates intervals exceeding `max_gap_s`. It reports time-weighted bias, MAE and RMSE, maximum absolute residual, sample count and covered duration. Fit is report-only. It never enters the exact-solution verification badge. The observed comparison and publication view still need independent reference review before an article can claim laboratory validation.
 

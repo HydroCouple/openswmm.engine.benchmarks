@@ -9,7 +9,7 @@ after sufficient time under steady inflow and a fixed tailwater boundary conditi
 ## Physical setup
 
 A 1000 ft reach of rectangular open channel (b = 5 ft, y_full = 4 ft, S₀ = 0.001,
-n = 0.013) is discretised into 5 conduits of 200 ft each (6 nodes J0–J5).
+n = 0.013) is discretized into 5 conduits of 200 ft each (6 nodes J0–J5).
 A constant lateral inflow Q = 10 cfs enters at the upstream junction J0.
 The downstream node J5 is a FIXED outfall at water-surface elevation y_d = 1.5 × y_n.
 

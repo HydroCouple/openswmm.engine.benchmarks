@@ -7,7 +7,7 @@ on a horizontal rectangular channel.  US customary units throughout to
 match the DW solver's hardcoded GRAVITY = 32.2 ft/s².
 
 Strip: L = 250 ft, dam at x_d = 125 ft, h0 = 1.0 ft, g = 32.2 ft/s².
-Discretised into 51 nodes spaced 5 ft apart (nodes 0–50).
+Discretized into 51 nodes spaced 5 ft apart (nodes 0–50).
 Reference is sampled at t ∈ {2, 4, 6, 8} s — all before t_max ≈ 11.0 s
 when the wet front reaches the downstream boundary.
 

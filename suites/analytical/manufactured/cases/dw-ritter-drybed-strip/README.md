@@ -2,7 +2,7 @@
 
 Ritter (1892) exact solution for a 1D frictionless dry-bed dam break,
 compared against the OpenSWMM DW solver on a 250 ft × 5 ft rectangular
-strip discretised into 50 conduits of 5 ft each.  The upstream end is held
+strip discretized into 50 conduits of 5 ft each.  The upstream end is held
 at a fixed stage h₀ = 1.0 ft (reservoir BC); the downstream end uses a FREE
 outfall; all conduits are frictionless (n = 0) and horizontal.  Reference
 depths and velocities are sampled at t ∈ {2, 4, 6, 8} s — before the wet

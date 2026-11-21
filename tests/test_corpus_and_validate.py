@@ -154,7 +154,7 @@ def test_absolute_reference_path_is_rejected(tmp_path, path):
     `Path.is_absolute()` answers for the host, so on Linux a `C:\\...` path reads
     as relative and on Windows a `/etc/...` path does — each platform waving
     through exactly the paths the other cares about. The corpus is shared and
-    full of Windows paths authored elsewhere, so both flavours are checked.
+    full of Windows paths authored elsewhere, so both flavors are checked.
     """
     case = _make_case(tmp_path, reference={
         "class": "external_reference", "files": [path]})
@@ -299,5 +299,5 @@ def test_undeterminable_diff_validates_everything_rather_than_nothing(monkeypatc
 
 
 def test_resolvable_diff_still_narrows_to_changed_cases():
-    """The fallback must not defeat the optimisation when the ref is fine."""
+    """The fallback must not defeat the optimization when the ref is fine."""
     assert validate.changed_paths("HEAD") == []

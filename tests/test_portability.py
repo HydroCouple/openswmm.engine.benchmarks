@@ -88,7 +88,7 @@ def test_absolute_path_detection_is_os_independent(path, expected):
     """`Path.is_absolute()` answers for the host; the corpus is shared.
 
     On Linux a `C:\\...` path reads as relative and on Windows a `/etc/...` one
-    does, so a single-flavour check passes exactly the paths the other platform
+    does, so a single-flavor check passes exactly the paths the other platform
     cares about.
     """
     from harness import validate

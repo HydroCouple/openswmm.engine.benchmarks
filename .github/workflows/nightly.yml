@@ -37,7 +37,7 @@ jobs:
           - {os: windows-latest, alias: Windows-x64}
     runs-on: ${{ matrix.os }}
     # A full-corpus sweep can outrun the 6h default, and a
-    # cancelled job reads as infrastructure noise rather than a result.
+    # canceled job reads as infrastructure noise rather than a result.
     # Bound it explicitly so overrun is a visible, deliberate limit.
     timeout-minutes: 330
     steps:

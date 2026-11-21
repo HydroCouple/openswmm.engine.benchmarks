@@ -22,7 +22,7 @@ which is equivalent to:
 ## Columns
 | Column | Units | Description |
 |--------|-------|-------------|
-| y_norm | — | Normalised depth y/D (0 to 1) |
+| y_norm | — | Normalized depth y/D (0 to 1) |
 | y_ft | ft | Absolute depth |
 | A_analytical_ft2 | ft² | Exact analytical area |
 | A_over_Afull | — | A / A_full |

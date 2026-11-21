@@ -7,7 +7,7 @@ system**, exercising the multi-variable code path that all existing ODE tests
 bypass (they pass `n=1`).  The SIR model is chosen because it has the same
 compartmental structure as SWMM water-quality reaction chains, carries an
 exact conservation invariant, and admits an exact phase-plane trajectory that
-can be verified independently of the time parametrisation.
+can be verified independently of the time parametrization.
 
 ## Why SIR maps to SWMM water quality
 
@@ -39,7 +39,7 @@ chain would.
 | β | 0.3 | s⁻¹ | Transmission rate |
 | γ | 0.1 | s⁻¹ | Recovery rate |
 | R₀ = β/γ | 3.0 | — | Basic reproduction number |
-| N | 1.0 | — | Total population (normalised) |
+| N | 1.0 | — | Total population (normalized) |
 | S(0) | 0.99 | — | Initial susceptible fraction |
 | I(0) | 0.01 | — | Initial infected fraction |
 | R(0) | 0.00 | — | Initial recovered fraction |

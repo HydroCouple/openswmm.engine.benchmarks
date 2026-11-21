@@ -6,7 +6,7 @@ a file. This one checks the consequence: that a difference big enough to matter
 actually turns into a nonzero exit code, and that one small enough does not.
 
 A gate nobody has watched fail is not known to work, and the parity gate is the
-whole point of the platform — so its behaviour is pinned here, engine-free, and
+whole point of the platform — so its behavior is pinned here, engine-free, and
 runs on every PR.
 """
 from __future__ import annotations

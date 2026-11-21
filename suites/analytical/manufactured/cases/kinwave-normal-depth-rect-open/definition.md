@@ -28,7 +28,7 @@ The KW finite-difference continuity equation is:
 f(a_out) = beta1*S(a_out) + C1*a_out + C2 = 0
 ```
 
-with `beta1 = 1/s_full` (the normalisation constant) and coefficients C1, C2
+with `beta1 = 1/s_full` (the normalization constant) and coefficients C1, C2
 derived from previous-timestep state (q1, a1, q2, a2) and inlet flow q_in.
 
 When the channel is pre-loaded at normal depth — `q1=q2=q_in=Q_n`,
@@ -81,7 +81,7 @@ relative to q_full / a_full.
 
 **Do not loosen the test tolerance.**  If `TEST(KWSolverSteadyState, NormalDepthRecovered)`
 ever fails, it means a real regression in the Newton solve, the section-factor
-inversion, or the state normalisation — investigate the implementation, not the
+inversion, or the state normalization — investigate the implementation, not the
 tolerance.  The gap between the expected error (~1e-15) and the threshold (1e-9)
 is a million-fold, so platform FP differences will never cause false failures.
 

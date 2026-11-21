@@ -2,7 +2,7 @@
 """
 Generate reference CSV for the grnampt-saturated-trajectory benchmark.
 
-Exact implicit Green-Ampt relation on the saturated branch, parametrised by
+Exact implicit Green-Ampt relation on the saturated branch, parametrized by
 cumulative infiltration F:
 
     dF/dt = Ks * (1 + c1/F),   c1 = (S + depth)*IMD

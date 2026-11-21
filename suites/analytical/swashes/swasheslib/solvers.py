@@ -73,7 +73,7 @@ SOLVERS: list[SolverSpec] = [
     # identical, so any difference between the columns IS the advection term.
     #
     # Retired: the THETA sweep (2d-explicit-th07 / -th05). theta is the
-    # q-centred de Almeida damping — the ONLY dissipation the scheme has at
+    # q-centered de Almeida damping — the ONLY dissipation the scheme has at
     # n -> 0 — so it moves the sawtooth amplitude on frictionless plateaus and
     # nothing else. It cannot reach the plateau LEVEL or the shock position,
     # which follow from the missing convective flux (wrong Rankine-Hugoniot

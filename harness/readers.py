@@ -173,7 +173,7 @@ class Out:
         a full-corpus sweep compares ~22 billion cells, and at ~270k cells/s
         that is a day of pure comparison — longer than the nightly window and
         far longer than a CI job may run. Gathering the bytes with numpy and
-        viewing them as float32 is the same arithmetic, vectorised.
+        viewing them as float32 is the same arithmetic, vectorized.
         """
         n, bpp = self.n_periods, self.bytes_per_period
         if n <= 0:

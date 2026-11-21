@@ -28,21 +28,21 @@ _VERDICT_MARK = {
     "SKIP": "—", "UNAVAILABLE": "· n/a ·",
 }
 
-# Fixed per-solver style: colour follows the SOLVER, never its position in the
-# plotted set. Cases skip different columns, so a rank-ordered colour cycle
+# Fixed per-solver style: color follows the SOLVER, never its position in the
+# plotted set. Cases skip different columns, so a rank-ordered color cycle
 # repaints the survivors and the same solver reads as a different series from
 # one case figure to the next. Cool hues = 1D family, warm = the 2D pair, and
 # the 2D pair also carries distinct markers so the local-acceleration vs
-# advection comparison survives greyscale and colour-vision deficiency.
+# advection comparison survives grayscale and color-vision deficiency.
 # Hues match suites/transitions (fv blue, dw aqua, legacy magenta).
-# Okabe-Ito, chosen for colour-vision deficiency. The reference profile is
+# Okabe-Ito, chosen for color-vision deficiency. The reference profile is
 # black, so no series takes it.
 #
 # EVERY series is separated on three channels — hue, marker shape AND dash
-# pattern — not just the 2D pair. With six curves overlapping on a metre-scale
+# pattern — not just the 2D pair. With six curves overlapping on a meter-scale
 # mesh, hue alone does not separate them (the previous palette put a #2a78d6
 # blue next to a #4a3aa7 indigo, and `1d-dynwave-semi` had no entry at all, so
-# it fell through to an arbitrary auto-colour that could collide with any of
+# it fell through to an arbitrary auto-color that could collide with any of
 # them).
 _STYLE = {
     "1d-dynwave":        ("#0072B2", "o", "-"),

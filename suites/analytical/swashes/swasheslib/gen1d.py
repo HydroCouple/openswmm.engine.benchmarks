@@ -87,7 +87,7 @@ def build_inp(case: CaseSpec, solver: SolverSpec, nx: int | None = None) -> str:
         # It is paired with a tight Picard convergence budget (MAX_TRIALS 32,
         # HEAD_TOLERANCE 1e-6 m).
         # NODE_CONTINUITY is EXPLICIT (the refactored default = legacy
-        # behaviour): legacy warns-and-ignores the key, so SEMI_IMPLICIT made
+        # behavior): legacy warns-and-ignores the key, so SEMI_IMPLICIT made
         # the refactored column silently solve DIFFERENT node continuity —
         # with EXPLICIT the two DW columns are verified BIT-IDENTICAL
         # (2026-08-12 probe: max|dh| = max|dq| = 0 on long-jump, dressler,

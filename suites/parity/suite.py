@@ -137,7 +137,7 @@ def _dir_size(path: Path) -> int:
 
 
 class _Reclaimer:
-    """Summarise each case into its cells, then delete its run tree.
+    """Summarize each case into its cells, then delete its run tree.
 
     Everything a result means — continuity, stability, wall time, parity
     metrics, the worst offender — is extracted into the scores envelope before
@@ -191,7 +191,7 @@ class _Reclaimer:
             if not self.over_budget:
                 self.over_budget = True
                 print(f"retention budget of {self.budget / 2**30:.1f} GiB "
-                      f"reached; further failed cases are summarised in the "
+                      f"reached; further failed cases are summarized in the "
                       f"envelope but their outputs are not kept",
                       file=sys.stderr)
             want_keep = False
@@ -311,7 +311,7 @@ def run(argv: list[str] | None = None) -> dict | None:
     ap.add_argument("--keep-out", choices=("fail", "all", "none"), default="fail",
                     help="retain a case's run tree (.out, .rpt, seeded inputs) "
                          "only where something failed (default), always, or "
-                         "never. Every result is summarised into the scores "
+                         "never. Every result is summarized into the scores "
                          "envelope first, so 'none' loses drill-down detail, "
                          "never a verdict.")
     ap.add_argument("--retain-budget-gib", type=float, default=2.0,
@@ -320,7 +320,7 @@ def run(argv: list[str] | None = None) -> dict | None:
                          "the volume (default 2 GiB)")
     ap.add_argument("--skip-list", dest="use_skip_list",
                     action=argparse.BooleanOptionalAction, default=True,
-                    help="honour manifests/skip_list.yaml (--no-skip-list runs "
+                    help="honor manifests/skip_list.yaml (--no-skip-list runs "
                          "the skipped cases, to confirm the listed reason)")
     ap.add_argument("--max-wall", type=float, metavar="SECONDS",
                     help="skip cases measured to cost more than this "

@@ -657,7 +657,7 @@ def thacker_omega(a: float = TH_A, h0: float = TH_H0) -> float:
 
 def thacker_z_raw(x: np.ndarray, a: float = TH_A, h0: float = TH_H0,
                   L: float = TH_L) -> np.ndarray:
-    """Paper form: z = h0((x−L/2)²/a² − 1); min = −h0 at the centre."""
+    """Paper form: z = h0((x−L/2)²/a² − 1); min = −h0 at the center."""
     return h0 * (((x - L / 2.0) / a) ** 2 - 1.0)
 
 
@@ -692,7 +692,7 @@ def thacker2d_z_raw(x: np.ndarray, y: np.ndarray, a: float = 1.0,
 
 def thacker2d_z(x: np.ndarray, y: np.ndarray, a: float = 1.0,
                 h0: float = 0.1, L: float = 4.0) -> np.ndarray:
-    """Datum-anchored (+h0): min z = 0 at the centre."""
+    """Datum-anchored (+h0): min z = 0 at the center."""
     return thacker2d_z_raw(x, y, a, h0, L) + h0
 
 

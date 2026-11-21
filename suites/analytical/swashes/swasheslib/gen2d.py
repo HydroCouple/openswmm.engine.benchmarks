@@ -11,7 +11,7 @@ square plane. Initial depths ride the [2D_TRIANGLES] INIT_DEPTH column
 (before TAG; engine default 0 = dry).
 
 Boundary realization: WALL everywhere by default; upstream `inflow_q` ->
-SPECIFIED_FLOW with PARAM_1 = -q (per-metre, outward-negative = inflow);
+SPECIFIED_FLOW with PARAM_1 = -q (per-meter, outward-negative = inflow);
 downstream `stage` -> SPECIFIED_STAGE at eta; downstream `free` ->
 SPECIFIED_STAGE at the ANALYTIC eta(L) (documented in provenance — a true
 free/normal boundary is ill-posed on the flat-bedded cases).

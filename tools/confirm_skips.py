@@ -2,7 +2,7 @@
 """Confirm — by running them — that every skip-listed case fails as stated.
 
 `suites/parity/manifests/skip_list.yaml` was built by STATIC analysis of each
-deck's file references. That is a claim about behaviour, and an unverified
+deck's file references. That is a claim about behavior, and an unverified
 claim in a skip list is how a runnable model quietly stops being tested. This
 runs each listed case through the engine and checks that the observed failure
 matches the stated reason.

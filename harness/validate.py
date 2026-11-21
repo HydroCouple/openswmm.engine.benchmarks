@@ -69,8 +69,8 @@ def is_absolute_anywhere(path: str) -> bool:
     question here: the corpus is shared across platforms and is full of
     Windows paths authored elsewhere. On Linux `Path(r"C:\\secrets\\x")` is
     "relative" and on Windows `Path("/etc/passwd")` is "relative", so a
-    single-flavour check passes exactly the paths the other platform cares
-    about. Both flavours are asked, plus UNC, so the verdict is the same
+    single-flavor check passes exactly the paths the other platform cares
+    about. Both flavors are asked, plus UNC, so the verdict is the same
     everywhere.
     """
     p = str(path)

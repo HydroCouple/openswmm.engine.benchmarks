@@ -88,7 +88,7 @@ class Raster:
         self.z[self.z == float(head['nodata_value'])] = np.nan
 
     def sample(self, x, y, allow_nodata=False):
-        """Bilinear interpolation between pixel centres; no extrapolation."""
+        """Bilinear interpolation between pixel centers; no extrapolation."""
         fx = (np.asarray(x)-self.x0)/self.dx
         fy = (np.asarray(y)-self.y0)/self.dx
         if np.any((fx < 0) | (fx > self.nx-1) | (fy < 0) | (fy > self.ny-1)):

@@ -9,7 +9,7 @@ from .sources import digest
 
 
 def geometry():
-    """Metres, transcribed from EA2DTest6 May 2010 Figure (a)."""
+    """Meters, transcribed from EA2DTest6 May 2010 Figure (a)."""
     angle=np.deg2rad(64.)
     along=np.array([np.cos(angle),np.sin(angle)])
     across=np.array([along[1],-along[0]])
