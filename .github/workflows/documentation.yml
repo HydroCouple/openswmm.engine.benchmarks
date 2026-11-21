@@ -1,0 +1,61 @@
+# Build the Sphinx manual in docs/manual. Build only: the manual is uploaded as
+# a workflow artifact and is not deployed. The Pages site is the results
+# dashboard (publish.yml); serving the manual under /docs/ needs that workflow
+# to include it.
+name: Documentation
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [dev, main]
+    # The reference pages are generated from the harness, so a change to the
+    # Python sources can break the build as well as a change to the manual.
+    paths: ['docs/manual/**', 'harness/**', 'suites/**/*.py', 'tools/**',
+            'run_regression.py', '.github/workflows/documentation.yml']
+  pull_request:
+    branches: [dev, main]
+    paths: ['docs/manual/**', 'harness/**', 'suites/**/*.py', 'tools/**',
+            'run_regression.py', '.github/workflows/documentation.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: documentation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_manual:
+    name: Build the manual (Sphinx)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Sphinx and theme dependencies
+        # Sphinx, the PyData theme, and numpy + PyYAML for importing the
+        # harness. No engine is built: the reference is generated from the
+        # Python sources and from each command's --help.
+        run: pip install -r docs/manual/requirements.txt
+
+      - name: Build Sphinx HTML docs
+        # -W promotes warnings to errors so a regression in the docs blocks
+        # the build; --keep-going still surfaces every issue in one pass.
+        run: sphinx-build -b html -W --keep-going docs/manual docs/manual/_build/html
+
+      - name: Upload manual artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual
+          path: docs/manual/_build/html/
+          if-no-files-found: error
+          retention-days: 7
