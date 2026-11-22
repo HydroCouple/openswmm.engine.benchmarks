@@ -5,7 +5,16 @@ name: Publish
 
 on:
   workflow_call:
+    inputs:
+      run_id:
+        description: The workflow run whose results-* artifacts to publish.
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      run_id:
+        description: Workflow run to publish (blank = the last completed Nightly).
+        required: false
 
 permissions:
   contents: read
@@ -28,40 +37,35 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
 
-      # Called from Nightly (`workflow_call`): the sweep's artifacts belong to
-      # THIS run, so the plain download works.
-      - name: Download results from this run
-        if: github.event_name != 'workflow_dispatch'
-        uses: actions/download-artifact@v4
-        with:
-          pattern: results-*
-          path: results/
-          # Every sweep job writes results/<suite>/scores_<tier>.json, so merged
-          # into one tree they overwrite each other and only one job's results
-          # survive. Kept apart, each artifact lands in results/<artifact>/ and
-          # the site build finds them all.
-          merge-multiple: false
-        continue-on-error: true
-
-      # Dispatched on its own: this run has no artifacts of its own — they live
-      # in the Nightly run that produced them. Without this, a manual publish
-      # downloads nothing and reports the misleading "Found 0 artifact(s)".
-      - name: Download results from the last Nightly run
-        if: github.event_name == 'workflow_dispatch'
+      # The caller names the run that holds the artifacts. Inside a reusable
+      # workflow `github.event_name` is the CALLER's event, so a Nightly started
+      # by hand used to look like a stand-alone dispatch here and published
+      # "the last completed Nightly": the previous night's results, on the
+      # stale engine, while this run's sat unread (run 44981179237). Dispatched
+      # on its own with no run named, publish falls back to the last completed
+      # Nightly, because this run has no artifacts of its own.
+      - name: Download the run's results
         env:
           GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
-          run_id=$(gh run list --workflow nightly.yml --limit 20 \
-                     --json databaseId,conclusion,status \
-                     --jq '[.[] | select(.status=="completed")][0].databaseId')
-          if [ -z "${run_id:-}" ]; then
+          if [ -z "${RUN_ID:-}" ]; then
+            RUN_ID=$(gh run list --workflow nightly.yml --limit 20 \
+                       --json databaseId,status \
+                       --jq '[.[] | select(.status=="completed")][0].databaseId')
+          fi
+          if [ -z "${RUN_ID:-}" ]; then
             echo "no completed Nightly run to publish from" >&2
             exit 0
           fi
-          echo "publishing results from Nightly run $run_id"
+          echo "publishing results from run $RUN_ID"
           mkdir -p results
-          gh run download "$run_id" --pattern 'results-*' --dir results || \
+          # Every sweep job writes results/<suite>/scores_<tier>.json, so merged
+          # into one tree they overwrite each other and only one job's results
+          # survive. gh keeps each artifact in results/<artifact>/, where the
+          # site build finds them all.
+          gh run download "$RUN_ID" --pattern 'results-*' --dir results || \
             echo "that run uploaded no results artifact" >&2
 
       # An explicit census beats discovering the absence three steps later as

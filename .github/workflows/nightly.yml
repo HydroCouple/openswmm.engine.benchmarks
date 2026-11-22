@@ -113,6 +113,8 @@ jobs:
     # broken nightly is indistinguishable from a healthy one (see F20).
     if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     uses: ./.github/workflows/publish.yml
+    with:
+      run_id: ${{ github.run_id }}
     permissions:
       contents: read
       # A reusable workflow cannot request more than its caller grants, and

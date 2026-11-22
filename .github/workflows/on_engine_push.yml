@@ -88,6 +88,8 @@ jobs:
     # a failed run look like a passing one.
     if: always()
     uses: ./.github/workflows/publish.yml
+    with:
+      run_id: ${{ github.run_id }}
     permissions:
       contents: read
       # A reusable workflow cannot request more than its caller grants, and

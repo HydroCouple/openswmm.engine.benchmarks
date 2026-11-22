@@ -432,6 +432,20 @@ def test_publish_runs_even_when_the_sweep_fails(wf):
         f"{wf}: publish is skipped when the sweep fails")
 
 
+@pytest.mark.parametrize("wf", ["nightly.yml", "on_engine_push.yml"])
+def test_publish_is_told_which_run_holds_the_results(wf):
+    """Inside a reusable workflow github.event_name is the CALLER's event, so
+    publish cannot tell a Nightly call from a stand-alone dispatch by it: a
+    Nightly started by hand published the PREVIOUS night's artifacts (run
+    44981179237). The caller names its run instead."""
+    pub = _workflow(wf)["jobs"]["publish"]
+    assert pub.get("with", {}).get("run_id") == "${{ github.run_id }}", (
+        f"{wf}: publish is not told which run to download")
+    publish = _workflow("publish.yml")
+    triggers = publish.get("on", publish.get(True))   # YAML 1.1 reads `on` as true
+    assert triggers["workflow_call"]["inputs"]["run_id"]["required"] is True
+
+
 def test_every_job_has_an_explicit_timeout():
     """The 6h default silently cancels a job, and a cancellation reads as
     infrastructure noise rather than a result."""
