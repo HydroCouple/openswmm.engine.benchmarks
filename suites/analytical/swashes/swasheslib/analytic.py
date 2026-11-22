@@ -29,10 +29,23 @@ def lake_at_rest(x: np.ndarray, eta: float,
     return h, np.zeros_like(h)
 
 
-def _positive_real_roots(coeffs) -> np.ndarray:
-    r = np.roots(coeffs)
-    r = r[np.abs(r.imag) < 1e-9].real
+#: At the crest of a transcritical profile the depth cubic has a DOUBLE root,
+#: the critical depth, and the eigenvalue solver behind np.roots can return it
+#: as a conjugate pair a few 1e-9 off the real axis: on Linux x86-64 with
+#: numpy 2.5 the bump-shock reference raised "no positive root" at z = 0.2,
+#: while the same call was real on macOS. A rounding error of 1e-16 in the
+#: coefficients moves a double root by its square root, 1e-8, so anything this
+#: close to the axis is that root, and a genuinely complex pair is far beyond.
+_IMAG_TOL = 1e-6
+
+
+def _positive_real(roots: np.ndarray) -> np.ndarray:
+    r = roots[np.abs(roots.imag) < _IMAG_TOL].real
     return np.sort(r[r > 1e-12])
+
+
+def _positive_real_roots(coeffs) -> np.ndarray:
+    return _positive_real(np.roots(coeffs))
 
 
 def _bernoulli_h(z: float, q: float, const: float, branch: str) -> float:
