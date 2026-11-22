@@ -17,7 +17,7 @@ from pypdf import PdfReader
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 OUT = ROOT / 'results/uk_2d/g2-source-reconciliation-2026-10-26'
-OUT.mkdir(exist_ok=True)
+OUT.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault('MPLCONFIGDIR', str(OUT / 'mpl-cache'))
 import matplotlib
 matplotlib.use('Agg')
