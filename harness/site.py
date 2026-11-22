@@ -263,13 +263,20 @@ def _write_run_pages(envelopes: list[dict], dest: Path) -> list[Path]:
         suite = str(env.get("suite", "run")).replace("/", "_")
         stamp = str(env.get("timestamp", ""))[:19].replace(":", "").replace("-", "")
         sha = env.get("engine_sha") or "nosha"
-        d = dest / "runs" / f"{stamp}_{suite}@{sha}"
+        # Sharded jobs on several OSes publish one envelope each for the same
+        # suite and SHA, often within the same second; keyed on stamp alone
+        # they overwrite each other's page.
+        where = [str(x) for x in (env.get("platform"), env.get("shard")) if x]
+        tag = "".join(f"_{x}" for x in where).replace("/", "-of-")
+        d = dest / "runs" / f"{stamp}_{suite}{tag}@{sha}"
         d.mkdir(parents=True, exist_ok=True)
         cells = _all_cells([env])
+        place = " · ".join(html.escape(x) for x in where)
         body = [
             f"<h1>{html.escape(str(env.get('suite','?')))}</h1>",
             f"<p class=sub>engine <code>{html.escape(sha)}</code> · "
             f"{html.escape(str(env.get('timestamp','')))} · "
+            + (f"{place} · " if place else "") +
             f"{len(cells)} cell(s)</p>",
             _coverage_note(env),
             "<h2>Verdicts</h2>", _counts_table(cells),

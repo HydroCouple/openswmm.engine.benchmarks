@@ -20,14 +20,15 @@ From results to the site
    flowchart TD
      nightly["nightly.yml<br/>07:00 UTC daily or manual"] --> sweep
      push["on_engine_push.yml<br/>engine-push dispatch"] --> sweep
-     sweep["Sweep job<br/>build engines<br/>run_regression.py --suite all"] --> artifact["artifact results-*<br/>results/ and badges/"]
+     sweep["Sweep jobs<br/>build engines<br/>parity --shard K/4, or<br/>--suite all --exclude parity"] --> artifact["one artifact per job, results-*<br/>results/ and badges/"]
      artifact --> build["publish.yml build<br/>harness.report results/<br/>--site site/build"]
      build --> pages["upload-pages-artifact<br/>site/build"]
      pages --> deploy["publish.yml deploy<br/>deploy-pages"]
 
 The Publish workflow's build job downloads every ``results-*`` artifact from
 the run (or, when dispatched by hand, from the last completed Nightly run),
-prints how many envelopes it found, and runs
+each into its own ``results/<artifact>/`` folder because every job writes the
+same envelope paths, prints how many envelopes it found, and runs
 
 .. code-block:: sh
 
@@ -55,9 +56,11 @@ Site layout
        from the rest; any UK coverage notes; verdict counts per suite; the
        first 40 failing cells; the corpus by tag; the engine commits in the
        run.
-   * - ``runs/<stamp>_<suite>@<sha>/``
+   * - ``runs/<stamp>_<suite>[_<platform>][_<K>-of-<N>]@<sha>/``
      - One page per envelope (verdict counts and up to 200 failing cells)
-       with the envelope itself as ``scores.json``.
+       with the envelope itself as ``scores.json``. Parity envelopes carry
+       their platform and shard, so the eight Nightly parity jobs get eight
+       pages.
    * - ``tags/<tag>/``
      - Every case carrying the tag, its reference class, its tags and its
        latest verdicts.

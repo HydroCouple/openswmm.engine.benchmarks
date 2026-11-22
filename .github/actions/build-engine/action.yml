@@ -19,7 +19,9 @@ inputs:
   ref:
     description: Engine ref (branch, tag, or SHA) to build.
     required: false
-    default: develop
+    # swmm6_rel is where the engine is developed; develop stopped at 8dd7387c
+    # (2026-10-07), and sweeping it graded a six-week-old engine.
+    default: swmm6_rel
   vcpkg-ref:
     description: Pinned vcpkg release, kept in step with the engine repo's CI.
     required: false

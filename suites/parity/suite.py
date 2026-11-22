@@ -19,6 +19,7 @@ Cases are selected by TAG QUERY from manifests/tier_*.yaml, never by path.
 from __future__ import annotations
 
 import argparse
+import platform
 import re
 import shutil
 import sys
@@ -310,6 +311,17 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
     return info
 
 
+def _shard(text: str) -> tuple[int, int]:
+    """Parse ``K/N`` (1 <= K <= N) for --shard."""
+    try:
+        k, n = (int(x) for x in text.split("/"))
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected K/N, got {text!r}")
+    if not 1 <= k <= n:
+        raise argparse.ArgumentTypeError(f"need 1 <= K <= N, got {text!r}")
+    return k, n
+
+
 def run(argv: list[str] | None = None) -> dict | None:
     ap = argparse.ArgumentParser(prog="parity")
     ap.add_argument("--tier", default="pr")
@@ -332,6 +344,10 @@ def run(argv: list[str] | None = None) -> dict | None:
     ap.add_argument("--max-wall", type=float, metavar="SECONDS",
                     help="skip cases measured to cost more than this "
                          "(harness/runtime.py). CI passes 300; unset locally.")
+    ap.add_argument("--shard", metavar="K/N", type=_shard,
+                    help="run only cases K, K+N, K+2N, ... (1-based) of the "
+                         "selection, so a CI matrix can split one sweep "
+                         "across N jobs that each fit the job time limit")
     args, _ = ap.parse_known_args(argv or [])
 
     manifest = _manifest(args.tier)
@@ -340,6 +356,11 @@ def run(argv: list[str] | None = None) -> dict | None:
         only=args.engines.split(",") if args.engines else None)
 
     envelope = scoring.new_envelope(SUITE, engines.engine_sha())
+    # Sharded CI jobs on two OSes publish eight parity envelopes for one engine
+    # SHA; without these the dashboard cannot tell them apart.
+    envelope["platform"] = platform.system()
+    if args.shard:
+        envelope["shard"] = "{}/{}".format(*args.shard)
     RESULTS.mkdir(parents=True, exist_ok=True)
     scores = RESULTS / f"scores_{args.tier}.json"
 
@@ -349,6 +370,12 @@ def run(argv: list[str] | None = None) -> dict | None:
     if args.only:
         wanted = set(args.only.split(","))
         cases = [c for c in cases if c.id in wanted]
+    if args.shard:
+        # Interleaved rather than contiguous: the corpus sorts by path, so the
+        # large numbered networks cluster, and a contiguous split would hand
+        # most of them to one job.
+        k, n = args.shard
+        cases = cases[k - 1::n]
     skip = _skip_list() if args.use_skip_list else set()
 
     resolved = reg.resolved()

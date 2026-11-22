@@ -140,6 +140,19 @@ def test_run_pages_are_keyed_by_engine_sha(built):
     assert all("@abc1234" in r.name for r in (root / "runs").iterdir())
 
 
+def test_sharded_envelopes_get_one_run_page_each(tmp_path):
+    """Nightly runs parity as 4 shards on 2 OSes: same suite, same SHA, often
+    the same second. Keyed on those alone the pages overwrite each other."""
+    cell = {"case": "c", "reference_class": "self_consistency",
+            "verdict": "PASS"}
+    envs = [{**envelope("parity", [cell]), "platform": os_, "shard": f"{k}/4"}
+            for os_ in ("Linux", "Windows") for k in (1, 2, 3, 4)]
+    site.build_site(envs, tmp_path)
+    runs = sorted(r.name for r in (tmp_path / "runs").iterdir())
+    assert len(runs) == 8
+    assert "20260822T120000_parity_Windows_3-of-4@abc1234" in runs
+
+
 def test_html_is_escaped(tmp_path):
     """Case ids and notes come from files on disk; they must not inject markup."""
     envs = [envelope("parity", [{"case": "<img src=x onerror=alert(1)>",

@@ -36,7 +36,11 @@ jobs:
         with:
           pattern: results-*
           path: results/
-          merge-multiple: true
+          # Every sweep job writes results/<suite>/scores_<tier>.json, so merged
+          # into one tree they overwrite each other and only one job's results
+          # survive. Kept apart, each artifact lands in results/<artifact>/ and
+          # the site build finds them all.
+          merge-multiple: false
         continue-on-error: true
 
       # Dispatched on its own: this run has no artifacts of its own — they live

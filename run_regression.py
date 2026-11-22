@@ -36,6 +36,10 @@ def main(argv: list[str] | None = None) -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--suite", default="all",
                     help="suite name under suites/ (may be 'parent/child'), or 'all'")
+    ap.add_argument("--exclude", default="", metavar="SUITES",
+                    help="comma-separated suites to leave out (CI runs "
+                         "'parity' in its own sharded jobs and the rest with "
+                         "--suite all --exclude parity)")
     ap.add_argument("--list", action="store_true",
                     help="list available suites and exit")
     ap.add_argument("--report-only", action="store_true",
@@ -66,7 +70,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     names = available if args.suite == "all" else [args.suite]
-    unknown = [n for n in names if n not in available]
+    excluded = [n for n in args.exclude.split(",") if n]
+    names = [n for n in names if n not in excluded]
+    # A misspelled --exclude would quietly run the suite it meant to drop.
+    unknown = [n for n in names + excluded if n not in available]
     if unknown:
         print(f"unknown suite(s): {', '.join(unknown)}; "
               f"available: {', '.join(available)}", file=sys.stderr)

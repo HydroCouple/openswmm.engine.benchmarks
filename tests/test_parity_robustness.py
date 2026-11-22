@@ -288,6 +288,61 @@ def test_build_action_uses_the_cmake_target_not_the_output_name():
     assert "--target openswmm openswmm-legacy" not in line
 
 
+# ── sharding ───────────────────────────────────────────────────────────────
+
+def test_shards_partition_the_selection(tmp_path, monkeypatch):
+    """--shard K/N: the N nightly jobs together run every case exactly once."""
+    from types import SimpleNamespace
+    ids = [f"c{i:02d}" for i in range(10)]
+    monkeypatch.setattr(suite, "RESULTS", tmp_path / "runs")
+    monkeypatch.setattr(suite, "_manifest", lambda tier: {})
+    monkeypatch.setattr(suite, "_skip_list", lambda: set())
+    monkeypatch.setattr(suite.corpus, "load",
+                        lambda: [FakeCase(tmp_path, i) for i in ids])
+    monkeypatch.setattr(suite.corpus, "select", lambda cases, expr, tier: cases)
+    monkeypatch.setattr(suite.engines, "load", lambda: None)
+    monkeypatch.setattr(suite.engines, "resolve_all",
+                        lambda *a, **k: SimpleNamespace(resolved=lambda: {}))
+    monkeypatch.setattr(suite.engines, "engine_sha", lambda: "sha")
+    monkeypatch.setattr(suite.runtime, "load", lambda: {"suites": {}})
+    ran: list[str] = []
+    monkeypatch.setattr(suite, "_sweep_case",
+                        lambda case, *a, **k: ran.append(case.id))
+
+    shards = []
+    for k in (1, 2, 3):
+        ran.clear()
+        env = suite.run(["--tier", "nightly", "--shard", f"{k}/3"])
+        assert env["shard"] == f"{k}/3"
+        shards.append(list(ran))
+    assert sorted(sum(shards, [])) == ids
+    assert shards[0] == ["c00", "c03", "c06", "c09"], "shards must interleave"
+
+
+@pytest.mark.parametrize("bad", ["0/4", "5/4", "2", "a/b"])
+def test_a_malformed_shard_is_rejected(bad):
+    with pytest.raises(SystemExit):
+        suite.run(["--shard", bad])
+
+
+def test_exclude_drops_a_suite_and_rejects_a_typo(monkeypatch):
+    """The nightly 'rest' job runs --suite all --exclude parity; a misspelled
+    exclusion must fail loudly, not quietly run the 5-hour suite again."""
+    from types import SimpleNamespace
+    import run_regression
+    ran: list[str] = []
+    monkeypatch.setattr(run_regression.suites, "list_suites",
+                        lambda: ["coupling", "parity", "uk_2d"])
+    monkeypatch.setattr(
+        run_regression.suites, "discover",
+        lambda names: {n: SimpleNamespace(run=lambda argv, n=n: ran.append(n),
+                                          report=lambda argv: [])
+                       for n in names})
+    assert run_regression.main(["--suite", "all", "--exclude", "parity"]) == 0
+    assert ran == ["coupling", "uk_2d"]
+    assert run_regression.main(["--suite", "all", "--exclude", "partiy"]) == 2
+
+
 def test_every_suite_accepts_the_options_nightly_forwards():
     """run_regression.py hands its extra options to EVERY suite. One suite
     rejecting another's --tier (coupling did, with SystemExit 2) ends

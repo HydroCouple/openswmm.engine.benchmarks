@@ -21,7 +21,7 @@ on:
         default: pr
       engine_ref:
         description: Engine revision
-        default: develop
+        default: swmm6_rel
   schedule:
     - cron: '30 8 * * 0'
 
@@ -41,7 +41,7 @@ jobs:
       - run: python -m pytest tests/test_uk_2d.py -q
       - uses: ./.github/actions/build-engine
         with:
-          ref: ${{ inputs.engine_ref || 'develop' }}
+          ref: ${{ inputs.engine_ref || 'swmm6_rel' }}
       - name: Surface output freshness
         env:
           UK_2D_ENGINE_TEST: "1"

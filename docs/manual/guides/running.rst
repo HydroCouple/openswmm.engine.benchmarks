@@ -22,21 +22,15 @@ Arguments go to every suite
 
 Every option ``run_regression.py`` does not define is passed to each
 selected suite's ``run()`` and ``report()``, and ``--max-wall`` is passed on
-as well. Most suites ignore options they do not know, but ``coupling``,
-``uk_2d`` and ``uk_river`` reject them. ``coupling`` has no ``--tier``, and it
-is the first suite in the list, so:
+as well. Most suites ignore options they do not know, but ``uk_2d`` and
+``uk_river`` reject them and end the run. Both take ``--tier`` and
+``--max-wall``, so ``--suite all --tier nightly --max-wall 300`` runs every
+suite; an option only another suite takes, such as parity's ``--keep-out``,
+stops at ``uk_2d``. Run suites one at a time for those.
 
-.. code-block:: console
-
-   $ python run_regression.py --suite all --tier nightly --max-wall 300
-   === suite: coupling ===
-   usage: run_regression.py [-h] [--native-bin NATIVE_BIN] [--library LIBRARY]
-                            [--output-dir OUTPUT_DIR] [--skip-unsteady]
-                            [--max-wall MAX_WALL]
-   run_regression.py: error: unrecognized arguments: --tier nightly
-
-and no other suite runs. Run suites one at a time, with the options each one
-takes.
+``--exclude a,b`` leaves suites out of ``--suite all``; a name that is not a
+suite is an error. The Nightly workflow runs ``--suite all --exclude parity``
+in one job and parity in four ``--shard`` jobs.
 
 The parity sweep
 ================
@@ -62,6 +56,10 @@ The parity sweep
      - Run the cases in ``manifests/skip_list.yaml`` too.
    * - ``--max-wall SECONDS``
      - Apply the CI runtime gate (below).
+   * - ``--shard K/N``
+     - Run only cases K, K+N, K+2N, ... (1-based) of the selection; the N
+       shards together cover it once. The envelope records ``shard`` and
+       ``platform``.
 
 The envelope is ``results/parity/scores_<tier>.json`` and run folders are
 ``results/parity/<case>/<engine>/``. Each run starts a new envelope, so it
@@ -133,8 +131,9 @@ Long models are a local concern. Every workflow that sweeps passes
 
 * A case whose recorded wall time in :repo:`harness/runtimes.yaml` exceeds the
   limit gets a ``SKIP`` cell and a warning (``::warning::`` in Actions). The
-  ledger holds measured times only (the slowest engine, from local sweeps);
-  a case with no entry runs, bounded by its timeout.
+  ledger holds measured times only (the slowest engine, from local sweeps
+  or CI runs; each entry's ``sweep`` says which); a case with no entry runs,
+  bounded by its timeout.
 * A case with ``ci_runtime`` in its metadata runs instead on a shortened
   simulated period (``duration_h`` hours from the start), applied to the
   seeded copy only. The cell is marked ``trimmed`` and its note says so.

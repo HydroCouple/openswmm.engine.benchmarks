@@ -20,22 +20,35 @@ on:
         required: false
       engine_ref:
         description: openswmm.engine ref to build
-        default: develop
+        default: swmm6_rel
         required: false
 
 env:
   OMP_NUM_THREADS: 1
+  # Without this the runner's pipe block-buffers stdout, and a job canceled
+  # at its time limit loses every "=== suite:" line it printed.
+  PYTHONUNBUFFERED: "1"
 
 jobs:
   sweep:
-    name: Sweep (${{ matrix.alias }})
+    name: Sweep (${{ matrix.platform.alias }}, ${{ matrix.part.name }})
     strategy:
       fail-fast: false
       matrix:
-        include:
+        platform:
           - {os: ubuntu-latest, alias: Linux-x64}
           - {os: windows-latest, alias: Windows-x64}
-    runs-on: ${{ matrix.os }}
+        # One parity sweep took longer than a job may run: on 2026-11-21 the
+        # Linux job reached 889 of 1,402 cases in 5.3 h and was canceled, every
+        # night since October. Parity is split across four jobs, each with its
+        # own time limit; every other suite runs once in a fifth.
+        part:
+          - {name: parity-1of4, args: --suite parity --shard 1/4}
+          - {name: parity-2of4, args: --suite parity --shard 2/4}
+          - {name: parity-3of4, args: --suite parity --shard 3/4}
+          - {name: parity-4of4, args: --suite parity --shard 4/4}
+          - {name: other-suites, args: --suite all --exclude parity}
+    runs-on: ${{ matrix.platform.os }}
     # A full-corpus sweep can outrun the 6h default, and a
     # canceled job reads as infrastructure noise rather than a result.
     # Bound it explicitly so overrun is a visible, deliberate limit.
@@ -53,7 +66,7 @@ jobs:
       - name: Build engines
         uses: ./.github/actions/build-engine
         with:
-          ref: ${{ inputs.engine_ref || 'develop' }}
+          ref: ${{ inputs.engine_ref || 'swmm6_rel' }}
 
       # --max-wall 300: cases MEASURED to cost more than five minutes are a
       # local concern. On a shared runner they are skipped, loudly — a
@@ -65,7 +78,7 @@ jobs:
       - name: Run suites
         id: sweep
         run: |
-          python run_regression.py --suite all \
+          python run_regression.py ${{ matrix.part.args }} \
             --tier ${{ inputs.tier || 'nightly' }} \
             --max-wall 300 \
             --summary "$GITHUB_STEP_SUMMARY" \
@@ -76,7 +89,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: results-${{ matrix.alias }}
+          name: results-${{ matrix.platform.alias }}-${{ matrix.part.name }}
           path: |
             results/
             badges/
