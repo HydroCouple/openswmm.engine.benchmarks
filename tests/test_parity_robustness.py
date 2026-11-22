@@ -288,6 +288,25 @@ def test_build_action_uses_the_cmake_target_not_the_output_name():
     assert "--target openswmm openswmm-legacy" not in line
 
 
+def test_every_suite_accepts_the_options_nightly_forwards():
+    """run_regression.py hands its extra options to EVERY suite. One suite
+    rejecting another's --tier (coupling did, with SystemExit 2) ends
+    `--suite all` there, before any later suite runs."""
+    import importlib
+    from harness import suites as registry
+    forwarded = ["--tier", "nightly", "--max-wall", "300.0"]
+    rejecting = []
+    for name in registry.list_suites():
+        mod = importlib.import_module("suites." + name.replace("/", ".") + ".suite")
+        if not hasattr(mod, "options"):
+            continue                     # parses inside run(); not probed here
+        try:
+            mod.options(list(forwarded))
+        except SystemExit:
+            rejecting.append(name)
+    assert not rejecting, f"suites that reject forwarded options: {rejecting}"
+
+
 # ── CI wiring ──────────────────────────────────────────────────────────────
 
 def _workflow(name):

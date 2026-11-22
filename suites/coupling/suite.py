@@ -32,7 +32,9 @@ def options(argv):
     ap.add_argument('--output-dir', type=Path, default=RESULTS)
     ap.add_argument('--skip-unsteady', action='store_true')
     ap.add_argument('--max-wall', type=float, default=300)
-    return ap.parse_args(argv)
+    # run_regression.py forwards every extra option to every suite; rejecting
+    # another suite's --tier ended `--suite all` here, before any other ran.
+    return ap.parse_known_args(argv)[0]
 
 
 def read_csv(path):
