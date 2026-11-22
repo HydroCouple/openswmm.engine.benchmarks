@@ -110,3 +110,8 @@ Things to know
   branch holds only ``runs/<run id>.json``; nothing else writes to it.
 * Inside a reusable workflow ``github.event_name`` is the caller's event,
   which is why publish takes the run id as an input rather than guessing it.
+* The publish job runs under ``always()`` so that a run whose sweeps failed
+  or hit their time limit still refreshes the dashboard. A plain cancel runs
+  ``always()`` jobs too, so a canceled Nightly deploys whatever its jobs had
+  uploaded. To stop a run without publishing, force-cancel it:
+  ``gh api -X POST repos/HydroCouple/openswmm.engine.benchmarks/actions/runs/<id>/force-cancel``.
