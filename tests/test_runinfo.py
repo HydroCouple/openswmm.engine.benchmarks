@@ -35,11 +35,17 @@ def test_a_ci_run_links_its_run_and_job(github_env):
     assert m["finished"] is None, "a run that has not ended must not look finished"
 
 
-def test_a_generated_description_names_trigger_engine_and_job(github_env):
-    m = runinfo.collect(argv=[])
-    d = m["description"]
-    assert d.startswith("Nightly (scheduled)")
-    assert "Linux-x64" in d and "parity 1of4" in d and "swmm6_rel@" in d
+def test_a_generated_description_names_trigger_engine_and_job(github_env, monkeypatch):
+    # Validate runs without an engine checkout, so the engine is stubbed here.
+    monkeypatch.setattr(runinfo, "engine", lambda: {"sha": "abc1234", "ref": "swmm6_rel"})
+    d = runinfo.collect(argv=[])["description"]
+    assert d == "Nightly (scheduled) · swmm6_rel@abc1234 · Linux-x64 · parity 1of4"
+
+
+def test_without_an_engine_checkout_the_description_still_names_the_ref(github_env, monkeypatch):
+    monkeypatch.setattr(runinfo, "engine", lambda: {"sha": "", "ref": "swmm6_rel"})
+    assert runinfo.collect(argv=[])["description"] == \
+        "Nightly (scheduled) · swmm6_rel · Linux-x64 · parity 1of4"
 
 
 def test_a_given_description_wins(github_env, monkeypatch):
