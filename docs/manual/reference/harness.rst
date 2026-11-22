@@ -65,15 +65,35 @@ harness.suites
 
 .. automodule:: harness.suites
 
+harness.runinfo
+===============
+
+.. automodule:: harness.runinfo
+
 harness.report
 ==============
 
 .. automodule:: harness.report
 
+harness.metrics
+===============
+
+.. automodule:: harness.metrics
+
+harness.history
+===============
+
+.. automodule:: harness.history
+
 harness.site
 ============
 
 .. automodule:: harness.site
+
+harness.charts
+==============
+
+.. automodule:: harness.charts
 
 harness.anonymize
 =================

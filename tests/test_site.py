@@ -8,6 +8,7 @@ summarized away.
 """
 from __future__ import annotations
 
+import html
 import json
 import re
 
@@ -22,10 +23,10 @@ def envelope(suite, cells, sha="abc1234"):
 
 
 def text_of(path):
-    """Visible text of a page, tags and styles removed."""
+    """Visible text of a page, tags, styles and scripts removed."""
     s = path.read_text(encoding="utf-8")
-    s = re.sub(r"<style.*?</style>", " ", s, flags=re.S)
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s))
+    s = re.sub(r"<(style|script)\b.*?</\1>", " ", s, flags=re.S)
+    return html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s)))
 
 
 # ── the property that matters most ─────────────────────────────────────────
@@ -98,13 +99,35 @@ def built(tmp_path):
     return tmp_path, files
 
 
+#: Anything a browser fetches on its own: stylesheets, scripts, images,
+#: frames, and CSS url()/@import. Links a reader clicks (<a href>) are not
+#: loads, so the GitHub and hydrocouple.org links are allowed.
+_REMOTE_LOAD = re.compile(
+    r"<(?:link|script|img|iframe|source)\b[^>]*\b(?:href|src)\s*=\s*['\"]?(?:https?:)?//"
+    r"|url\(\s*['\"]?(?:https?:)?//|@import\s+['\"]?(?:url\()?\s*['\"]?(?:https?:)?//",
+    re.I)
+
+
 def test_site_is_self_contained(built):
-    """No external hosts: the page must render from a plain artifact deploy."""
+    """No external hosts: the page must render from a plain artifact deploy,
+    and keep rendering when a CDN does not. Every stylesheet, script, font
+    and image the pages load is a file in the deployment."""
     root, _ = built
-    for page in root.rglob("*.html"):
+    for page in list(root.rglob("*.html")) + list(root.rglob("*.css")):
         s = page.read_text(encoding="utf-8")
-        assert "http://" not in s and "https://" not in s, f"{page} loads remote content"
-        assert "<script" not in s.lower(), f"{page} carries script"
+        assert not _REMOTE_LOAD.search(s), f"{page} loads remote content"
+    index = (root / "index.html").read_text(encoding="utf-8")
+    for ref in re.findall(r"<(?:link|script)\b[^>]*\b(?:href|src)='([^']+)'", index):
+        assert (root / ref).exists(), f"index.html loads {ref}, which was not written"
+    assert (root / "assets" / "hc" / "fonts").is_dir()
+
+
+def test_remote_load_check_catches_what_it_should():
+    assert _REMOTE_LOAD.search("<script src='https://cdn.example/x.js'></script>")
+    assert _REMOTE_LOAD.search("<link rel=stylesheet href=//fonts.example/css>")
+    assert _REMOTE_LOAD.search("body{background:url(https://x/y.png)}")
+    assert not _REMOTE_LOAD.search("<a href='https://github.com/HydroCouple'>GitHub</a>")
+    assert not _REMOTE_LOAD.search("<script src='assets/dashboard.js' defer></script>")
 
 
 def test_scoreboard_separates_verification_from_regression(built):
@@ -212,3 +235,109 @@ def test_report_without_site_still_signals_empty(tmp_path, capsys):
     """A human running the CLI wants a nonzero exit, not a silent no-op."""
     from harness import report
     assert report.main([str(tmp_path / "absent")]) == 2
+
+
+# ── the run behind every result ────────────────────────────────────────────
+
+def _manifest(**over):
+    m = {"schema": 1, "id": "4242", "url": "https://github.com/o/r/actions/runs/4242",
+         "job_url": "https://github.com/o/r/actions/runs/4242/job/77",
+         "workflow": "Nightly", "event": "schedule", "job": "Sweep (Linux-x64, parity-1of4)",
+         "started": "2026-11-22T07:00:00+00:00", "finished": "2026-11-22T09:00:00+00:00",
+         "duration_s": 7200.0, "exit_code": 1, "crashed": [],
+         "description": "Nightly (scheduled) · swmm6_rel@de02d856",
+         "platform_alias": "Linux-x64", "part": "parity-1of4",
+         "host": {"os": "Linux", "machine": "x86_64", "cpu": "AMD EPYC 7763", "cpu_count": 4},
+         "engine": {"sha": "de02d856", "sha_full": "de02d856" + "0" * 32, "ref": "swmm6_rel",
+                    "subject": "Book the surcharge water", "versions": {}},
+         "artifacts": {"evidence": "https://github.com/o/r/actions/runs/4242/artifacts/9"}}
+    m.update(over)
+    return m
+
+
+def _engine_cell(case, solver, verdict="PASS", wall=2.0, **kw):
+    return {"case": case, "solver": solver, "reference_class": "self_consistency",
+            "verdict": verdict, "wall": wall, "continuity_err": 0.1,
+            "pct_not_converging": 0.0, **kw}
+
+
+@pytest.fixture
+def with_run(tmp_path):
+    cells = [_engine_cell("c1", "swmm-5.3.0", wall=2.0, out_sha16="aa"),
+             _engine_cell("c1", "openswmm-v6", wall=3.0, peak_rss_mb=40.0, out_sha16="bb"),
+             {"case": "c1", "pair": "swmm-5.3.0 vs openswmm-v6",
+              "reference_class": "self_consistency", "verdict": "PASS", "max_rel": 0.0},
+             _engine_cell("c2", "openswmm-v6", "ERROR", wall=0.01,
+                          note="ERROR 14: the routing solution diverged at node 'J1' (head 3e15)")]
+    env = {**envelope("parity", cells, sha="de02d856"), "platform": "Linux", "shard": "1/4",
+           "_run": _manifest()}
+    site.build_site([env], tmp_path)
+    return tmp_path
+
+
+def test_each_run_links_its_workflow_job_and_artifact(with_run):
+    s = (with_run / "index.html").read_text(encoding="utf-8")
+    for url in ("actions/runs/4242'", "actions/runs/4242/job/77", "actions/runs/4242/artifacts/9"):
+        assert url in s, url
+    run_page = next((with_run / "runs").iterdir()) / "index.html"
+    assert "actions/runs/4242/artifacts/9" in run_page.read_text(encoding="utf-8")
+
+
+def test_the_run_description_and_host_are_shown(with_run):
+    body = text_of(with_run / "index.html")
+    assert "Nightly (scheduled) · swmm6_rel@de02d856" in body
+    assert "AMD EPYC 7763" in body, "the CPU qualifies every runtime"
+
+
+def test_a_missing_link_is_shown_as_missing_not_dropped(tmp_path):
+    env = {**envelope("parity", [_engine_cell("c1", "openswmm-v6")]),
+           "_run": _manifest(job_url=None, artifacts={})}
+    site.build_site([env], tmp_path)
+    s = (tmp_path / "index.html").read_text(encoding="utf-8")
+    assert "aria-disabled=true title='not recorded for this run'>Job log" in s
+
+
+def test_failures_are_grouped_by_mechanism_with_their_cases(with_run):
+    body = text_of(with_run / "index.html")
+    assert "the routing solution diverged at node '…'" in body
+    assert "head 3e15" in body, "the full note stays in the expanded rows"
+
+
+def test_case_pages_hold_every_engine_and_platform(with_run):
+    page = with_run / "cases" / "c1" / "index.html"
+    body = text_of(page)
+    assert "openswmm-v6" in body and "swmm-5.3.0" in body and "swmm-5.3.0 vs openswmm-v6" in body
+    assert "40" in body, "peak memory"
+
+
+def test_trends_say_when_there_is_too_little_history(tmp_path):
+    site.build_site([envelope("parity", [_engine_cell("c1", "openswmm-v6")])], tmp_path,
+                    history=[])
+    assert "at least two recorded" in text_of(tmp_path / "trends" / "index.html")
+
+
+def test_trends_plot_recorded_runs(tmp_path):
+    from harness import history
+    runs = []
+    for i, (rid, w) in enumerate((("1", 2.0), ("2", 3.0))):
+        env = {**envelope("parity", [_engine_cell("c1", "openswmm-v6", wall=w)]),
+               "platform": "Linux",
+               "_run": _manifest(id=rid, started=f"2026-11-2{i}T07:00:00+00:00")}
+        runs += history.summarize([env])
+    site.build_site([envelope("parity", [_engine_cell("c1", "openswmm-v6")])], tmp_path,
+                    history=runs)
+    s = (tmp_path / "trends" / "index.html").read_text(encoding="utf-8")
+    assert "<polyline class='line s1'" in s
+    assert "parity · Linux" in text_of(tmp_path / "trends" / "index.html")
+
+
+def test_engine_against_engine_reports_the_ratio_it_plots(with_run):
+    body = text_of(with_run / "index.html")
+    assert "median openswmm-v6 ÷ swmm-5.3.0 time is 1.50" in body
+
+
+def test_every_chart_has_a_table_view(with_run):
+    s = (with_run / "index.html").read_text(encoding="utf-8")
+    assert s.count("<svg class=chart__svg") + s.count("<svg class='chart__svg") > 0
+    charts_with_bins = s.count("<div class=chart>") - s.count("chart__svg--square")
+    assert s.count("<details class=tableview>") >= charts_with_bins

@@ -136,8 +136,14 @@ Harness modules
        simulation trim.
    * - :mod:`harness.suites`
      - Suite discovery.
-   * - :mod:`harness.report`, :mod:`harness.site`
+   * - :mod:`harness.runinfo`
+     - The run manifest ``results/run.json``: the workflow run and job, the
+       engine commit, the host and the run's description.
+   * - :mod:`harness.report`, :mod:`harness.site`, :mod:`harness.charts`
      - The markdown job summary, badge files and the static dashboard.
+   * - :mod:`harness.metrics`, :mod:`harness.history`
+     - The dashboard's statistics (runtime, continuity, stability, parity,
+       platform agreement) and the per-run records behind its Trends page.
    * - :mod:`harness.anonymize`
      - Best-effort anonymization of a model before it is contributed.
 

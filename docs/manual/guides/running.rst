@@ -14,8 +14,34 @@ engines first (:ref:`first-engine`).
 ``--summary`` appends the markdown job summary to the file (CI passes
 ``$GITHUB_STEP_SUMMARY``); ``--badges`` writes one shields.io endpoint file
 per badge. ``--report-only`` skips the sweeps and calls each suite's
-``report()``. The exit status is 1 when any cell has a gating verdict, 2 for
-an unknown suite name.
+``report()``. The exit status is 1 when any cell has a gating verdict or a
+suite crashed, 2 for an unknown suite name. A suite that raises prints its
+traceback and is listed under *Suites that crashed* in the summary; the
+suites after it still run.
+
+What a run records
+==================
+
+Besides the envelopes, a run writes ``results/run.json``, the run manifest
+(:mod:`harness.runinfo`), when it starts and again when it ends: the engine
+commit and each engine's ``--version``, the host's CPU, memory and Python,
+the arguments, the duration and exit status, and in CI the workflow run and
+job. ``--description TEXT`` says what the run is for; without it the
+manifest takes ``BENCH_RUN_DESCRIPTION`` or generates one. The dashboard
+shows the manifest with every result (:doc:`dashboard`). ``--report-only``
+leaves the previous manifest alone.
+
+.. code-block:: sh
+
+   python run_regression.py --suite parity --only extran1,test1 \
+       --description "extran1 and test1 after the surcharge fix"
+
+Each parity engine run also records, beside its wall time and continuity
+errors, its peak resident memory (Linux and macOS), the report's convergence
+and time-step statistics (average iterations, minimum, average and maximum
+time step, unstable links, flooded and surcharged nodes, surcharged
+conduits), its groundwater continuity error, and the size and a SHA-256
+fingerprint of its ``.out`` (outputs up to 256 MiB).
 
 Arguments go to every suite
 ===========================

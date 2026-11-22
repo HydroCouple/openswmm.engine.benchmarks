@@ -59,17 +59,11 @@ def job_summary(envelopes: list[dict], manifest: dict | None = None) -> str:
     return "\n".join(lines)
 
 
-def build_site(envelopes: list[dict], dest: Path) -> list[Path]:
-    """Render the static dashboard (implemented in harness.site).
-
-    Layout:
-        /                              scoreboard + badges
-        /runs/<stamp>_<suite>@<sha>/   immutable per-run reports + raw JSON
-        /tags/<tag>/                   per-tag facets over the corpus
-        /badges/*.json                 shields.io endpoints
-    """
+def build_site(envelopes: list[dict], dest: Path,
+               history: list[dict] | None = None) -> list[Path]:
+    """Render the static dashboard (implemented in harness.site)."""
     from . import site
-    return site.build_site(envelopes, dest)
+    return site.build_site(envelopes, dest, history=history)
 
 
 def load_envelopes(paths: list[Path]) -> list[dict]:
@@ -127,8 +121,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--badges", type=Path, help="directory for badge JSON")
     ap.add_argument("--site", type=Path, nargs="?", const=Path("site/build"),
                     help="build the static site into DIR (default site/build)")
+    ap.add_argument("--history", type=Path, metavar="DIR",
+                    help="folder of per-run history records (harness.history) "
+                         "for the site's Trends page")
     args = ap.parse_args(argv)
 
+    from . import history as history_mod
+    past = history_mod.load(args.history) if args.history else None
     envs = load_envelopes(args.envelopes)
     if not envs:
         # With --site the caller is publishing a dashboard, and refusing to
@@ -138,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.site:
             print("no scores envelopes found — publishing the empty state",
                   file=sys.stderr)
-            for p in build_site([], args.site):
+            for p in build_site([], args.site, history=past):
                 print(f"  wrote {p}", file=sys.stderr)
             return 0
         print("no scores envelopes found", file=sys.stderr)
@@ -150,7 +149,9 @@ def main(argv: list[str] | None = None) -> int:
         written = scoring.write_badges(args.badges, scoring.badges(envs))
         print(f"wrote {len(written)} badge(s) to {args.badges}", file=sys.stderr)
     if args.site:
-        build_site(envs, args.site)
+        written = build_site(envs, args.site, history=past)
+        print(f"site: {len(envs)} envelope(s) -> {len(written)} file(s) in "
+              f"{args.site}", file=sys.stderr)
     return 0
 
 
