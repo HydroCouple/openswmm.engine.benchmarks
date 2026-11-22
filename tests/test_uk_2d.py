@@ -83,12 +83,12 @@ def test_observations_absent_do_not_validate(tmp_path):
 
 def test_observation_gaps_and_hashes(tmp_path):
     data='time_s,probe,quantity,value\n0,a,level_m,1\n1,a,level_m,1\n10,a,level_m,1\n11,a,level_m,1\n'
-    (tmp_path/'observations.csv').write_text(data, encoding='utf-8')
+    (tmp_path/'observations.csv').write_text(data, encoding='utf-8', newline='')
     meta=dict(source='laboratory',citation='test fixture',quantity_definitions='level',datum='zero',time_origin='gate release',max_gap_s=2,kind='observed',csv_sha256=sources.digest(data.encode()))
     (tmp_path/'observations.json').write_text(json.dumps(meta), encoding='utf-8')
     result=observations.compare(tmp_path,{},np.arange(12),np.ones((12,3)),[dict(id='a')])
     assert result['metrics'][0]['covered_duration_s']==2
-    (tmp_path/'observations.csv').write_text(data.replace(',1',',2'), encoding='utf-8')
+    (tmp_path/'observations.csv').write_text(data.replace(',1',',2'), encoding='utf-8', newline='')
     with pytest.raises(ValueError,match='hash'):observations.compare(tmp_path,{},np.arange(12),np.ones((12,3)),[dict(id='a')])
 
 
