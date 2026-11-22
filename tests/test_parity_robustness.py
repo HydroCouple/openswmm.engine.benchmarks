@@ -482,6 +482,24 @@ def test_retention_is_bounded_by_the_budget(tmp_path):
     assert r.reclaimed > 0, "later failures must be reclaimed, not hoarded"
 
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="Windows cannot create the file this test needs")
+def test_retained_evidence_gets_names_an_artifact_upload_accepts(tmp_path):
+    """The legacy engine writes whatever file a deck names, verbatim: on Linux
+    `F:\\2016PC\\November, 2013 Models\\A1 Podium RainBarrel.txt` is one file
+    name. GitHub's artifact upload refuses a colon anywhere in a path, so three
+    of four Linux parity shards swept to the end on 2026-11-22 and then lost
+    every result at the upload."""
+    d = _make_run_tree(tmp_path, "c1")
+    stray = d / "swmm-5.3.0" / "F:\\2016PC\\November, 2013 Models\\A1 Podium RainBarrel.txt"
+    stray.write_text("rain\n", encoding="utf-8")
+    suite._Reclaimer(keep="fail").finish_case(d, failed=True)
+    names = [p.name for p in d.rglob("*") if p.is_file()]
+    assert not any(set('":<>|*?\\') & set(n) for n in names), names
+    assert "F__2016PC_November, 2013 Models_A1 Podium RainBarrel.txt" in names
+    assert (d / "swmm-5.3.0" / "c1.rpt").exists(), "ordinary evidence is untouched"
+
+
 def test_working_set_stays_flat_across_many_passing_cases(tmp_path):
     """The property the whole design exists for: disk does not grow with the
     number of cases swept."""

@@ -164,6 +164,31 @@ class _Reclaimer:
         self.retained = 0
         self.over_budget = False
 
+    #: Characters a retained file name must not carry if the tree is to leave
+    #: the runner: GitHub's artifact upload refuses `" : < > | * ?` and line
+    #: breaks anywhere in a path, and Windows refuses those and `\` in a name.
+    #: The legacy engine writes whatever file a deck names, verbatim, so a deck
+    #: naming `F:\2016PC\November, 2013 Models\A1 Podium RainBarrel.txt` leaves
+    #: a file of exactly that name in its run tree on Linux. Three of the four
+    #: Linux parity shards swept to the end on 2026-11-22 and then lost every
+    #: result at the upload.
+    _UNPORTABLE = re.compile(r'["\\:<>|*?\x00-\x1f]')
+
+    @classmethod
+    def _make_portable(cls, case_dir: Path) -> int:
+        """Rename retained files whose names cannot leave the runner."""
+        renamed = 0
+        # Deepest first, so renaming a directory never strands its children.
+        for p in sorted(case_dir.rglob("*"), key=lambda p: -len(p.parts)):
+            if not cls._UNPORTABLE.search(p.name):
+                continue
+            target = p.with_name(cls._UNPORTABLE.sub("_", p.name))
+            if target.exists():
+                target = target.with_name(f"{renamed}_{target.name}")
+            p.rename(target)
+            renamed += 1
+        return renamed
+
     @staticmethod
     def _has_evidence(case_dir: Path) -> bool:
         """Did anything worth looking at actually get produced?
@@ -199,6 +224,7 @@ class _Reclaimer:
 
         if want_keep:
             self.retained += size
+            self._make_portable(case_dir)
             return
         shutil.rmtree(case_dir, ignore_errors=True)
         self.reclaimed += size
