@@ -14,7 +14,7 @@ PIN = OUT / 'pinned-experiments'
 
 
 def main():
-    qualification = json.loads((OUT / 'qualification/summary.json').read_text())
+    qualification = json.loads((OUT / 'qualification/summary.json').read_text(encoding='utf-8'))
     baseline = next(r for r in qualification['modes'] if r['mode'] == 'baseline')
     assert baseline['qualified_for_diagnostic'] and qualification['baseline_cpu_returncode'] == 0
     execute('experimental-replay-1s', duration=1, pin=PIN)

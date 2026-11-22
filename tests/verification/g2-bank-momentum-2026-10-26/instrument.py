@@ -3,7 +3,7 @@ from pathlib import Path
 import difflib,hashlib,json,shutil
 R=Path(__file__).resolve().parents[3];E=R.parent/'openswmm.engine';O=R/'results/uk_2d/g2-bank-momentum-2026-10-26';V=E/'tests/verification/g2_bank_momentum_2026-10-26';S=V/'source';F=E/'tests/verification/g2_reconstruction_2026-10-25/source'
 V.mkdir(exist_ok=True);assert not S.exists();shutil.copytree(F,S)
-p=S/'src/engine/2d/solver/ExplicitInertialSolver.cpp';before=p.read_text();s=before
+p=S/'src/engine/2d/solver/ExplicitInertialSolver.cpp';before=p.read_text(encoding='utf-8');s=before
 header=r'''
 // Diagnostic only: single-thread cumulative accepted-RK2 momentum receipts.
 struct BankMomentumAudit {
@@ -108,7 +108,7 @@ patch('''                if (state_->depth[i] <= opts_->dry_depth) {
                     qcx_[i] = 0.0;''')
 patch('    if (second_order_) runRk2Step(dt, time);','    banka.begin(*mesh_,opts_->num_threads,second_order_,!bc_cell_.empty());\n    if (second_order_) runRk2Step(dt, time);')
 patch('    applyMomentumPhysics(.5 * dt);\n    return dt;','    applyMomentumPhysics(.5 * dt);\n    banka.end(time+dt,*mesh_,qcx_,qcy_);\n    return dt;')
-p.write_text(s)
-(O/'momentum-receipts.patch').write_text(''.join(difflib.unified_diff(before.splitlines(True),s.splitlines(True),fromfile='original/ExplicitInertialSolver.cpp',tofile='audit/ExplicitInertialSolver.cpp')))
-(O/'instrumentation.json').write_text(json.dumps(dict(source_copy=str(S),original_cpp_sha256=hashlib.sha256(before.encode()).hexdigest(),instrumented_cpp_sha256=hashlib.sha256(s.encode()).hexdigest(),qualification='Unqualified until enabled/disabled/frozen field identity checks; no product edit. Centered advective and pressure face terms are a defined diagnostic split, remainder includes Riemann upwinding and is not uniquely an energy dissipation.'),indent=2)+'\n')
+p.write_text(s,encoding='utf-8')
+(O/'momentum-receipts.patch').write_text(''.join(difflib.unified_diff(before.splitlines(True),s.splitlines(True),fromfile='original/ExplicitInertialSolver.cpp',tofile='audit/ExplicitInertialSolver.cpp')),encoding='utf-8')
+(O/'instrumentation.json').write_text(json.dumps(dict(source_copy=str(S),original_cpp_sha256=hashlib.sha256(before.encode()).hexdigest(),instrumented_cpp_sha256=hashlib.sha256(s.encode()).hexdigest(),qualification='Unqualified until enabled/disabled/frozen field identity checks; no product edit. Centered advective and pressure face terms are a defined diagnostic split, remainder includes Riemann upwinding and is not uniquely an energy dissipation.'),indent=2)+'\n',encoding='utf-8')
 print(S)

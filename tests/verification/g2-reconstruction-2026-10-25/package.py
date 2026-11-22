@@ -8,7 +8,7 @@ import shutil
 R = Path(__file__).resolve().parents[3]
 W = Path(__file__).parent
 O = R / 'results/uk_2d/g2-reconstruction-2026-10-25'
-read = lambda p: json.loads(Path(p).read_text())
+read = lambda p: json.loads(Path(p).read_text(encoding='utf-8'))
 sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
 spec = importlib.util.spec_from_file_location('reconstruction_report', W / 'report.py')
 report = importlib.util.module_from_spec(spec)
@@ -52,5 +52,5 @@ assert not any('plan' in Path(name).name.lower() or Path(name).name == 'design.j
 value = dict(qualification='fixed-physics reassessment',
              cases={name: duration for name, (_, duration) in report.CASES.items()},
              files={name: sha(O / name) for name in sorted(files)})
-(O / 'publication-manifest.json').write_text(json.dumps(value, indent=2) + '\n')
+(O / 'publication-manifest.json').write_text(json.dumps(value, indent=2) + '\n', encoding='utf-8')
 print('Sealed', len(files), 'artifacts; raw fields and binaries remain local.')

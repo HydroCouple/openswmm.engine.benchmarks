@@ -18,10 +18,10 @@ def table(headers, rows):
 
 
 def main():
-    audit = json.loads((OUT / 'audit.json').read_text())
+    audit = json.loads((OUT / 'audit.json').read_text(encoding='utf-8'))
     assert audit['state'] == 'COMPLETE'
     assert audit['geometry']['status'] == audit['markers']['status'] == 'PASS'
-    assert 'Ran 4 tests' in (OUT / 'marker-tests.log').read_text() and 'OK' in (OUT / 'marker-tests.log').read_text()
+    assert 'Ran 4 tests' in (OUT / 'marker-tests.log').read_text(encoding='utf-8') and 'OK' in (OUT / 'marker-tests.log').read_text(encoding='utf-8')
     source = OUT / 'source'; source.mkdir(exist_ok=True)
     for p in HERE.glob('*.py'):
         shutil.copy2(p, source / p.name)
@@ -44,7 +44,7 @@ def main():
                        'Original G2/G6 water-level series and G2 velocity components with measurement elevation/averaging and time origin',
                        'Gate opening history and actual downstream initial water level for the recorded run'],
         observation_review='Independent algorithm, same assistant visual review; no second-person or original-instrument validation claimed.')
-    (OUT / 'source-review.json').write_text(json.dumps(source_review, indent=2, ensure_ascii=False) + '\n')
+    (OUT / 'source-review.json').write_text(json.dumps(source_review, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
     reconciliation = [
         ['Gauge coordinates', 'UK Test6Aoutput.csv and drawing', 'All six match exactly; G2 (2.65, −0.60) m', 'Retain'],
         ['Throat / gate bed', 'Drawing section BB and explicit release x=0', '1.0 m rectangular width; bed 0; open internal interface', 'No missing sill shown'],
@@ -87,14 +87,14 @@ def main():
 <p><a href="audit.json">Complete audit</a> · <a href="source-review.json">Source decisions and limitations</a> · <a href="marker-connectivity.csv">Every historical marker’s connectivity</a> · <a href="strict-marker-pixels.json">Strict marker coordinates</a> · <a href="strict-reference/observations.csv">Strict recovered observations</a> · <a href="strict-reference/observations.json">Observation provenance</a> · <a href="strict-comparison.json">Strict-subset metrics</a> · <a href="marker-tests.log">Four detector tests</a> · <a href="source/audit.py">Audit reproducer</a> · <a href="source/test_markers.py">Detector tests</a> · <a href="source/report.py">Report builder</a></p>
 <p>Run the scripts in their original benchmark repository directory, tests/verification/g2-source-reconciliation-2026-10-26, with the existing Python environment, local PDFs and completed reconstruction control. No engine binary is executed. The report copies are source archives and depend on those documented local inputs.</p>'''
     page = '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Test 6A source and observation audit</title><style>body{max-width:1120px;margin:48px auto;padding:0 24px;font:17px/1.6 system-ui;color:#193042;background:#fafcfd}h1{line-height:1.15}h2{margin-top:2em;color:#075969}.finding{padding:20px;background:#e5f1f4;border-left:5px solid #007c91}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid #cbd8df;padding:9px;text-align:left}img{width:100%;height:auto;margin:14px 0}a{color:#006b86}</style><main>' + body + '</main></html>'
-    (OUT / 'report.html').write_text(page)
+    (OUT / 'report.html').write_text(page, encoding='utf-8')
     files = ['report.html', 'audit.json', 'source-review.json', 'marker-connectivity.csv',
              'strict-marker-pixels.json', 'strict-reference/observations.csv', 'strict-reference/observations.json',
              'strict-comparison.json', 'marker-tests.log', 'source-geometry.png', 'g2-marker-audit.png']
     files += [str(p.relative_to(OUT)) for p in source.glob('*.py')]
     manifest = dict(state='COMPLETE', scope='Source reconciliation with unresolved original records; no new hydraulic run.',
                     files={name: hashlib.sha256((OUT / name).read_bytes()).hexdigest() for name in files})
-    (OUT / 'publication-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    (OUT / 'publication-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     print('Sealed', len(files), 'artifacts')
 
 

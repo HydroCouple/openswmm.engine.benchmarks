@@ -38,7 +38,7 @@ def main():
     exact=level if station==-.4 else 2.92*level+(level*level/(.155/.34) if level<=.155 else .68*(level-.155/2))
     flat=float(width@np.maximum(level-bed,0));rows.append(dict(case=name,x_m=station,stage_m=level,exact_area_m2=exact,flat_area_m2=flat,relative_area_error_pct=100*(flat-exact)/exact))
  for filename,data in [('cross-sections.csv',rows),('mesh-resolution.csv',resolution),('stage-volumes.csv',volumes)]:
-  with (O/filename).open('w',newline='') as f:w=csv.DictWriter(f,fieldnames=list(data[0]));w.writeheader();w.writerows(data)
+  with (O/filename).open('w',newline='',encoding='utf-8') as f:w=csv.DictWriter(f,fieldnames=list(data[0]));w.writeheader();w.writerows(data)
  fig,axs=plt.subplots(1,2,figsize=(11,4.5),layout='constrained')
  for name in ['coarse','bank005','bank0025','broad005']:
   sub=[r for r in rows if r['case']==name and r['x_m']==2.65];axs[0].plot([r['stage_m'] for r in sub],[r['relative_area_error_pct'] for r in sub],'o-',label=name)

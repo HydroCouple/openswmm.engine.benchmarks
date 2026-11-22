@@ -25,7 +25,7 @@ def locate(xs,ys,depth):
     return slope,intercept,rms,xp,good
 
 def inspect(name,path):
- assert json.loads((path/'status.json').read_text())['state']=='COMPLETE'
+ assert json.loads((path/'status.json').read_text(encoding='utf-8'))['state']=='COMPLETE'
  rows=[]
  with h5py.File(path/'surface.h5') as f:
   c=f['Mesh2_face_nodes'][:].astype(int)-int(f['Mesh2_face_nodes'].attrs.get('start_index',0));x=f['Mesh2_node_x'][:];y=f['Mesh2_node_y'][:]
@@ -56,7 +56,7 @@ def inspect(name,path):
    for side in ['up','down']:
     h=b[side+'_depth_m'];un=b[side+'_un_mps']-speed;ut=b[side+'_ut_mps'];b[side+'_relative_normal_Fr']=abs(un)/np.sqrt(G*h);b[side+'_relative_mass_m2ps']=h*un;b[side+'_relative_normal_momentum_m3ps2']=h*un*un+.5*G*h*h;b[side+'_relative_specific_energy_m']=h+(un*un+ut*ut)/(2*G)
    b['relative_specific_energy_drop_m']=b['up_relative_specific_energy_m']-b['down_relative_specific_energy_m']
- (O/(name+'-front.json')).write_text(json.dumps(dict(method='Cell-constant depth sampled on .005m grid; Gaussian derivative smoothing sigma .02m; largest rising depth gradient x[2.2,3.5] per y[-.8,-.4]. Robust line rejects >.08m residual; >=10 rows, slope>.05m/m. Normal states average a .08m tangent band at +/- .10m. Diagnostic orientation/speed, not a measured shock map or exact Rankine-Hugoniot test. Centered differences give front speed; tangential flow and unsteadiness can violate 1D jump assumptions.',rows=rows),indent=2,allow_nan=False)+'\n')
+ (O/(name+'-front.json')).write_text(json.dumps(dict(method='Cell-constant depth sampled on .005m grid; Gaussian derivative smoothing sigma .02m; largest rising depth gradient x[2.2,3.5] per y[-.8,-.4]. Robust line rejects >.08m residual; >=10 rows, slope>.05m/m. Normal states average a .08m tangent band at +/- .10m. Diagnostic orientation/speed, not a measured shock map or exact Rankine-Hugoniot test. Centered differences give front speed; tangential flow and unsteadiness can violate 1D jump assumptions.',rows=rows),indent=2,allow_nan=False)+'\n',encoding='utf-8')
  return rows
 if __name__=='__main__':
  ap=argparse.ArgumentParser();ap.add_argument('name');ap.add_argument('path',type=Path);a=ap.parse_args();rows=inspect(a.name,a.path);print(json.dumps(next(r for r in rows if r['time_s']==20),indent=2))

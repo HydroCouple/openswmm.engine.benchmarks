@@ -42,7 +42,7 @@ def main():
             owners.setdefault(tuple(sorted((a,b))),[]).append((cell,edge,a,b))
     boundary=[v[0] for v in owners.values() if len(v)==1];assert all(len(v) in [1,2] for v in owners.values())
     assignments=set();section=''
-    for raw in (BASE/'model.inp').read_text().splitlines():
+    for raw in (BASE/'model.inp').read_text(encoding='utf-8').splitlines():
         row=raw.split(';')[0].split()
         if not row:continue
         if row[0].startswith('['):section=row[0];continue
@@ -80,8 +80,8 @@ def main():
     for level in [.02,.05,.1,.15,.4,1,5,9.99]:
         high=dem.z[window]>=level;thresholds.append(dict(water_level_m=level,blocked_pixel_area_m2=float(high.sum()*dem.dx**2),extra_pixel_centres=int((high&~drawing).sum()),missing_pixel_centres=int((~high&drawing).sum())))
     source_probes=DEM.with_name('Test6Aoutput.csv')
-    supplied=list(csv.DictReader(source_probes.open()))
-    executed=list(csv.DictReader((BASE/'probe-locations.csv').open()))
+    supplied=list(csv.DictReader(source_probes.open(encoding='utf-8')))
+    executed=list(csv.DictReader((BASE/'probe-locations.csv').open(encoding='utf-8')))
     assert [(r['Point ID'],float(r['X']),float(r['Y'])) for r in supplied]==[(r['id'],float(r['x']),float(r['y'])) for r in executed]
     probe_audit=dict(all_source_coordinates_match=True,source_sha256=sha(source_probes),G2_xy_m=[2.65,-.6])
     gate_rows=[]
@@ -96,7 +96,7 @@ def main():
         slope,intercept=np.polyfit(abs(y[keep]),dem.z[keep,col],1)
         bank.append(dict(side='south' if side<0 else 'north',sample_x_m=float(x[col]),slope=float(slope),inferred_toe_abs_y_m=float(-intercept/slope),extrapolated_height_at_wall_m=float(slope*1.8+intercept)))
     record=dict(status='PASS',source_input_sha256=sha(BASE/'model.inp'),source_dem_sha256=sha(DEM),probe_audit=probe_audit,normal_checks=dict(max_component_error=normal_error,max_length_error_m=length_error,max_unit_length_error=norm_length_error,all_and_only_exterior_edges_are_walls=True,wall_slots=len(boundary),gate_is_internal=True,gate_open_width_m=sum(gates)),obstacle=dict(corners=p.tolist(),area_m2=-obstacle['signed_area'],side_lengths_m=lengths.tolist(),long_side_angles_from_x_deg=angles[lengths>.6].tolist(),outward_normals_point_into_solid=True,constant_pressure_normal_sum=normal_sum.tolist(),pressure_first_moment_m2=pressure_moment.tolist()),outer_boundary=dict(corners=outer['corners'].tolist(),enclosed_area_m2=outer['signed_area']),drawing_bank=dict(toe_abs_y_m=1.46,height_at_wall_m=.155),dem_bank_fits=bank,dem_gate_sections=gate_rows,dem_obstacle_thresholds=thresholds,qualification='Drawing dimensions and actual solver normals are independently verified. DEM threshold areas and widths are pixel-centre diagnostics, not a subpixel survey or proof of experimental geometry. No geometry was changed or fitted.')
-    (OUT/'geometry-audit.json').write_text(json.dumps(record,indent=2)+'\n')
+    (OUT/'geometry-audit.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
     fig,ax=plt.subplots(figsize=(9,6));mask=(x>3)&(x<4.6);rows=(abs(y)<1.1)
     art=ax.pcolormesh(x[mask],y[rows],np.minimum(dem.z[np.ix_(rows,mask)],.4),shading='nearest',vmin=0,vmax=.4,cmap='viridis');fig.colorbar(art,ax=ax,label='Source DEM elevation, clipped at 0.4 m')
     ring=np.vstack([p,p[0]]);ax.plot(ring[:,0],ring[:,1],'r-',lw=2,label='Executed drawing boundary');ax.add_collection(LineCollection(normal_segments,colors='white',linewidths=1));ax.plot(2.65,-.6,'wo',mec='black',label='G2');ax.set(xlim=(2.5,4.6),ylim=(-1.1,1.1),aspect='equal',xlabel='x (m)',ylabel='y (m)',title='Building footprint: source DEM and executed solid wall\nWhite segments show fluid-outward normals pointing into the building');ax.legend();fig.tight_layout();fig.savefig(OUT/'geometry-building-dem-and-normals.png',dpi=160);plt.close(fig)

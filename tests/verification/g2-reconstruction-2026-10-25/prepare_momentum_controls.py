@@ -1,7 +1,7 @@
 """Isolate a coupled primitive limiter and conservative momentum reconstruction."""
 from pathlib import Path
 import hashlib,json
-R=Path(__file__).resolve().parents[3];V=R.parent/'openswmm.engine/tests/verification/g2_reconstruction_2026-10-25';O=R/'results/uk_2d/g2-reconstruction-2026-10-25';p=V/'source/src/engine/2d/solver/ExplicitInertialSolver.cpp';s=p.read_text();(O/'solver-before-momentum-controls.cpp').write_text(s)
+R=Path(__file__).resolve().parents[3];V=R.parent/'openswmm.engine/tests/verification/g2_reconstruction_2026-10-25';O=R/'results/uk_2d/g2-reconstruction-2026-10-25';p=V/'source/src/engine/2d/solver/ExplicitInertialSolver.cpp';s=p.read_text(encoding='utf-8');(O/'solver-before-momentum-controls.cpp').write_text(s,encoding='utf-8')
 a='''    static const bool zero_velocity=std::getenv("OPENSWMM_G2_ZERO_VELOCITY_SLOPES")!=nullptr;'''
 b=a+'''
     static const bool conserved=std::getenv("OPENSWMM_G2_CONSERVED_MOMENTUM")!=nullptr;
@@ -33,6 +33,6 @@ a='''                        ux+=gux_[i]*ax+guy_[i]*ay;uy+=gvx_[i]*ax+gvy_[i]*ay
                             uy=hv>dry?(qcy_[i]+gvx_[i]*ax+gvy_[i]*ay)/hv:0;
                         } else {
                             ux+=gux_[i]*ax+guy_[i]*ay;uy+=gvx_[i]*ax+gvy_[i]*ay;
-                        }''';assert s.count(a)==1;s=s.replace(a,b);p.write_text(s)
-(O/'momentum-controls-source.json').write_text(json.dumps(dict(solver_sha256=hashlib.sha256(s.encode()).hexdigest(),controls=['Common scalar factor for x/y velocity slopes','LS/BJ reconstruction of conserved qx/qy, preserving cell velocity at shoreline faces']),indent=2)+'\n')
+                        }''';assert s.count(a)==1;s=s.replace(a,b);p.write_text(s,encoding='utf-8')
+(O/'momentum-controls-source.json').write_text(json.dumps(dict(solver_sha256=hashlib.sha256(s.encode()).hexdigest(),controls=['Common scalar factor for x/y velocity slopes','LS/BJ reconstruction of conserved qx/qy, preserving cell velocity at shoreline faces']),indent=2)+'\n',encoding='utf-8')
 print('Prepared momentum controls')

@@ -42,7 +42,7 @@ def sha(path):
 
 
 def save(name, value):
-    (OUT / name).write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
+    (OUT / name).write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + '\n', encoding='utf-8')
 
 
 def components(mask):
@@ -87,7 +87,7 @@ def in_chart(x, y):
 
 
 def source_geometry():
-    text = (CONTROL / 'model.inp').read_text()
+    text = (CONTROL / 'model.inp').read_text(encoding='utf-8')
     sections = {}
     for line in text.splitlines():
         line = line.split(';')[0].strip()
@@ -112,9 +112,9 @@ def source_geometry():
     options = {row[0]: row[1:] for row in sections['OPTIONS']}
     assert options['REPORT_STEP'] == ['0:00:00.1']
     input_gauges = [(r['Point ID'], float(r['X']), float(r['Y']))
-                    for r in csv.DictReader((DATA / 'Test6Aoutput.csv').open())]
+                    for r in csv.DictReader((DATA / 'Test6Aoutput.csv').open(encoding='utf-8'))]
     executed = [(r['id'], float(r['x']), float(r['y']))
-                for r in csv.DictReader((CONTROL / 'probe-locations.csv').open())]
+                for r in csv.DictReader((CONTROL / 'probe-locations.csv').open(encoding='utf-8'))]
     assert input_gauges == executed == GAUGES
     edges = {}
     for c in triangles:
@@ -187,8 +187,8 @@ def source_geometry():
 def marker_audit():
     pdf = PdfReader(REPORT)
     reference = CONTROL / 'reference'
-    original = json.loads((reference / 'digitization-audit.json').read_text())
-    oldrows = list(csv.DictReader((reference / 'observations.csv').open()))
+    original = json.loads((reference / 'digitization-audit.json').read_text(encoding='utf-8'))
+    oldrows = list(csv.DictReader((reference / 'observations.csv').open(encoding='utf-8')))
     series = []
     strict_rows = []
     all_original = []
@@ -230,20 +230,20 @@ def marker_audit():
                            one_pixel_time_s=60 / 931, one_pixel_value=top / 734))
     strict = OUT / 'strict-reference'
     strict.mkdir(exist_ok=True)
-    with (strict / 'observations.csv').open('w', newline='') as stream:
+    with (strict / 'observations.csv').open('w', newline='', encoding='utf-8') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(strict_rows[0]))
         writer.writeheader(); writer.writerows(strict_rows)
-    provenance = json.loads((reference / 'observations.json').read_text())
+    provenance = json.loads((reference / 'observations.json').read_text(encoding='utf-8'))
     provenance.update(csv_sha256=sha(strict / 'observations.csv'),
                       extraction='Independent eight-neighbor connected components; exactly 13 pixels, 5×5 support, integer center and Manhattan radius two; same chart bounds and legend exclusion.',
                       coverage='Audit-only, more restrictive visibility-selected subset. Does not replace historical reference or represent the complete experiment.',
                       peer_review_status='Independent algorithm and visual review by the same assistant, not a second-person review.')
-    (strict / 'observations.json').write_text(json.dumps(provenance, indent=2) + '\n')
-    with (OUT / 'marker-connectivity.csv').open('w', newline='') as stream:
+    (strict / 'observations.json').write_text(json.dumps(provenance, indent=2) + '\n', encoding='utf-8')
+    with (OUT / 'marker-connectivity.csv').open('w', newline='', encoding='utf-8') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(all_original[0]));writer.writeheader();writer.writerows(all_original)
     save('strict-marker-pixels.json', strict_pixels)
-    probe_rows = list(csv.DictReader((CONTROL / 'probe-locations.csv').open()))
-    output = list(csv.DictReader((CONTROL / 'probes.csv').open()))
+    probe_rows = list(csv.DictReader((CONTROL / 'probe-locations.csv').open(encoding='utf-8')))
+    output = list(csv.DictReader((CONTROL / 'probes.csv').open(encoding='utf-8')))
     times = np.array(sorted({float(r['time_s']) for r in output}))
     values = np.array([[float(r[key]) for r in output if float(r['time_s']) == t
                        for key in ['depth_m', 'level_m', 'speed_mps']] for t in times])

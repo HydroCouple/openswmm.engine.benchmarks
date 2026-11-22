@@ -86,10 +86,10 @@ def verify_report_clock(exe,output,step,identity):
     text=deck('wall',2,.2).replace('END_TIME 00:00:20','END_TIME 00:00:01')
     text=re.sub(r'^REPORT_STEP\s+.*$','REPORT_STEP '+clock(step),text,flags=re.M)
     text=re.sub(r'^ROUTING_STEP\s+.*$','ROUTING_STEP '+str(min(step,1.)),text,flags=re.M)
-    model=work/'model.inp';model.write_text(text);(work/'surface.h5').unlink(missing_ok=True)
+    model=work/'model.inp';model.write_text(text,encoding='utf-8');(work/'surface.h5').unlink(missing_ok=True)
     execution=runner.run(exe,model,work/'model.rpt',work/'model.out',cwd=work,timeout=60,
                          dylib_dirs=[str(exe.parent),str(exe.parent.parent/'engine')])
-    (work/'execution.json').write_text(json.dumps(execution,indent=2))
+    (work/'execution.json').write_text(json.dumps(execution,indent=2),encoding='utf-8')
     if not execution['ok']:raise ValueError('Native report-clock preflight failed: '+str(execution))
     with h5py.File(work/'surface.h5','r') as data:
         times=data['time'][:]
@@ -102,7 +102,7 @@ def verify_report_clock(exe,output,step,identity):
         velocity_error=float(max(np.max(abs(u-(.2/(1+.04*.2*expected))[:,None])),np.max(abs(v))))
         if velocity_error>2e-6:raise ValueError('Report-clock analytical velocity preflight failed')
     if binary_manifest(exe)!=identity:raise ValueError('Pinned binary changed during preflight')
-    (work/'verification.json').write_text(json.dumps(dict(status='PASS',step_s=step,frames=len(times),clock_error_max_s=error,velocity_error_max_m_s=velocity_error,input_sha256=digest(text.encode()),binaries=identity),indent=2))
+    (work/'verification.json').write_text(json.dumps(dict(status='PASS',step_s=step,frames=len(times),clock_error_max_s=error,velocity_error_max_m_s=velocity_error,input_sha256=digest(text.encode()),binaries=identity),indent=2),encoding='utf-8')
 
 
 def run(args):
@@ -126,11 +126,11 @@ def run(args):
                 work=output/name;work.mkdir(exist_ok=True)
                 (work/'metrics.json').unlink(missing_ok=True) # a failed rerun must not retain a completed verdict
                 text=model_text(base,groups,selected,args.cw,cs,case['step'])
-                (work/'model.inp').write_text(text)
-                (work/'canonical-case.json').write_text(json.dumps(case,indent=2))
+                (work/'model.inp').write_text(text,encoding='utf-8')
+                (work/'canonical-case.json').write_text(json.dumps(case,indent=2),encoding='utf-8')
                 variant=dict(case,id=name,model_sha256=digest(text.encode()))
                 variant['deviations']=case['deviations']+['Experimental wall/Smagorinsky sensitivity; original corpus preserved.']
-                (work/'case.json').write_text(json.dumps(variant,indent=2))
+                (work/'case.json').write_text(json.dumps(variant,indent=2),encoding='utf-8')
                 source=ROOT/relative
                 shutil.copy2(source/'probes.csv',work/'probe-locations.csv')
                 if key=='6a':shutil.copytree(source/'reference',work/'reference',dirs_exist_ok=True)
@@ -144,7 +144,7 @@ def run(args):
                               probe_sha256=digest((work/'probe-locations.csv').read_bytes()),
                               observations_sha256=digest((work/'reference/observations.csv').read_bytes()) if key=='6a' else None,
                               created=dt.datetime.now(dt.timezone.utc).isoformat())
-                (work/'manifest.json').write_text(json.dumps(manifest,indent=2))
+                (work/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
                 requests.append((work,case,manifest))
     def execute(request):
         work,case,manifest=request
@@ -152,27 +152,27 @@ def run(args):
         (work/'surface.h5').unlink(missing_ok=True)
         import time
         started=time.monotonic()
-        with (work/'process.log').open('w') as stream:
+        with (work/'process.log').open('w',encoding='utf-8') as stream:
             result=subprocess.run([str(exe),str(work/'model.inp'),str(work/'model.rpt'),str(work/'model.out')],
                  cwd=work,env=engines.env(1,[str(exe.parent),str(exe.parent.parent/'engine')]),
                  stdout=stream,stderr=subprocess.STDOUT,timeout=args.max_wall)
         metric=dict(case=work.name,returncode=result.returncode,wall_s=time.monotonic()-started)
         if result.returncode!=0:raise ValueError(f'{work.name}: engine failed; see process.log')
         if binary_manifest(exe)!=identity:raise ValueError('Pinned binary changed during execution')
-        probes=list(csv.DictReader((work/'probe-locations.csv').open()))
+        probes=list(csv.DictReader((work/'probe-locations.csv').open(encoding='utf-8')))
         data=sampling.extract(work/'surface.h5',case,probes,work)
         metric.update(checks.numerical(case,data))
         metric['observed']=observations.compare(work/'reference',case,data['times'],data['values'],probes) if case['uk_test']=='6a' else dict(status='not_applicable',metrics=[])
-        log=(work/'process.log').read_text()
+        log=(work/'process.log').read_text(encoding='utf-8')
         removed=re.search(r'energy removed/rho=([0-9.eE+\-]+)',log)
         metric['wall_energy_removed_over_rho_m5_s2']=float(removed[1]) if removed else 0.
         np.savez_compressed(work/'extracted.npz',times=data['times'],values=data['values'])
-        (work/'metrics.json').write_text(json.dumps(metric,indent=2,allow_nan=False))
+        (work/'metrics.json').write_text(json.dumps(metric,indent=2,allow_nan=False),encoding='utf-8')
         print(json.dumps(dict(case=work.name,checks=metric['checks'],wall_s=metric['wall_s'])),flush=True)
         return metric
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:results=list(pool.map(execute,requests))
-    completed=[json.loads(p.read_text()) for p in sorted(output.glob('*/metrics.json'))]
-    (output/'summary.json').write_text(json.dumps(completed,indent=2,allow_nan=False))
+    completed=[json.loads(p.read_text(encoding='utf-8')) for p in sorted(output.glob('*/metrics.json'))]
+    (output/'summary.json').write_text(json.dumps(completed,indent=2,allow_nan=False),encoding='utf-8')
     write_report(output)
     return results
 
@@ -190,13 +190,13 @@ def write_report(output):
     output=Path(output)
     records=[]
     for path in sorted(output.glob('*/metrics.json')):
-        metric=json.loads(path.read_text());manifest=json.loads(path.with_name('manifest.json').read_text())
-        rows=list(csv.DictReader(path.with_name('probes.csv').open()))
+        metric=json.loads(path.read_text(encoding='utf-8'));manifest=json.loads(path.with_name('manifest.json').read_text(encoding='utf-8'))
+        rows=list(csv.DictReader(path.with_name('probes.csv').open(encoding='utf-8')))
         records.append((path.parent,manifest,metric,rows))
     status='Completed configurations are listed below.'
     plan_path=output/'assessment-plan.json'
     if plan_path.exists():
-        plan=json.loads(plan_path.read_text())
+        plan=json.loads(plan_path.read_text(encoding='utf-8'))
         expected={f"{p['test']}-cs{p['cs']:g}-{location}-cw{plan['cw']:g}"
                   for p in plan['phases'] for location in p['locations']}
         complete=expected <= {r[0].name for r in records}
@@ -229,11 +229,11 @@ def write_report(output):
               '[Axis display specifications](figure-display-specs.json).']
     display_source=Path(__file__).with_name('figure-display-specs.json')
     shutil.copy2(display_source,output/display_source.name)
-    display=json.loads(display_source.read_text())['figures']
+    display=json.loads(display_source.read_text(encoding='utf-8'))['figures']
     for key in sorted({r[1]['uk_test'] for r in records}):
         for cs in sorted({r[1]['cs'] for r in records if r[1]['uk_test']==key}):
             selected=[r for r in records if r[1]['uk_test']==key and r[1]['cs']==cs]
-            refs=list(csv.DictReader((selected[0][0]/'reference/observations.csv').open())) if key=='6a' else []
+            refs=list(csv.DictReader((selected[0][0]/'reference/observations.csv').open(encoding='utf-8'))) if key=='6a' else []
             lines += ['', f'### Test {key.upper()}, Cs={cs:g}', '',
                       'Comparison uses the recovered UCL measurement subset.' if key=='6a' else
                       'Numerical sensitivity histories. An independent measured or analytical reference is unavailable.']
@@ -264,14 +264,14 @@ def write_report(output):
     lines+=['','All cases retain model inputs, exact CLI/library hashes, wall groups, numerical checks and measured-fit metrics. '
             'A reduction at one gauge alone does not establish wall friction as the missing cause. '
             'Joint level/speed histories and mesh/timestep sensitivity must support any selected closure.']
-    (output/'report.md').write_text('\n'.join(lines)+'\n')
+    (output/'report.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     (output/'report-provenance.json').write_text(json.dumps(dict(
         renderer_sha256=digest(Path(__file__).read_bytes()),
         methods_sha256=digest(Path(__file__).with_name('wall_report.py').read_bytes()),
         display_specs_sha256=digest(display_source.read_bytes()),
         cases={work.name:manifest['input_sha256'] for work,manifest,metric,rows in records},
         note='Report generation is separate from execution; per-case manifests retain the execution driver identity.'
-    ),indent=2)+'\n')
+    ),indent=2)+'\n',encoding='utf-8')
 
 
 def main():

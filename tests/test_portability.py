@@ -8,6 +8,7 @@ here rather than left to a runner to rediscover.
 from __future__ import annotations
 
 import ast
+import re
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,9 @@ SOURCE_ROOTS = ("harness", "tools", "tests", "suites")
 
 #: Modes that are byte-oriented; an encoding is meaningless (and an error) there.
 _BINARY_MODES = ("b",)
+
+#: A string that can only be a file mode, never a path or member name.
+_MODE = re.compile(r"[rwxa][bt+]{0,2}")
 
 
 def _python_files() -> list[Path]:
@@ -28,8 +32,14 @@ def _python_files() -> list[Path]:
 
 def _text_io_without_encoding(path: Path) -> list[str]:
     """read_text/write_text/open calls in `path` that don't declare an encoding."""
+    return [f"{path.relative_to(REPO_ROOT)}:{line}: {name}()"
+            for line, name in _unencoded_calls(path.read_text(encoding="utf-8"))]
+
+
+def _unencoded_calls(source: str) -> list[tuple[int, str]]:
+    """(line, name) of each text-IO call in `source` without an encoding."""
     try:
-        tree = ast.parse(path.read_text(encoding="utf-8"))
+        tree = ast.parse(source)
     except SyntaxError:                       # not ours to police
         return []
     bad = []
@@ -48,6 +58,15 @@ def _text_io_without_encoding(path: Path) -> list[str]:
             continue
         if name == "open":
             mode = ""
+            # `open(file, mode)` takes the mode second, but `Path.open(mode)`
+            # takes it first; reading only the second argument misses a
+            # binary `p.open('rb')`, which must not be given an encoding.
+            first = node.args[0] if node.args else None
+            if (isinstance(node.func, ast.Attribute)
+                    and isinstance(first, ast.Constant)
+                    and isinstance(first.value, str)
+                    and _MODE.fullmatch(first.value)):
+                mode = first.value
             if len(node.args) > 1 and isinstance(node.args[1], ast.Constant):
                 mode = str(node.args[1].value)
             for kw in node.keywords:
@@ -55,7 +74,7 @@ def _text_io_without_encoding(path: Path) -> list[str]:
                     mode = str(kw.value.value)
             if any(b in mode for b in _BINARY_MODES):
                 continue
-        bad.append(f"{path.relative_to(REPO_ROOT)}:{node.lineno}: {name}()")
+        bad.append((node.lineno, name))
     return bad
 
 
@@ -73,6 +92,20 @@ def test_all_text_io_declares_an_encoding():
     offenders = [o for f in _python_files() for o in _text_io_without_encoding(f)]
     assert not offenders, (
         "text IO without an explicit encoding:\n  " + "\n  ".join(offenders))
+
+
+@pytest.mark.parametrize("call, flagged", [
+    ("p.open('rb')", False),          # Path.open: the mode is the FIRST argument
+    ("p.open('w')", True),
+    ("p.open('w', newline='')", True),
+    ("p.open()", True),
+    ("open(p, 'rb')", False),
+    ("open(p)", True),
+    ("p.open('w', encoding='utf-8')", False),
+])
+def test_encoding_audit_reads_the_mode_where_the_call_puts_it(call, flagged):
+    """Adding `encoding=` to a binary open raises, so the audit must not ask for it."""
+    assert bool(_unencoded_calls(call)) is flagged
 
 
 @pytest.mark.parametrize("path, expected", [

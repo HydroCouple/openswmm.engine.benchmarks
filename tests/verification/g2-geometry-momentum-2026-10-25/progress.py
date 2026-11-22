@@ -18,6 +18,6 @@ for name in ['broad005-30','broad005-muscloff-30']:
     try:
         n=lib.swmm_output_get_period_count(h);stamp=ctypes.c_double()
         if n:assert lib.swmm_output_get_period_time(h,n-1,ctypes.byref(stamp))==0
-        rows.append(dict(case=name,saved_seconds=round((stamp.value-origin)*86400,2) if n else 0,required_seconds=30,complete_records=n,output_incomplete=bool(lib.swmm_output_is_live(h)),output_updated_utc=dt.datetime.fromtimestamp(path.stat().st_mtime,dt.timezone.utc).isoformat(),state=json.loads((folder/'status.json').read_text())))
+        rows.append(dict(case=name,saved_seconds=round((stamp.value-origin)*86400,2) if n else 0,required_seconds=30,complete_records=n,output_incomplete=bool(lib.swmm_output_is_live(h)),output_updated_utc=dt.datetime.fromtimestamp(path.stat().st_mtime,dt.timezone.utc).isoformat(),state=json.loads((folder/'status.json').read_text(encoding='utf-8'))))
     finally:lib.swmm_output_close(h)
 print(json.dumps(rows,indent=2))

@@ -55,7 +55,7 @@ def run(argv=None):
     args=options(argv);output=args.output_dir.resolve();output.mkdir(parents=True,exist_ok=True)
     exe=args.exe.resolve();available=engines.available(exe)
     binaries=binary_manifest(exe) if available else {}
-    provenance=json.loads(args.build_provenance.read_text()) if args.build_provenance else None
+    provenance=json.loads(args.build_provenance.read_text(encoding='utf-8')) if args.build_provenance else None
     if provenance and available and provenance['binaries']!=binaries:
         raise ValueError('Build provenance differs from executed CLI/library identities')
     envelope=scoring.new_envelope(SUITE,provenance['engine_sha'] if provenance else engines.engine_sha())
@@ -67,24 +67,24 @@ def run(argv=None):
                             shock_position_cells=3,closed_volume_relative=1e-10,momentum_jump_relative=.03),
               reference='Compressive Rankine-Hugoniot solution; zero post-bore velocity for wall reflection. Outer-wall disturbances cannot reach the assessed window by0.5s.',
               binaries=binaries,suite_sha256=digest(Path(__file__).read_bytes()),reference_sha256=digest(Path(m.__file__).read_bytes()))
-    (output/'plan.json').write_text(json.dumps(plan,indent=2)+'\n')
+    (output/'plan.json').write_text(json.dumps(plan,indent=2)+'\n',encoding='utf-8')
     for kind in plan['kinds']:
         for angle in plan['angles_deg']:
             for order in plan['orders']:
                 name=f'{kind}-angle{angle}-order{order}';work=output/name;work.mkdir(exist_ok=True)
                 for filename in ['metrics.json','surface.h5','window-fields.npz']:(work/filename).unlink(missing_ok=True)
-                text,reference,cx=m.make(kind,order,angle);model=work/'model.inp';model.write_text(text)
-                (work/'reference.json').write_text(json.dumps(reference,indent=2)+'\n')
+                text,reference,cx=m.make(kind,order,angle);model=work/'model.inp';model.write_text(text,encoding='utf-8')
+                (work/'reference.json').write_text(json.dumps(reference,indent=2)+'\n',encoding='utf-8')
                 manifest=dict(input_sha256=digest(model.read_bytes()),binaries=binaries,reference=reference,
                               suite_sha256=plan['suite_sha256'],reference_sha256=plan['reference_sha256'])
-                (work/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+                (work/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
                 cell=dict(case=name,solver='swmm2d-cpu-full-swe',reference_class='analytic')
                 if not available:cell.update(verdict='UNAVAILABLE',note='Engine executable missing')
                 else:
                     execution=runner.run(exe,model,work/'model.rpt',work/'model.out',cwd=work,timeout=args.max_wall,
                                          dylib_dirs=[str(exe.parent),str(exe.parent.parent/'engine')])
-                    (work/'execution.json').write_text(json.dumps(execution,indent=2)+'\n')
-                    (work/'process.log').write_text(execution['stdout']+'\n'+execution['stderr']+'\n')
+                    (work/'execution.json').write_text(json.dumps(execution,indent=2)+'\n',encoding='utf-8')
+                    (work/'process.log').write_text(execution['stdout']+'\n'+execution['stderr']+'\n',encoding='utf-8')
                     cell['wall']=execution['wall']
                     try:
                         if binary_manifest(exe)!=binaries:raise ValueError('Executed binary changed during the run')
@@ -93,7 +93,7 @@ def run(argv=None):
                         else:
                             metric=assess(work/'surface.h5',reference,cx)
                             cell.update(verdict='PASS' if all(metric['checks'].values()) else 'FAIL',**metric)
-                            (work/'metrics.json').write_text(json.dumps(metric,indent=2,allow_nan=False)+'\n')
+                            (work/'metrics.json').write_text(json.dumps(metric,indent=2,allow_nan=False)+'\n',encoding='utf-8')
                     except Exception as error:cell.update(verdict='ERROR',note=str(error))
                 scoring.save_cell(output/'scores.json',envelope,cell)
     write_report(output,envelope)
@@ -113,12 +113,12 @@ def write_report(output,envelope):
                      ' | '.join(f"{cell[key]:.6g}" if cell.get(key) is not None else 'unavailable' for key in ['window_depth_l1','shock_position_m','momentum_jump_relative_residual'])+' |')
     lines+=['','The frozen geometry, window and criteria are in [plan.json](plan.json). Full case inputs, references, binary identities, saved fields and metrics are retained. '+
             'Passing these tests does not establish measured accuracy or the correct jump position in UK Test6. The canonical UK corpus and its anchors are never modified.']
-    path=Path(output)/'report.md';path.write_text('\n'.join(lines)+'\n');return path
+    path=Path(output)/'report.md';path.write_text('\n'.join(lines)+'\n',encoding='utf-8');return path
 
 
 def report(argv=None):
     args=options(argv)
-    return [write_report(args.output_dir,json.loads((args.output_dir/'scores.json').read_text()))]
+    return [write_report(args.output_dir,json.loads((args.output_dir/'scores.json').read_text(encoding='utf-8')))]
 
 
 if __name__=='__main__':

@@ -7,7 +7,7 @@ import numpy as np
 R = Path(__file__).resolve().parents[3]
 O = R / 'results/uk_2d/g2-reconstruction-2026-10-25'
 work = O / 'clean-combined-120'
-assert json.loads((work / 'status.json').read_text())['state'] == 'COMPLETE'
+assert json.loads((work / 'status.json').read_text(encoding='utf-8'))['state'] == 'COMPLETE'
 with h5py.File(work / 'surface.h5') as f:
     area, bed, x = f['Mesh2_face_area'][:], f['Mesh2_face_z'][:], f['Mesh2_face_x'][:]
     h0 = np.where(x < 0, .4, .02)
@@ -32,5 +32,5 @@ value = dict(frames=frames, minimum_depth_m=minimum_depth, maximum_speed_mps=max
              maximum_relative_volume_error=maximum_mass_error / volume0,
              maximum_discrete_energy_ratio=maximum_energy_ratio,
              scope='Independent diagnostics on saved fields; energy is not an additional fitted acceptance criterion.')
-(O / 'full-field-diagnostics.json').write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
+(O / 'full-field-diagnostics.json').write_text(json.dumps(value, indent=2, allow_nan=False) + '\n', encoding='utf-8')
 print(value)

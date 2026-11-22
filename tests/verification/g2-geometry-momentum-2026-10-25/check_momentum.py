@@ -4,7 +4,7 @@ import csv,hashlib,json,os,sys
 R=Path(__file__).resolve().parents[3];os.chdir(R)
 import h5py,numpy as np
 O=R/'results/uk_2d/g2-geometry-momentum-2026-10-25';B=O.parent/'wall-assessment-2026-10-25/6a-cs0-none-cw0.01'
-def save(p,v):p.write_text(json.dumps(v,indent=2,allow_nan=False)+'\n')
+def save(p,v):p.write_text(json.dumps(v,indent=2,allow_nan=False)+'\n',encoding='utf-8')
 def compare(a,b):
  result={}
  with h5py.File(a/'surface.h5') as f,h5py.File(b/'surface.h5') as g:
@@ -16,13 +16,13 @@ def compare(a,b):
  return dict(bit_identical=all(v['changed_values']==0 for v in result.values()),fields=result)
 def main():
  for name in ['frozen30','audit-disabled','audit-enabled','audit-enabled-v2']:
-  assert json.loads((O/name/'status.json').read_text())['state']=='COMPLETE',name
+  assert json.loads((O/name/'status.json').read_text(encoding='utf-8'))['state']=='COMPLETE',name
  equivalence={}
  for label,a,b in [('short_vs_archived120',O/'frozen30',B),('audit_disabled_vs_frozen',O/'audit-disabled',O/'frozen30'),('audit_enabled_vs_disabled',O/'audit-enabled',O/'audit-disabled'),('final_reset_receipt_vs_original_enabled',O/'audit-enabled-v2',O/'audit-enabled')]:equivalence[label]=compare(a,b)
  equivalence['status']='PASS' if all(v['bit_identical'] for v in equivalence.values()) else 'FAIL'
  save(O/'instrumentation-equivalence.json',equivalence)
  assert equivalence['status']=='PASS','Instrumentation equivalence failed; no ledger interpretation authorized'
- rows=list(csv.DictReader((O/'audit-enabled-v2/momentum-ledger.csv').open()));assert len(rows)==1200,len(rows)
+ rows=list(csv.DictReader((O/'audit-enabled-v2/momentum-ledger.csv').open(encoding='utf-8')));assert len(rows)==1200,len(rows)
  assert all(np.isfinite(float(v)) for row in rows for v in row.values()),'Nonfinite momentum receipt'
  residual=[];momerr=[];summaries=[]
  with h5py.File(O/'audit-enabled-v2/surface.h5') as f:

@@ -35,17 +35,17 @@ def qualify(mode):
                     library_sha256=sha(PIN / 'engine/libopenswmm.engine.6.0.0.dylib'),
                     native_sha256=sha(WORK / 'native/reconstruction'), environment={'OPENSWMM_G2_RECONSTRUCTION': mode})
     save(out / 'identity.json', identity)
-    with (out / 'native.log').open('w') as log:
+    with (out / 'native.log').open('w', encoding='utf-8') as log:
         result = subprocess.run([str(WORK / 'native/reconstruction'), '--gtest_output=json:' + str(out / 'native.json')],
                                 cwd=out, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=180)
-    native = json.loads((out / 'native.json').read_text())
+    native = json.loads((out / 'native.json').read_text(encoding='utf-8'))
     failures = [test['name'] for suite in native['testsuites'] for test in suite['testsuite'] if test.get('failures')]
-    with (out / 'analytical.log').open('w') as log:
+    with (out / 'analytical.log').open('w', encoding='utf-8') as log:
         analytical_code = subprocess.run([str(ROOT / '.venv/bin/python'), str(ROOT / 'run_regression.py'),
             '--suite', 'analytical/hydraulic_jumps', '--exe', str(PIN / 'bin/openswmm'),
             '--output-dir', str(out / 'analytical'), '--max-wall', '300'], cwd=ROOT, env=env,
             stdout=log, stderr=subprocess.STDOUT, timeout=600).returncode
-    scores = json.loads((out / 'analytical/scores.json').read_text())
+    scores = json.loads((out / 'analytical/scores.json').read_text(encoding='utf-8'))
     cells = scores['cells']
     passed = sum(cell['verdict'] == 'PASS' for cell in cells)
     ablation = mode in ['surface-only', 'velocity-only']
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     for key in list(env):
         if key.startswith('OPENSWMM_G2_') or key == 'OPENSWMM_2D_MUSCL_OFF':
             env.pop(key)
-    with (out / 'cpu.log').open('w') as log:
+    with (out / 'cpu.log').open('w', encoding='utf-8') as log:
         code = subprocess.run([str(WORK / 'native/cpu'), '--gtest_output=json:' + str(out / 'cpu.json')],
                               cwd=out, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=300).returncode
     save(out / 'summary.json', dict(modes=rows, baseline_cpu_returncode=code))

@@ -4,7 +4,7 @@ import hashlib,json,shutil
 R=Path(__file__).resolve().parents[3]; E=R.parent/'openswmm.engine'; V=E/'tests/verification/g2_geometry_momentum_2026-10-25'; S=V/'audit-source'
 source=E/'tests/verification/wall_friction_2026-10-24/commit-check-source'
 assert not S.exists();V.mkdir(exist_ok=True);shutil.copytree(source,S)
-p=S/'src/engine/2d/solver/ExplicitInertialSolver.cpp';before=p.read_text();s=before
+p=S/'src/engine/2d/solver/ExplicitInertialSolver.cpp';before=p.read_text(encoding='utf-8');s=before
 header=r'''
 // Diagnostic-only, single-thread receipts for the frozen Test 6A experiment.
 // Numerical face flux includes pressure, advection and numerical diffusion.
@@ -112,7 +112,7 @@ patch('    if (second_order_) runRk2Step(dt, time);', '''    g2audit.begin(*mesh
 patch('    applyMomentumPhysics(.5 * dt);\n    return dt;', '''    applyMomentumPhysics(.5 * dt);
     g2audit.end(time+dt,*mesh_,qcx_,qcy_);
     return dt;''')
-p.write_text(s)
+p.write_text(s,encoding='utf-8')
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
-(Path(__file__).parent/'instrumentation.json').write_text(json.dumps(dict(source=str(source),original_solver_sha256=hashlib.sha256(before.encode()).hexdigest(),audit_solver_sha256=sha(p),source_copy=str(S),qualification='Diagnostic receipts only; no scientific interpretation before enabled/disabled and frozen equivalence checks.'),indent=2)+'\n')
+(Path(__file__).parent/'instrumentation.json').write_text(json.dumps(dict(source=str(source),original_solver_sha256=hashlib.sha256(before.encode()).hexdigest(),audit_solver_sha256=sha(p),source_copy=str(S),qualification='Diagnostic receipts only; no scientific interpretation before enabled/disabled and frozen equivalence checks.'),indent=2)+'\n',encoding='utf-8')
 print(S)

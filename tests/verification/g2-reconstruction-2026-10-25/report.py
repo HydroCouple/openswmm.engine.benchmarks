@@ -31,11 +31,11 @@ CASES = {'original120': ('Original reconstruction, 120 s', 120),
          'clean-combined-120': ('Corrected gradients + walls, 120 s', 120),
          'clean-broad005-30': ('Corrected gradients + walls, broad .05 m, 30 s', 30)}
 sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
-read = lambda p: json.loads(Path(p).read_text())
+read = lambda p: json.loads(Path(p).read_text(encoding='utf-8'))
 
 
 def save(p, data):
-    Path(p).write_text(json.dumps(data, indent=2, allow_nan=False) + '\n')
+    Path(p).write_text(json.dumps(data, indent=2, allow_nan=False) + '\n', encoding='utf-8')
 
 
 def tests(p):
@@ -92,7 +92,7 @@ def archive_controls():
         shutil.copytree(source / 'reference', dest / 'reference', dirs_exist_ok=True)
         if not (dest / 'status.json').exists():
             duration = CASES[name][1]
-            rows = list(csv.DictReader((dest / 'probes.csv').open()))
+            rows = list(csv.DictReader((dest / 'probes.csv').open(encoding='utf-8')))
             metric = read(dest / 'metrics.json')
             assert metric['returncode'] == 0 and all(metric['checks'].values())
             assert len(rows) == duration * 60 and float(rows[-1]['time_s']) == duration
@@ -112,11 +112,11 @@ def main():
         metric = read(work / 'metrics.json')
         assert sha(work / 'model.inp') == identity['input_sha256']
         assert metric['returncode'] == 0 and all(metric['checks'].values())
-        rows = list(csv.DictReader((work / 'probes.csv').open()))
+        rows = list(csv.DictReader((work / 'probes.csv').open(encoding='utf-8')))
         assert len(rows) == 6 * duration * 10 and float(rows[-1]['time_s']) == duration
         records[name] = dict(label=label, duration=duration, metrics=metric, rows=rows)
     assert len({sha(O / name / 'reference/observations.csv') for name in CASES}) == 1
-    obs = list(csv.DictReader((BASE / 'reference/observations.csv').open()))
+    obs = list(csv.DictReader((BASE / 'reference/observations.csv').open(encoding='utf-8')))
     display = read(R / 'suites/uk_2d/figure-display-specs.json')['figures']
     figures = []
     colors = {'original120': '.45', 'original30': '.45', 'clean-combined': '#087f5b',
@@ -202,7 +202,7 @@ def main():
     fig.savefig(O / 'reconstruction-depth-20s.png', dpi=150)
     figures.append('reconstruction-depth-20s.png')
     plt.close(fig)
-    with (O / 'front-positions.csv').open('w', newline='') as f:
+    with (O / 'front-positions.csv').open('w', newline='', encoding='utf-8') as f:
         w = csv.DictWriter(f, fieldnames=list(fronts[0])); w.writeheader(); w.writerows(fronts)
     for name, record in records.items():
         row = min([r for r in record['rows'] if r['probe'] == 'G2'], key=lambda r: abs(float(r['time_s']) - 20))
@@ -262,7 +262,7 @@ def main():
               'Raw HDF5 fields, executable libraries, all intermediate source copies and rejected runs remain in the local verification/results directories. The website publishes the thin, hash-sealed evidence package. Canonical benchmark inputs and reviewed anchors are not changed. Runtime measurements share a busy host and are not a performance comparison.', '',
               '## Next work', '', *interpretation['next_steps'], '',
               'Source comparison layout: [Environment Agency SC120002/R, Figures 4.25–4.26](https://assets.publishing.service.gov.uk/media/6033a943d3bf7f721f4b0d49/_SC120002_Benchmarking_2D_hydraulic_models_Report.pdf). The preceding [geometry and momentum audit](../g2-geometry-momentum/report.html) records drawing/DEM distinctions and the gate/initial-condition/output audit.']
-    (O / 'report.html').write_text(render.render('\n'.join(lines) + '\n'))
+    (O / 'report.html').write_text(render.render('\n'.join(lines) + '\n'), encoding='utf-8')
     save(O / 'report-provenance.json', dict(created_utc=dt.datetime.now(dt.timezone.utc).isoformat(),
          figures=figures, figure_sha256={n: sha(O / n) for n in figures},
          cases={name: sha(O / name / 'model.inp') for name in CASES},

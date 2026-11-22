@@ -2,7 +2,7 @@
 from pathlib import Path
 import hashlib,json,difflib,shutil
 R=Path(__file__).resolve().parents[3];E=R.parent/'openswmm.engine';V=E/'tests/verification/g2_reconstruction_2026-10-25';O=R/'results/uk_2d/g2-reconstruction-2026-10-25';F=E/'tests/verification/wall_friction_2026-10-24/commit-check-source'
-rel=Path('src/engine/2d/solver/ExplicitInertialSolver.cpp');old=(F/rel).read_text();proto=(O/'solver-vertex-init.cpp').read_text();s=old
+rel=Path('src/engine/2d/solver/ExplicitInertialSolver.cpp');old=(F/rel).read_text(encoding='utf-8');proto=(O/'solver-vertex-init.cpp').read_text(encoding='utf-8');s=old
 # Starting from the frozen source keeps all unrelated experimental flux formulas out.
 s=s.replace('#include "../data/MeshData.hpp"','#include "../data/MeshData.hpp"\n#include "../mesh/VertexReconstruction.hpp"',1)
 s=s.replace('        if (second_order_) {\n','        if (second_order_) {\n            if (mesh.vert_stencil_ptr.size() != std::size_t(mesh.n_vertices() + 1))\n                buildVertexStencils(mesh);\n',1)
@@ -22,10 +22,10 @@ void ExplicitInertialSolver::computeLimitedGradientsSwe() {
 needle="        // ONE walk of this cell's CSR row:"
 assert s.count(needle)==1;s=s.replace(needle,'        // Keep the wall flux at the same Euler-stage state as interior faces.\n        const double wall_h0 = kSwe ? state_->depth[i] : 0;\n        const double wall_eta0 = kSwe ? state_->head[i] : 0;\n'+needle)
 a=s.index('            // WALL boundary faces (every boundary slot');b=s.index('            if (h_new > dry) {\n                double qx',a)
-s=s[:a]+(O/'wall-correction.cpp').read_text()+s[b:]
+s=s[:a]+(O/'wall-correction.cpp').read_text(encoding='utf-8')+s[b:]
 a=proto.index('    // A finite water proposal');b=proto.index('    const auto& ed = edges_;',a);guard=proto[a:b]
 a=s.index('    const auto& ed = edges_;',s.index('void ExplicitInertialSolver::fireFacesSwe('));s=s[:a]+guard+s[a:]
 assert 'OPENSWMM_G2_' not in s
-(V/'source'/rel).write_text(s)
+(V/'source'/rel).write_text(s,encoding='utf-8')
 shutil.copy2(F/'src/engine/2d/solver/SweKernels.hpp',V/'source/src/engine/2d/solver/SweKernels.hpp')
-(O/'solver-clean-unformatted.cpp').write_text(s)
+(O/'solver-clean-unformatted.cpp').write_text(s,encoding='utf-8')

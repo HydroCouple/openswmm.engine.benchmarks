@@ -15,7 +15,7 @@ library.swmm_output_get_period_count.restype = ctypes.c_int
 library.swmm_output_get_period_time.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
 library.swmm_output_close.argtypes = [ctypes.c_void_p]
 for path in sorted(OUT.glob('*/status.json')):
-    status = json.loads(path.read_text())
+    status = json.loads(path.read_text(encoding='utf-8'))
     row = dict(case=path.parent.name, state=status['state'])
     if status['state'] == 'RUNNING' and (path.parent / 'model.out').exists():
         handle = library.swmm_output_open_live(str(path.parent / 'model.out').encode())

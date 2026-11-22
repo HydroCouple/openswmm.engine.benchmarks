@@ -2,7 +2,7 @@
 from pathlib import Path
 import difflib,hashlib,json
 B=Path(__file__).resolve().parents[3];E=B.parent/'openswmm.engine';V=E/'tests/verification/g2_reconstruction_2026-10-25';S=V/'source';O=B/'results/uk_2d/g2-reconstruction-2026-10-25'
-p=S/'src/engine/2d/solver/ExplicitInertialSolver.cpp';original=p.read_text();s=original
+p=S/'src/engine/2d/solver/ExplicitInertialSolver.cpp';original=p.read_text(encoding='utf-8');s=original
 start=s.index('void ExplicitInertialSolver::computeLimitedGradientsSwe()');end=s.index('\n/**',start);old=s[start:end].rstrip()
 new=r'''void ExplicitInertialSolver::computeLimitedGradientsSwe() {
     const auto n=state_->depth.size();
@@ -70,7 +70,7 @@ new=r'''void ExplicitInertialSolver::computeLimitedGradientsSwe() {
         gvx_[i]=phi[2]*gx[2];gvy_[i]=phi[2]*gy[2];
     }
 }'''
-(O/'gradient-correction.cpp').write_text(new+'\n')
+(O/'gradient-correction.cpp').write_text(new+'\n',encoding='utf-8')
 wrapped='''void ExplicitInertialSolver::computeLimitedGradientsSwe() {
     static const bool legacy=std::getenv("OPENSWMM_G2_LEGACY_GRADIENT")!=nullptr;
     if(legacy) {\n'''+old[old.index('{')+1:old.rfind('}')]+'''\n    } else {\n'''+new[new.index('{')+1:new.rfind('}')]+'''\n    }\n}'''
@@ -116,13 +116,13 @@ wall=r'''            if(wall_h0>dry) {
                 }
             }
 '''
-(O/'wall-correction.cpp').write_text(wall)
+(O/'wall-correction.cpp').write_text(wall,encoding='utf-8')
 s=s[:a]+'''            static const bool legacy_wall=std::getenv("OPENSWMM_G2_LEGACY_WALL")!=nullptr;
             if(legacy_wall) {
 '''+oldwall+'''            } else {
 '''+wall+'''            }
 '''+s[b:]
-p.write_text(s)
-(O/'diagnostic-candidate.patch').write_text(''.join(difflib.unified_diff(original.splitlines(True),s.splitlines(True),fromfile='a/src/engine/2d/solver/ExplicitInertialSolver.cpp',tofile='b/src/engine/2d/solver/ExplicitInertialSolver.cpp')))
-(O/'candidate-source.json').write_text(json.dumps(dict(original_solver_sha256=hashlib.sha256(original.encode()).hexdigest(),candidate_solver_sha256=hashlib.sha256(s.encode()).hexdigest(),diagnostic_switches=['OPENSWMM_G2_LEGACY_GRADIENT','OPENSWMM_G2_LEGACY_WALL'],qualification='Isolated experimental source only. Legacy switches enable one-factor attribution; no product options or defaults changed.'),indent=2)+'\n')
+p.write_text(s,encoding='utf-8')
+(O/'diagnostic-candidate.patch').write_text(''.join(difflib.unified_diff(original.splitlines(True),s.splitlines(True),fromfile='a/src/engine/2d/solver/ExplicitInertialSolver.cpp',tofile='b/src/engine/2d/solver/ExplicitInertialSolver.cpp')),encoding='utf-8')
+(O/'candidate-source.json').write_text(json.dumps(dict(original_solver_sha256=hashlib.sha256(original.encode()).hexdigest(),candidate_solver_sha256=hashlib.sha256(s.encode()).hexdigest(),diagnostic_switches=['OPENSWMM_G2_LEGACY_GRADIENT','OPENSWMM_G2_LEGACY_WALL'],qualification='Isolated experimental source only. Legacy switches enable one-factor attribution; no product options or defaults changed.'),indent=2)+'\n',encoding='utf-8')
 print('Prepared independent native gradient and wall candidates')

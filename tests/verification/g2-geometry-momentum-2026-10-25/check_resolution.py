@@ -13,4 +13,4 @@ for name,p in [('control',O.parent/'wall-assessment-2026-10-25/6a-cs0-none-cw0.0
  for region,mask in [('reservoir',centre[:,0]<-.8),('throat',(centre[:,0]>=-.8)&(centre[:,0]<0)),('building',(centre[:,0]>1.5)&(centre[:,0]<5)&(abs(centre[:,1])<1.2))]:
   result[region]=dict(cells=int(mask.sum()),median_edge_m=float(np.median(edges[mask])),p95_edge_m=float(np.quantile(edges[mask],.95)))
  records[name]=result
-(O/'mesh-resolution.json').write_text(json.dumps(records,indent=2)+'\n');print(json.dumps(records,indent=2))
+(O/'mesh-resolution.json').write_text(json.dumps(records,indent=2)+'\n',encoding='utf-8');print(json.dumps(records,indent=2))

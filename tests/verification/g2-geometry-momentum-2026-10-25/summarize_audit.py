@@ -12,20 +12,20 @@ from matplotlib.tri import Triangulation
 from matplotlib.collections import LineCollection
 from suites.uk_2d import render,tin
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
-def save(p,v):p.write_text(json.dumps(v,indent=2,allow_nan=False)+'\n')
+def save(p,v):p.write_text(json.dumps(v,indent=2,allow_nan=False)+'\n',encoding='utf-8')
 def main():
- eq=json.loads((O/'instrumentation-equivalence.json').read_text());assert eq['status']=='PASS'
- momentum=json.loads((O/'momentum-audit.json').read_text());assert momentum['status']=='PASS'
+ eq=json.loads((O/'instrumentation-equivalence.json').read_text(encoding='utf-8'));assert eq['status']=='PASS'
+ momentum=json.loads((O/'momentum-audit.json').read_text(encoding='utf-8'));assert momentum['status']=='PASS'
  labels={'frozen30':'Original order 2 / coarse','order1-30':'Native order 1 / coarse','muscl-off-30':'No MUSCL, RK2 / coarse','broad005-30':'Order 2 / broad .05 m','broad005-muscloff-30':'No MUSCL, RK2 / broad .05 m','previous-local':'Order 2 / previous local .05 m'}
  records=[]
  for name,label in labels.items():
   work=L if name=='previous-local' else O/name
-  assert json.loads((work/'status.json').read_text())['state']=='COMPLETE'
-  metric=json.loads((work/'metrics.json').read_text());assert metric['returncode']==0 and all(metric['checks'].values())
-  manifest=json.loads((work/'manifest.json').read_text());assert sha(work/'model.inp')==manifest['input_sha256']
-  rows=[r for r in csv.DictReader((work/'probes.csv').open()) if float(r['time_s'])<=30];assert len(rows)==1800
+  assert json.loads((work/'status.json').read_text(encoding='utf-8'))['state']=='COMPLETE'
+  metric=json.loads((work/'metrics.json').read_text(encoding='utf-8'));assert metric['returncode']==0 and all(metric['checks'].values())
+  manifest=json.loads((work/'manifest.json').read_text(encoding='utf-8'));assert sha(work/'model.inp')==manifest['input_sha256']
+  rows=[r for r in csv.DictReader((work/'probes.csv').open(encoding='utf-8')) if float(r['time_s'])<=30];assert len(rows)==1800
   records.append((name,label,work,metric,rows))
- obs=list(csv.DictReader((B/'reference/observations.csv').open()));spec=json.loads((R/'suites/uk_2d/figure-display-specs.json').read_text())['figures'];figures=['geometry-building-dem-and-normals.png','geometry-gate-and-bank-sections.png','linear-reconstruction-patch.png']
+ obs=list(csv.DictReader((B/'reference/observations.csv').open(encoding='utf-8')));spec=json.loads((R/'suites/uk_2d/figure-display-specs.json').read_text(encoding='utf-8'))['figures'];figures=['geometry-building-dem-and-normals.png','geometry-gate-and-bank-sections.png','linear-reconstruction-patch.png']
  for quantity,points,source in [('level_m',['G2','G4','G5','G6'],'4.25'),('speed_mps',['G2','G4'],'4.26')]:
   fig,axs=plt.subplots(len(points),1,figsize=(9,2.6*len(points)))
   for ax,point in zip(axs,points):
@@ -62,13 +62,13 @@ def main():
   edges=[[[tri.x[a],tri.y[a]],[tri.x[b],tri.y[b]]] for (a,b),cc in owners.items() if len(cc)==2 and (fr[cc[0]]-1)*(fr[cc[1]]-1)<0]
   ax.add_collection(LineCollection(edges,colors='cyan',linewidths=.8));p=np.array(tin.geometry()['constraints'][0]['points']);ax.fill(p[:,0],p[:,1],color='.65',edgecolor='black');ax.plot(2.65,-.6,'wo',mec='black');ax.annotate('G2',(2.65,-.6),xytext=(2.1,-1.1),color='white',arrowprops={'arrowstyle':'->','color':'white'});ax.set(xlim=(1,5.5),ylim=(-1.5,1.5),aspect='equal',title=label,xlabel='x (m)',ylabel='y (m)')
  fig.colorbar(art,ax=list(axes.flat),label='Depth at 20 s (m)',shrink=.8);fig.suptitle('Spatial reconstruction and refinement: same drawing geometry, bed and RK2\nCyan edges straddle Fr=1; no measured spatial front map');fig.savefig(O/'audit-local-depth-20s.png',dpi=150);figures.append('audit-local-depth-20s.png');plt.close(fig)
- with (O/'front-positions.csv').open('w',newline='') as f:w=csv.DictWriter(f,fieldnames=list(fronts[0]));w.writeheader();w.writerows(fronts)
+ with (O/'front-positions.csv').open('w',newline='',encoding='utf-8') as f:w=csv.DictWriter(f,fieldnames=list(fronts[0]));w.writeheader();w.writerows(fronts)
  save(O/'G2-state-20s.json',states)
  fig,ax=plt.subplots(figsize=(9,4.5))
  for name,label,*_ in records:
   rr=[r for r in fronts if r['case']==name];ax.plot([r['time_s'] for r in rr],[r['first_downstream_Fr1_x_m'] for r in rr],label=label)
  ax.axhline(2.65,color='black',ls='--',label='G2');ax.set(title='Sampled critical transition along y=-0.6 m\nCell-constant Fr crossing; no measured front trajectory',xlabel='Time (s)',ylabel='First downstream Fr=1 crossing x (m)');ax.legend(fontsize=8);ax.grid(alpha=.25);fig.tight_layout();fig.savefig(O/'audit-front-position.png',dpi=150);figures.append('audit-front-position.png');plt.close(fig)
- ledger=list(csv.DictReader((O/'audit-enabled-v2/momentum-ledger.csv').open()));fig,axs=plt.subplots(2,1,figsize=(10,7))
+ ledger=list(csv.DictReader((O/'audit-enabled-v2/momentum-ledger.csv').open(encoding='utf-8')));fig,axs=plt.subplots(2,1,figsize=(10,7))
  for ax,cv in zip(axs,[1,2]):
   rr=[r for r in ledger if int(r['cv'])==cv];t=[float(r['time_s']) for r in rr]
   for term in ['face','bed','wall','friction','dry','rk_final_dry']:ax.plot(t,[float(r[term+'_x']) for r in rr],label=term)
@@ -100,8 +100,8 @@ def main():
  for name in figures:lines+=['',f'![Test 6A audit: {name}]({name})']
  lines+=['','## Executed inputs and histories','']
  for name,label,work,*_ in records:lines.append(f"- {label}: [input]({name}/model.inp), [probe history]({name}/probes.csv), [metrics]({name}/metrics.json), [identity]({name}/manifest.json).")
- interpretation=json.loads((O/'interpretation.json').read_text());lines+=['','## Interpretation','',interpretation['finding'],'',interpretation['qualification'],'','## Next engineering checks','']+[f"{i}. {item}" for i,item in enumerate(interpretation['next_priorities'],1)]+['','[Geometry checks](geometry-audit.json). [Momentum checks](momentum-audit.json). [Non-perturbation checks](instrumentation-equivalence.json). [Case summary](summary.json). [Front samples](front-positions.csv). [G2 states at 20 s](G2-state-20s.json). [Report identity](report-provenance.json).']
- (O/'report.html').write_text(render.render('\n'.join(lines)+'\n'))
+ interpretation=json.loads((O/'interpretation.json').read_text(encoding='utf-8'));lines+=['','## Interpretation','',interpretation['finding'],'',interpretation['qualification'],'','## Next engineering checks','']+[f"{i}. {item}" for i,item in enumerate(interpretation['next_priorities'],1)]+['','[Geometry checks](geometry-audit.json). [Momentum checks](momentum-audit.json). [Non-perturbation checks](instrumentation-equivalence.json). [Case summary](summary.json). [Front samples](front-positions.csv). [G2 states at 20 s](G2-state-20s.json). [Report identity](report-provenance.json).']
+ (O/'report.html').write_text(render.render('\n'.join(lines)+'\n'),encoding='utf-8')
  save(O/'report-provenance.json',dict(created_utc=dt.datetime.now(dt.timezone.utc).isoformat(),figures=figures,figure_sha256={n:sha(O/n) for n in figures},cases={name:sha(work/'model.inp') for name,label,work,*_ in records},geometry_sha256=sha(O/'geometry-audit.json'),momentum_sha256=sha(O/'momentum-audit.json'),equivalence_sha256=sha(O/'instrumentation-equivalence.json'),interpretation_sha256=sha(O/'interpretation.json'),report_sha256=sha(O/'report.html'),script_sha256=sha(__file__)))
  print(json.dumps(states,indent=2))
 if __name__=='__main__':main()

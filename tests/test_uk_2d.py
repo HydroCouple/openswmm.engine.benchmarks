@@ -171,12 +171,12 @@ def test_preflight_rejects_ambiguous_numeric_clock_matching_declared_seconds(tmp
     import shutil,re
     source=COLLECTION/'uk-ea-2013-t01'
     for name in ['case.json','model.inp','probes.csv']:shutil.copy2(source/name,tmp_path/name)
-    inp=tmp_path/'model.inp';text=inp.read_text()
+    inp=tmp_path/'model.inp';text=inp.read_text(encoding='utf-8')
     for field in ['REPORT_STEP','WET_STEP','DRY_STEP']:
         text=re.sub(r'^'+field+r'\s+.*$',field+' 0:00:00.1',text,flags=re.M)
-    text=text.replace(key+' 0:00:00.1',key+' 0.1');inp.write_text(text)
-    case=json.loads((tmp_path/'case.json').read_text());case['step']=.1;case['model_sha256']=sources.digest(inp.read_bytes())
-    (tmp_path/'case.json').write_text(json.dumps(case))
+    text=text.replace(key+' 0:00:00.1',key+' 0.1');inp.write_text(text, encoding='utf-8')
+    case=json.loads((tmp_path/'case.json').read_text(encoding='utf-8'));case['step']=.1;case['model_sha256']=sources.digest(inp.read_bytes())
+    (tmp_path/'case.json').write_text(json.dumps(case), encoding='utf-8')
     with pytest.raises(ValueError,match=key):suite.validate_case(tmp_path)
 
 

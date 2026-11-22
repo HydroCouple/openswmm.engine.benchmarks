@@ -32,7 +32,7 @@ QUANTITIES = [('G2', 'level_m'), ('G2', 'speed_mps'), ('G4', 'level_m'), ('G4', 
 
 
 def read(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
 def table(headers, rows):
@@ -73,11 +73,11 @@ def main():
         if name.startswith('coarse-') and name[7:] in design['selected_modes']:
             mode = name[7:]
             assert next(r['qualified_for_diagnostic'] for r in qualification['modes'] if r['mode'] == mode)
-        rows = list(csv.DictReader((source / 'probes.csv').open()))
+        rows = list(csv.DictReader((source / 'probes.csv').open(encoding='utf-8')))
         assert len(rows) == 1800 and float(rows[-1]['time_s']) == 30
         with np.load(source / 'extracted.npz') as data:
             times, values = data['times'], data['values']
-            probes = list(csv.DictReader((source / 'probe-locations.csv').open()))
+            probes = list(csv.DictReader((source / 'probe-locations.csv').open(encoding='utf-8')))
             strict = observations.compare(STRICT, {}, times, values, probes)
         records[name] = dict(label=labels[name], source=str(source), metrics=metrics, strict=strict)
         fronts[name] = FRONT.inspect(name, source)
@@ -94,8 +94,8 @@ def main():
     groups = {'coarse-methods': ['coarse-order2', 'coarse-order1', 'coarse-muscl-off'],
               'broad-methods': ['broad-order2', 'broad-order1', 'broad-muscl-off'],
               'limiter-study': ['coarse-order2'] + ['coarse-' + mode for mode in design['selected_modes']]}
-    observed = list(csv.DictReader((sources['coarse-order2'] / 'reference/observations.csv').open()))
-    strict_obs = list(csv.DictReader((STRICT / 'observations.csv').open()))
+    observed = list(csv.DictReader((sources['coarse-order2'] / 'reference/observations.csv').open(encoding='utf-8')))
+    strict_obs = list(csv.DictReader((STRICT / 'observations.csv').open(encoding='utf-8')))
     display = read(ROOT / 'suites/uk_2d/figure-display-specs.json')['figures']
     figures = []
     for group, names in groups.items():
@@ -188,7 +188,7 @@ def main():
     for name in records:
         body += f'<p>{html.escape(labels[name])}: <a href="cases/{name}/model.inp">executed input</a>, <a href="cases/{name}/probes.csv">all gauge histories</a>, <a href="cases/{name}/manifest.json">execution identity</a>, <a href="{name}-front.json">front history</a>.</p>'
     style = 'body{max-width:1150px;margin:48px auto;padding:0 24px;font:17px/1.6 system-ui;color:#193042}h1{line-height:1.15}h2{margin-top:2em;color:#075969}.finding{padding:20px;background:#e5f1f4;border-left:5px solid #007c91}table{border-collapse:collapse;font-size:14px;width:100%}.table{overflow:auto}td,th{padding:9px;border-bottom:1px solid #cbd8df;text-align:left}th{background:#edf3f6}img{max-width:100%;height:auto}a{color:#006b86}'
-    (OUT / 'report.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Test 6A MUSCL controls</title><style>' + style + '</style><main>' + body + '</main></html>')
+    (OUT / 'report.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Test 6A MUSCL controls</title><style>' + style + '</style><main>' + body + '</main></html>', encoding='utf-8')
     source = OUT / 'source'
     source.mkdir(exist_ok=True)
     for path in Path(__file__).parent.iterdir():

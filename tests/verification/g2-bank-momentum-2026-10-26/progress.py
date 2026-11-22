@@ -6,7 +6,7 @@ lib.swmm_output_open_live.argtypes=[ctypes.c_char_p];lib.swmm_output_open_live.r
 for name in ['bank005','bank0025','audit-disabled-1','audit-enabled-1','audit-enabled-30']:
  w=O/name
  if not (w/'status.json').exists():continue
- status=json.loads((w/'status.json').read_text());row=dict(case=name,status=status)
+ status=json.loads((w/'status.json').read_text(encoding='utf-8'));row=dict(case=name,status=status)
  if status.get('pid'):
   try:os.kill(status['pid'],0);row['process_exists']=True
   except ProcessLookupError:row['process_exists']=False

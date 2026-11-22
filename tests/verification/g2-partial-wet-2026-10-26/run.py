@@ -16,13 +16,13 @@ def run():
     for key in list(env):
         if key.startswith('OPENSWMM_G2_') or key=='OPENSWMM_2D_MUSCL_OFF':env.pop(key)
     commands=[['cmake','-S',str(HERE),'-B',str(a.output/'build'),'-G','Ninja','-DCMAKE_BUILD_TYPE=Release','-DENGINE_SOURCE='+str(a.source),'-DENGINE_LIBRARY='+str(a.library)],['cmake','--build',str(a.output/'build')]]
-    with (a.output/'build.log').open('w') as f:
+    with (a.output/'build.log').open('w',encoding='utf-8') as f:
         for c in commands:subprocess.run(c,env=env,stdout=f,stderr=subprocess.STDOUT,check=True,timeout=120)
     exe=a.output/'build/partial_wet_audit'
     for name,args in [('native',[]),('ridge-extended',['ridge'])]:
-        with (a.output/(name+'.log')).open('w') as f:subprocess.run([str(exe),str(a.output/(name+'.csv')),*args],env=env,stdout=f,stderr=subprocess.STDOUT,check=True,timeout=120)
+        with (a.output/(name+'.log')).open('w',encoding='utf-8') as f:subprocess.run([str(exe),str(a.output/(name+'.csv')),*args],env=env,stdout=f,stderr=subprocess.STDOUT,check=True,timeout=120)
     fields=['src/engine/2d/solver/ExplicitInertialSolver.cpp','src/engine/2d/solver/ExplicitInertialSolver.hpp','src/engine/2d/solver/SweKernels.hpp','src/engine/2d/solver/InertialKernels.hpp','src/engine/2d/data/SolverOptions2D.hpp']
-    identity=dict(library=str(a.library),library_sha256=sha(a.library),executable_sha256=sha(exe),source=str(a.source),engine_sources={p:sha(a.source/p) for p in fields},audit_sources={p.name:sha(p) for p in HERE.iterdir() if p.suffix in ['.cpp','.txt']},native_cases=len(list(csv.DictReader((a.output/'native.csv').open()))),ridge_cases=len(list(csv.DictReader((a.output/'ridge-extended.csv').open()))))
+    identity=dict(library=str(a.library),library_sha256=sha(a.library),executable_sha256=sha(exe),source=str(a.source),engine_sources={p:sha(a.source/p) for p in fields},audit_sources={p.name:sha(p) for p in HERE.iterdir() if p.suffix in ['.cpp','.txt']},native_cases=len(list(csv.DictReader((a.output/'native.csv').open(encoding='utf-8')))),ridge_cases=len(list(csv.DictReader((a.output/'ridge-extended.csv').open(encoding='utf-8')))))
     assert identity['native_cases']==108 and identity['ridge_cases']==24
-    (a.output/'execution.json').write_text(json.dumps(identity,indent=2)+'\n')
+    (a.output/'execution.json').write_text(json.dumps(identity,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__':run()

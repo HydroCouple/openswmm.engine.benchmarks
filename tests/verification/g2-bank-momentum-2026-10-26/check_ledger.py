@@ -5,11 +5,11 @@ import h5py,numpy as np
 R=Path(__file__).resolve().parents[3];O=R/'results/uk_2d/g2-bank-momentum-2026-10-26'
 TERMS=['face','bed','wall_flux','wall_bed','friction','dry','rk_final_dry']
 def inspect(name):
- w=O/name;assert json.loads((w/'status.json').read_text())['state']=='COMPLETE'
- eq=O/('instrumentation-equivalence.json' if name.endswith('30') else 'instrumentation-equivalence-short.json');assert json.loads(eq.read_text())['status']=='PASS'
- rows=list(csv.DictReader((w/'momentum-ledger.csv').open()));end=json.loads((w/'case.json').read_text())['end'];assert len(rows)==end*10*6
+ w=O/name;assert json.loads((w/'status.json').read_text(encoding='utf-8'))['state']=='COMPLETE'
+ eq=O/('instrumentation-equivalence.json' if name.endswith('30') else 'instrumentation-equivalence-short.json');assert json.loads(eq.read_text(encoding='utf-8'))['status']=='PASS'
+ rows=list(csv.DictReader((w/'momentum-ledger.csv').open(encoding='utf-8')));end=json.loads((w/'case.json').read_text(encoding='utf-8'))['end'];assert len(rows)==end*10*6
  assert all(np.isfinite(float(v)) for row in rows for v in row.values())
- g2=next(r['face'] for r in json.loads((w/'probe-map.json').read_text()) if r['id']=='G2');error=[];savederr=[];spliterr=[];stageerr=[];summaries=[];rates=[]
+ g2=next(r['face'] for r in json.loads((w/'probe-map.json').read_text(encoding='utf-8')) if r['id']=='G2');error=[];savederr=[];spliterr=[];stageerr=[];summaries=[];rates=[]
  with h5py.File(w/'surface.h5') as f:
   x=f['Mesh2_face_x'][:];y=f['Mesh2_face_y'][:];area=f['Mesh2_face_area'][:]
   masks=[np.ones(len(x),bool),(x>=1.5)&(x<=4.5),(x>=2.2)&(x<=3.5)&(y>=-1.3)&(y<=1.3),(x>=-.8)&(x<=1.5),(x>=-7.55)&(x<=8)&(abs(y)>1.46),np.arange(len(x))==g2]
@@ -32,8 +32,8 @@ def inspect(name):
       key=k+'_'+d;row[key]=(float(b[key])-(float(a[key]) if a else 0))/(stop-start)
     rates.append(row)
  result=dict(status='PASS' if max(error)<1e-9 and max(savederr)<1e-11 and max(spliterr)<1e-9 and max(stageerr)<1e-9 else 'FAIL',max_accepted_momentum_residual_m4ps=max(error),max_saved_field_momentum_error_m4ps=max(savederr),max_centered_flux_split_residual_m4ps=max(spliterr),max_stage_reset_residual_m4ps=max(stageerr),control_volumes=summaries,scope='Accounting verification only. Centered advective/pressure split uses hydrostatically reconstructed face states and the same positivity scaling; remainder includes Riemann upwinding, not an independently measured energy loss. Wall flux is reflective Riemann reaction; wall bed correction is separate. Each RK2 Euler receipt carries half weight and final dry reset is counted once.')
- (O/(name+'-ledger-check.json')).write_text(json.dumps(result,indent=2)+'\n')
- with (O/(name+'-momentum-rates.csv')).open('w',newline='') as f:wri=csv.DictWriter(f,fieldnames=list(rates[0]));wri.writeheader();wri.writerows(rates)
+ (O/(name+'-ledger-check.json')).write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+ with (O/(name+'-momentum-rates.csv')).open('w',newline='',encoding='utf-8') as f:wri=csv.DictWriter(f,fieldnames=list(rates[0]));wri.writeheader();wri.writerows(rates)
  assert result['status']=='PASS',result
  print(json.dumps({k:v for k,v in result.items() if k!='control_volumes'},indent=2))
  return result

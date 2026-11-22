@@ -11,7 +11,7 @@ class Links(HTMLParser):
   for k,v in attrs:
    if k in ['href','src'] and v:self.paths.append(v)
 def check(page,only_audit=False):
- parser=Links();parser.feed(page.read_text());checked=0
+ parser=Links();parser.feed(page.read_text(encoding='utf-8'));checked=0
  for value in parser.paths:
   u=urlsplit(value)
   if u.scheme or not u.path:continue
@@ -21,6 +21,6 @@ def check(page,only_audit=False):
  return checked
 report_links=check(D/'report.html');preview_links=check(A/'preview.html',True);index_links=check(S/'articles.html',True)
 protected=R/'corpus/uk-ea-2d/uk-ea-2013-t6a/model.inp';assert hashlib.sha256(protected.read_bytes()).hexdigest()=='d40e3cb0b2c3123764bf6b54a4f10c53b2e388fff702890fe32eed07b948bd10'
-provenance=json.loads((D/'report-provenance.json').read_text());assert hashlib.sha256((D/'report.html').read_bytes()).hexdigest()==provenance['report_sha256']
+provenance=json.loads((D/'report-provenance.json').read_text(encoding='utf-8'));assert hashlib.sha256((D/'report.html').read_bytes()).hexdigest()==provenance['report_sha256']
 result=dict(status='PASS',sealed_artifacts=len(p['files']),technical_report_local_links=report_links,preview_new_report_links=preview_links,article_new_report_links=index_links,reviewed_scientific_figures=len(provenance['figures']),protected_working_input_unchanged=True,cases=p['cases'],qualification='Scientific figures visually inspected; local HTML links and sealed identities verified. New runs remain 30 s diagnostics, with no canonical promotion.')
-(O/'publication-verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+(O/'publication-verification.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');print(json.dumps(result,indent=2))

@@ -24,7 +24,7 @@ def sha(path):
 
 
 def command(args, log):
-    with (WORK / log).open('w') as stream:
+    with (WORK / log).open('w', encoding='utf-8') as stream:
         subprocess.run(args, stdout=stream, stderr=subprocess.STDOUT, check=True)
 
 
@@ -34,7 +34,7 @@ def prepare_source():
     OUT.mkdir(exist_ok=True)
     raw = subprocess.check_output(['git', '-C', str(ENGINE), 'archive', BASE])
     (OUT / 'base-source.tar').write_bytes(raw)
-    with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
+    with tarfile.open(fileobj=io.BytesIO(raw), encoding='utf-8') as archive:
         archive.extractall(SOURCE, filter='data')
     for rel in [REL, REL.replace('.cpp', '.hpp'), 'tests/unit/engine/test_2d_swe_reconstruction.cpp',
                 'tests/unit/engine/data/swe_reconstruction/bank_corner.mesh',
@@ -42,7 +42,7 @@ def prepare_source():
         target = SOURCE / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(subprocess.check_output(['git', '-C', str(ENGINE), 'show', CORRECTED + ':' + rel]))
-    original = (SOURCE / REL).read_text()
+    original = (SOURCE / REL).read_text(encoding='utf-8')
     assert sha(SOURCE / REL) == 'c8124296eb21b358590493aa016ebccd4cafd2d3abdff38e522e169db88a9271'
     text = original
     anchor = 'void ExplicitInertialSolver::computeLimitedGradientsSwe() {\n'
@@ -71,20 +71,20 @@ def prepare_source():
         if (experiment == "velocity-only")
             phi[0] = phi[3] = 0;
 ''' + anchor)
-    (SOURCE / REL).write_text(text)
+    (SOURCE / REL).write_text(text, encoding='utf-8')
     (OUT / 'diagnostic.patch').write_text(''.join(difflib.unified_diff(original.splitlines(True), text.splitlines(True),
-                                                                   fromfile='a/' + REL, tofile='b/' + REL)))
+                                                                   fromfile='a/' + REL, tofile='b/' + REL)), encoding='utf-8')
     design = dict(base_revision=BASE, corrected_revision=CORRECTED,
                   original_solver_sha256=hashlib.sha256(original.encode()).hexdigest(),
                   experimental_solver_sha256=sha(SOURCE / REL), source_archive_sha256=sha(OUT / 'base-source.tar'),
                   controls=['baseline', 'surface-only', 'velocity-only', 'common-velocity', 'common-all'],
                   qualification='All native and analytical outcomes retained. Common-factor candidates require all 12 native and 16 analytical checks. Deliberate slope-removal controls are diagnostic only; any safety or analytical failure excludes their Test 6 run.',
                   scope='Changes limited to final scalar/velocity slope factors, used by both interior and reflective wall faces. No physical coefficient changes.')
-    (OUT / 'experiment-design.json').write_text(json.dumps(design, indent=2) + '\n')
+    (OUT / 'experiment-design.json').write_text(json.dumps(design, indent=2) + '\n', encoding='utf-8')
 
 
 def build():
-    design = json.loads((OUT / 'experiment-design.json').read_text())
+    design = json.loads((OUT / 'experiment-design.json').read_text(encoding='utf-8'))
     assert sha(SOURCE / REL) == design['experimental_solver_sha256']
     command(['cmake', '-S', str(SOURCE), '-B', str(WORK / 'build'), '-G', 'Ninja',
              '-DCMAKE_BUILD_TYPE=Release', '-DOPENSWMM_BUILD_2D=ON', '-DOPENSWMM_BUILD_PYTHON=OFF',
@@ -113,12 +113,12 @@ foreach(pair IN ITEMS "reconstruction|test_2d_swe_reconstruction.cpp" "cpu|test_
  target_include_directories(${name} PRIVATE ${ENGINE_SOURCE}/src/engine ${ENGINE_SOURCE}/include)
  target_link_libraries(${name} PRIVATE GTest::gtest_main ${ENGINE_LIBRARY})
 endforeach()
-''')
+''', encoding='utf-8')
     command(['cmake', '-S', str(native), '-B', str(WORK / 'native'), '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release',
              '-DENGINE_SOURCE=' + str(SOURCE), '-DENGINE_LIBRARY=' + str(pin / 'engine/libopenswmm.engine.6.0.0.dylib')], 'native-configure.log')
     command(['cmake', '--build', str(WORK / 'native'), '-j', '2'], 'native-build.log')
     design['binary_sha256'] = {str(p.relative_to(OUT)): sha(p) for p in [pin / 'bin/openswmm', pin / 'engine/libopenswmm.engine.6.0.0.dylib']}
-    (OUT / 'experiment-design.json').write_text(json.dumps(design, indent=2) + '\n')
+    (OUT / 'experiment-design.json').write_text(json.dumps(design, indent=2) + '\n', encoding='utf-8')
     print('Isolated diagnostic build complete', flush=True)
 
 

@@ -1,7 +1,7 @@
 """A vertex-bounded velocity control on the linear-exact gradient prototype."""
 from pathlib import Path
 import hashlib,json
-R=Path(__file__).resolve().parents[3];V=R.parent/'openswmm.engine/tests/verification/g2_reconstruction_2026-10-25';O=R/'results/uk_2d/g2-reconstruction-2026-10-25';p=V/'source/src/engine/2d/solver/ExplicitInertialSolver.cpp';s=p.read_text();(O/'solver-before-vertex-limiter.cpp').write_text(s)
+R=Path(__file__).resolve().parents[3];V=R.parent/'openswmm.engine/tests/verification/g2_reconstruction_2026-10-25';O=R/'results/uk_2d/g2-reconstruction-2026-10-25';p=V/'source/src/engine/2d/solver/ExplicitInertialSolver.cpp';s=p.read_text(encoding='utf-8');(O/'solver-before-vertex-limiter.cpp').write_text(s,encoding='utf-8')
 s=s.replace('#include "../data/MeshData.hpp"','#include "../data/MeshData.hpp"\n#include "../mesh/VertexReconstruction.hpp"',1)
 a='''    static const bool coupled_velocity=std::getenv("OPENSWMM_G2_COUPLED_VELOCITY_LIMITER")!=nullptr;
 #pragma omp parallel'''
@@ -39,5 +39,5 @@ b='''        const int nvc=mesh_->cell_vertex_count(i);
             }
         }
         if(count<nvc) {'''
-assert s.count(a)==1;s=s.replace(a,b);p.write_text(s)
-(O/'vertex-limiter-source.json').write_text(json.dumps(dict(solver_sha256=hashlib.sha256(s.encode()).hexdigest(),method='Additional velocity bounds at every cell vertex, from incident active wet cells. Geometrically dry vertices revert velocity slopes to zero; existing face BJ/shoreline/positivity controls retained.'),indent=2)+'\n')
+assert s.count(a)==1;s=s.replace(a,b);p.write_text(s,encoding='utf-8')
+(O/'vertex-limiter-source.json').write_text(json.dumps(dict(solver_sha256=hashlib.sha256(s.encode()).hexdigest(),method='Additional velocity bounds at every cell vertex, from incident active wet cells. Geometrically dry vertices revert velocity slopes to zero; existing face BJ/shoreline/positivity controls retained.'),indent=2)+'\n',encoding='utf-8')

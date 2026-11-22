@@ -21,7 +21,7 @@ def mean_depth(eta,z):
     return ans
 
 def main():
-    assert json.loads((P/'status.json').read_text())['state']=='COMPLETE'
+    assert json.loads((P/'status.json').read_text(encoding='utf-8'))['state']=='COMPLETE'
     rows=[];edges=[]
     with h5py.File(P/'surface.h5') as f:
         conn=f['Mesh2_face_nodes'][:].astype(int)-int(f['Mesh2_face_nodes'].attrs.get('start_index',0))
@@ -53,7 +53,7 @@ def main():
                 edges.append(dict(time_s=t,region=name,wall_edges=int(mask.sum()),partially_wet_edges=int((mask&(frac>0)&(frac<1)).sum()),wetted_length_m=float((length*frac)[mask].sum()),physical_pressure_integral_over_rho_m4ps2=float(pressure[mask].sum()),midpoint_pressure_integral_over_rho_m4ps2=float(midpoint[mask].sum()),exact_minus_midpoint_m4ps2=float((pressure-midpoint)[mask].sum())))
         np.savez_compressed(O/'geometry-snapshot.npz',vertices=xyz,triangles=conn,head=f['Mesh2_face_head'][int(np.argmin(abs(times-20)))],partial=partial)
     for name,data in [('storage.csv',rows),('walls.csv',edges)]:
-        with (O/name).open('w',newline='') as handle:
+        with (O/name).open('w',newline='',encoding='utf-8') as handle:
             w=csv.DictWriter(handle,fieldnames=list(data[0]));w.writeheader();w.writerows(data)
-    (O/'geometry-scope.json').write_text(json.dumps(dict(scope='Only cells with mean depth > 0.0001 m contribute; dry-cell head has no water-surface interpretation. Exact planar geometry at saved cell head; no reconstructed solver-face state or momentum source is inferred. Pressure is divided by density. Scalar pressure sums are quadrature diagnostics, not net forces. Volume difference is a change of geometric interpretation at fixed head, not a conservation error.',input=str(P/'surface.h5'),times_s=[0,.1,1,5,10,20,30,120]),indent=2)+'\n')
+    (O/'geometry-scope.json').write_text(json.dumps(dict(scope='Only cells with mean depth > 0.0001 m contribute; dry-cell head has no water-surface interpretation. Exact planar geometry at saved cell head; no reconstructed solver-face state or momentum source is inferred. Pressure is divided by density. Scalar pressure sums are quadrature diagnostics, not net forces. Volume difference is a change of geometric interpretation at fixed head, not a conservation error.',input=str(P/'surface.h5'),times_s=[0,.1,1,5,10,20,30,120]),indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__':main()

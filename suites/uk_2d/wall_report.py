@@ -11,7 +11,7 @@ def wall_regions(record, output):
     from . import tin
     work, manifest, metric, rows = record
     sections = {}; section = None
-    for raw in (work/'model.inp').read_text().splitlines():
+    for raw in (work/'model.inp').read_text(encoding='utf-8').splitlines():
         line = raw.split(';', 1)[0].strip()
         if line.startswith('['):
             section = line.strip('[]'); sections[section] = []
@@ -76,10 +76,10 @@ def methods(records, output):
         if key in seen:
             continue
         seen.add(key)
-        case = json.loads((work/'canonical-case.json').read_text())
+        case = json.loads((work/'canonical-case.json').read_text(encoding='utf-8'))
         lines.append(f"| {key.upper()} | {case['end']} | {case['step']} | {case['n']} | {case['area_m2']:g} |")
     provenance = output/'build-provenance.json'
-    hardware = json.loads(provenance.read_text()).get('hardware') if provenance.exists() else None
+    hardware = json.loads(provenance.read_text(encoding='utf-8')).get('hardware') if provenance.exists() else None
     if hardware:
         lines += ['', f"Execution host: {hardware['cpu']} ({hardware['model']}), "
             f"{hardware['memory_bytes']/2**30:g} GiB RAM, {hardware['physical_cores']} physical cores. "
@@ -152,7 +152,7 @@ def methods(records, output):
         '## Measured-subset errors and wall dissipation', '']
     interpretation = output/'interpretation.json'
     if interpretation.exists():
-        finding = json.loads(interpretation.read_text())
+        finding = json.loads(interpretation.read_text(encoding='utf-8'))
         lines += [finding['finding'], '', finding['qualification'], '']
     return lines
 

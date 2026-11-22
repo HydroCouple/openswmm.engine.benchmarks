@@ -32,7 +32,7 @@ def sha(path):
 
 
 def save(path, value):
-    path.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
+    path.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n', encoding='utf-8')
 
 
 def execute(name, duration=30, pin=PIN, flags=None):
@@ -46,7 +46,7 @@ def execute(name, duration=30, pin=PIN, flags=None):
     if pin == PIN:
         assert sha(executable) == EXPECTED_EXE and sha(library) == EXPECTED_LIB
     work.mkdir(parents=True)
-    original = (base / 'model.inp').read_text()
+    original = (base / 'model.inp').read_text(encoding='utf-8')
     text, n = re.subn(r'^END_TIME\s+.*$', f'END_TIME 00:{duration // 60:02}:{duration % 60:02}', original, flags=re.M)
     assert n == 1
     if 'order1' in name:
@@ -58,8 +58,8 @@ def execute(name, duration=30, pin=PIN, flags=None):
     normalize = lambda s: re.sub(r'^RECONSTRUCTION_ORDER\s+.*$', 'RECONSTRUCTION_ORDER 2',
                                 re.sub(r'^END_TIME\s+.*$', 'END_TIME NORMALIZED', s, flags=re.M), flags=re.M)
     assert normalize(original) == normalize(text)
-    (work / 'model.inp').write_text(text)
-    case = json.loads((base / 'case.json').read_text())
+    (work / 'model.inp').write_text(text, encoding='utf-8')
+    case = json.loads((base / 'case.json').read_text(encoding='utf-8'))
     case.update(id=name, end=duration, model_sha256=sha(work / 'model.inp'))
     if duration < 30:
         # The full Test 6 extractor requests fixed snapshots through 30 s.
@@ -84,7 +84,7 @@ def execute(name, duration=30, pin=PIN, flags=None):
     env['OPENSWMM_2D_BACKEND'] = 'cpu'
     started = time.monotonic()
     try:
-        with (work / 'process.log').open('w') as log:
+        with (work / 'process.log').open('w', encoding='utf-8') as log:
             process = subprocess.Popen([str(executable), str(work / 'model.inp'), str(work / 'model.rpt'),
                                         str(work / 'model.out')], cwd=work, env=env, stdout=log, stderr=subprocess.STDOUT)
             save(work / 'status.json', dict(state='RUNNING', pid=process.pid, driver_pid=os.getpid(),
@@ -92,7 +92,7 @@ def execute(name, duration=30, pin=PIN, flags=None):
             code = process.wait(timeout=7200)
         assert code == 0, code
         assert sha(executable) == manifest['executable_sha256'] and sha(library) == manifest['library_sha256']
-        probes = list(csv.DictReader((work / 'probe-locations.csv').open()))
+        probes = list(csv.DictReader((work / 'probe-locations.csv').open(encoding='utf-8')))
         data = sampling.extract(work / 'surface.h5', case, probes, work)
         assert len(data['times']) == duration * 10 and abs(data['times'][-1] - duration) < 1e-8
         result = dict(returncode=code, wall_s=time.monotonic() - started, **checks.numerical(case, data))

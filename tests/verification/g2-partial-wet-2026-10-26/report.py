@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 R=Path(__file__).resolve().parents[3];O=R/'results/uk_2d/g2-partial-wet-2026-10-26';W=Path(__file__).parent
-read=lambda n:list(csv.DictReader((O/n).open()))
+read=lambda n:list(csv.DictReader((O/n).open(encoding='utf-8')))
 native=read('native.csv');ridge=read('ridge-extended.csv');storage=read('storage.csv');walls=read('walls.csv')
 assert len(native)==108 and len(ridge)==24
 f=lambda row,key:float(row[key])
@@ -23,9 +23,9 @@ for r in ridge:
  r['gate_pass']=abs(r['transfer_m3'])<=2e-11 if f(r,'eta_left_m')<f(r,'crest_m') else r['transfer_m3']>2e-11
 summary=dict(state='COMPLETE',solver_qualification='VFR with FULL_SWE fails geometric dry-crest isolation; not promoted',native_cases=108,ridge_cases=24,geometry_oracle_tests=5,native_numerical_checks='108/108 completed, finite, nonnegative and volume-conserving',native_groups=counts,ridge_passes=sum(r['gate_pass'] for r in ridge),ridge_failures=sum(not r['gate_pass'] for r in ridge),ridge_rows=ridge,maximum_native_volume_error_m3=max(f(r,'max_volume_error_m3') for r in native),canonical_input_unchanged=True,new_Test6_run=False,physical_cause_of_G2='Unresolved')
 protected=R/'corpus/uk-ea-2d/uk-ea-2013-t6a/model.inp'
-assert hashlib.sha256(protected.read_bytes()).hexdigest()==json.loads((O/'design.json').read_text())['protected_input_sha256']
+assert hashlib.sha256(protected.read_bytes()).hexdigest()==json.loads((O/'design.json').read_text(encoding='utf-8'))['protected_input_sha256']
 assert all(g['stationary_momentum'] and g['physical_head'] for g in counts if g['closure']=='VFR' and g['kind']!='bank_release')
-(O/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+(O/'summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
 plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':160})
 fig,axs=plt.subplots(1,2,figsize=(12,4.6),layout='constrained')
 colors=['#455a64','#c75146','#007c91']
@@ -75,11 +75,11 @@ body=f'''<h1>Partially wet banks, wall pressure and geometric crest isolation</h
 <h2>Reproduction and evidence</h2><p><a href="design.json">Declared design and adaptive extension</a> · <a href="summary.json">Machine-readable outcomes, including failures</a> · <a href="execution.json">Executable and source identities</a> · <a href="native.csv">108 native cases</a> · <a href="ridge-extended.csv">24 ridge cases</a> · <a href="storage.csv">Storage by region/time</a> · <a href="walls.csv">Wall integrals by region/time</a> · <a href="geometry-scope.json">Geometry diagnostic scope</a> · <a href="oracle-tests.log">Five independent oracle tests</a></p>
 <p>The source directory contains <a href="source/partial_wet_audit.cpp">the native harness</a>, <a href="source/CMakeLists.txt">its build definition</a>, <a href="source/run.py">the explicit source/library runner</a>, <a href="source/geometry.py">geometry diagnostics</a>, <a href="source/test_geometry.py">oracle checks</a> and <a href="source/report.py">report generation</a>. Run the native runner with --source, --library and --output pointing to an ABI-compatible engine source tree, the intended engine library and a reviewable output directory. The recorded result uses the frozen corrected image, not the concurrently edited working checkout. The known unrelated porewater failure from the earlier qualification remains; this audit makes no new full-suite pass claim.</p>'''
 page='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Partially wet bank and wall audit — HydroCouple</title><style>body{max-width:1100px;margin:48px auto;padding:0 24px;font:17px/1.6 system-ui;color:#193042;background:#fafcfd}h1{font-size:2.1em;line-height:1.15}h2{margin-top:2em;color:#075969}.date{color:#526a77}.finding{background:#e5f1f4;padding:20px;border-left:5px solid #007c91}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid #cbd8df;text-align:left;padding:10px}th{background:#edf3f6}img{width:100%;height:auto;margin:20px 0}a{color:#006b86}</style><main>'''+body+'</main></html>'
-(O/'report.html').write_text(page)
+(O/'report.html').write_text(page,encoding='utf-8')
 source=O/'source';source.mkdir(exist_ok=True)
 for p in W.iterdir():
  if p.suffix in ['.cpp','.py','.txt']:shutil.copy2(p,source/p.name)
 files=['report.html','summary.json','design.json','execution.json','native.csv','ridge-extended.csv','storage.csv','walls.csv','geometry-scope.json','oracle-tests.log','native.log','ridge-extended.log','native-controls.png','test6-geometry.png']+[str(p.relative_to(O)) for p in source.iterdir() if p.is_file()]
 manifest=dict(state='COMPLETE',qualification='diagnostic failures retained; no solver promotion',files={n:hashlib.sha256((O/n).read_bytes()).hexdigest() for n in files})
-(O/'publication-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+(O/'publication-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
 print(json.dumps({k:summary[k] for k in ['state','solver_qualification','native_cases','ridge_cases','ridge_passes','ridge_failures']},indent=2))
