@@ -1,15 +1,30 @@
 # Measured wall-clock seconds per case, worst engine, from local
-# sweeps. This is the ONLY input to the CI runtime gate — see
+# sweeps or CI runs (each entry's `sweep` says which; CI runners
+# are the slower). This is the ONLY input to the CI runtime gate — see
 # harness/runtime.py. Cases under 60s are not recorded.
 #
 # Refresh after a local sweep:
 #   python -m harness.runtime --record results/parity/scores_nightly.json
 suites:
   parity:
+    10033-h-elements:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     1080-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 166.6
+    10860-nodes:
+      engine: swmm-5.3.0 (Linux-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 415.2
+    115468-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     1218-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -19,6 +34,15 @@ suites:
       engine: swmm-5.3.0
       sweep: '2026-09-03T15:25:53'
       wall_s: 182.5
+    12267-nodes:
+      engine: swmm-5.3.0 (Linux-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 546.1
+    12334-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     1350-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -31,6 +55,11 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 228.5
+    14434-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     14600-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -60,10 +89,33 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 121.3
+    21491-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
+    2170-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     2180-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 71.9
+    235-subs-rdii:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 510.6
+    23865-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 309.1
+    24650-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     3000-nodemodel:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -72,6 +124,11 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 79.6
+    3363-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     3900-h-h-elements:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -80,6 +137,10 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 328.3
+    4569-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 304.4
     4610-h-h-elements:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -88,14 +149,27 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 69.9
+    4873-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 490.5
     4902-h-elements:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 230.3
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 310.6
+    49500-h-h-si-units-elements:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      timed_out: true
+      wall_s: 600.0
     5120-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 452.3
+    5436-h-h-si-units:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 401.9
     5438-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -108,6 +182,10 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 460.5
+    669-subs-4500-nodes:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 359.9
     99-subs:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -128,6 +206,14 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 155.2
+    swmm-2ea-rw-gw:
+      engine: openswmm-v6 (Linux-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 583.3
+    terreno-parz-saturo:
+      engine: swmm-5.3.0 (Windows-x64)
+      sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
+      wall_s: 460.2
     v15-2002-nodes-19-rdii-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'

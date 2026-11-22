@@ -124,7 +124,8 @@ def record(envelope: dict, path: Path | None = None) -> int:
 
     header = (
         "# Measured wall-clock seconds per case, worst engine, from local\n"
-        "# sweeps. This is the ONLY input to the CI runtime gate — see\n"
+        "# sweeps or CI runs (each entry's `sweep` says which; CI runners\n"
+        "# are the slower). This is the ONLY input to the CI runtime gate — see\n"
         f"# harness/runtime.py. Cases under {RECORD_FLOOR_S:.0f}s are not recorded.\n"
         "#\n"
         "# Refresh after a local sweep:\n"
