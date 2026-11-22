@@ -22,6 +22,9 @@ on:
         description: openswmm.engine ref to build
         default: swmm6_rel
         required: false
+      description:
+        description: What this run is for (shown on the dashboard; blank = generated)
+        required: false
 
 env:
   OMP_NUM_THREADS: 1
@@ -75,8 +78,18 @@ jobs:
       # carry a ci_runtime trim run here on a shortened period instead. The
       # measurements live in harness/runtimes.yaml; anything unmeasured runs
       # normally, bounded by the manifest's timeout_s.
+      # The BENCH_* variables identify this job in the run manifest
+      # (results/run.json) the dashboard shows with every result: its name,
+      # its job log, the matrix part and platform, and the dispatch form's
+      # description.
       - name: Run suites
         id: sweep
+        env:
+          BENCH_JOB_NAME: Sweep (${{ matrix.platform.alias }}, ${{ matrix.part.name }})
+          BENCH_JOB_ID: ${{ job.check_run_id }}
+          BENCH_PART: ${{ matrix.part.name }}
+          BENCH_PLATFORM_ALIAS: ${{ matrix.platform.alias }}
+          BENCH_RUN_DESCRIPTION: ${{ inputs.description }}
         run: |
           python run_regression.py ${{ matrix.part.args }} \
             --tier ${{ inputs.tier || 'nightly' }} \
@@ -86,7 +99,9 @@ jobs:
         shell: bash
         continue-on-error: true
 
+      # The evidence: every retained run tree, the envelopes and the manifest.
       - uses: actions/upload-artifact@v4
+        id: evidence
         if: always()
         with:
           name: results-${{ matrix.platform.alias }}-${{ matrix.part.name }}
@@ -94,6 +109,28 @@ jobs:
             results/
             badges/
           retention-days: 30
+
+      - name: Link the evidence from the run manifest
+        if: always()
+        shell: bash
+        env:
+          EVIDENCE_URL: ${{ steps.evidence.outputs.artifact-url }}
+        run: python -m harness.runinfo --set-artifact evidence "$EVIDENCE_URL"
+
+      # What the dashboard reads: the manifest, every envelope (SWASHES and
+      # transitions keep theirs in their suite folders) and the badges. About
+      # a megabyte, where the evidence above runs to a gigabyte a job.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scores-${{ matrix.platform.alias }}-${{ matrix.part.name }}
+          path: |
+            results/run.json
+            results/**/*scores*.json
+            suites/analytical/*/*_scores.json
+            badges/
+          retention-days: 90
+          if-no-files-found: warn
 
       # continue-on-error above exists ONLY so the artifacts upload and the
       # dashboard publishes when a sweep fails. Without this step the job then
@@ -116,7 +153,8 @@ jobs:
     with:
       run_id: ${{ github.run_id }}
     permissions:
-      contents: read
+      # write: publish appends this run to the benchmark-data branch
+      contents: write
       # A reusable workflow cannot request more than its caller grants, and
       # publish.yml needs actions:read to fetch the sweep's artifacts when it
       # is dispatched on its own. Omitting it here makes the whole workflow

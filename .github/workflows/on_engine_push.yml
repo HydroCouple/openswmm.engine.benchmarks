@@ -91,7 +91,8 @@ jobs:
     with:
       run_id: ${{ github.run_id }}
     permissions:
-      contents: read
+      # write: publish appends this run to the benchmark-data branch
+      contents: write
       # A reusable workflow cannot request more than its caller grants, and
       # publish.yml needs actions:read to fetch the sweep's artifacts when it
       # is dispatched on its own. Omitting it here makes the whole workflow

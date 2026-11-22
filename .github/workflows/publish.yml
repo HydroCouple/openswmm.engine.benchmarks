@@ -1,13 +1,13 @@
 # Static dashboard deployment. Artifact-based Pages deploy (no gh-pages branch
-# bloat); perf history lives on a separate benchmark-data branch that the site
-# build ingests.
+# bloat); run history lives on a separate benchmark-data branch that the site
+# build ingests, and the manual is built into the same deployment under /docs/.
 name: Publish
 
 on:
   workflow_call:
     inputs:
       run_id:
-        description: The workflow run whose results-* artifacts to publish.
+        description: The workflow run whose scores-* artifacts to publish.
         required: true
         type: string
   workflow_dispatch:
@@ -18,7 +18,7 @@ on:
 
 permissions:
   contents: read
-  actions: read          # read artifacts from the last Nightly run on dispatch
+  actions: read          # read the run's artifacts
   pages: write
   id-token: write
 
@@ -29,13 +29,16 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    permissions:
+      contents: write    # appends the run to the benchmark-data branch
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirements.txt
+      - run: pip install -r requirements.txt -r docs/manual/requirements.txt
 
       # The caller names the run that holds the artifacts. Inside a reusable
       # workflow `github.event_name` is the CALLER's event, so a Nightly started
@@ -44,6 +47,10 @@ jobs:
       # stale engine, while this run's sat unread (run 44981179237). Dispatched
       # on its own with no run named, publish falls back to the last completed
       # Nightly, because this run has no artifacts of its own.
+      #
+      # Only the small scores-* artifacts are downloaded: the results-*
+      # evidence ran to 3.2 GB a night for nine envelopes. A run from before
+      # the split has only results-*, which is the fallback.
       - name: Download the run's results
         env:
           GH_TOKEN: ${{ github.token }}
@@ -64,8 +71,9 @@ jobs:
           # Every sweep job writes results/<suite>/scores_<tier>.json, so merged
           # into one tree they overwrite each other and only one job's results
           # survive. gh keeps each artifact in results/<artifact>/, where the
-          # site build finds them all.
-          gh run download "$RUN_ID" --pattern 'results-*' --dir results || \
+          # site build finds them all, each beside its own run manifest.
+          gh run download "$RUN_ID" --pattern 'scores-*' --dir results || \
+            gh run download "$RUN_ID" --pattern 'results-*' --dir results || \
             echo "that run uploaded no results artifact" >&2
 
       # An explicit census beats discovering the absence three steps later as
@@ -74,19 +82,62 @@ jobs:
       - name: Report what was downloaded
         run: |
           n=$(find results -name '*scores*.json' 2>/dev/null | wc -l)
-          echo "scores envelopes found: $n"
+          m=$(find results -name 'run.json' 2>/dev/null | wc -l)
+          echo "scores envelopes found: $n; run manifests: $m"
           [ "$n" -gt 0 ] || echo "::warning::no results to publish; the dashboard will render its no-results state"
 
-      # Renders the scoreboard, immutable per-run pages keyed by engine SHA,
-      # per-tag facets over the corpus, and the shields.io badge endpoints.
-      # Self-contained HTML: no external hosts, so it survives a CDN outage.
+      # One small JSON record per workflow run on the benchmark-data branch
+      # (harness/history.py), for the Trends page. Recording the same run
+      # again replaces its record. A failure here must not stop the dashboard,
+      # so it warns instead.
+      - name: Record the run on the benchmark-data branch
+        id: history
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin benchmark-data; then
+            git worktree add --detach history FETCH_HEAD
+          else
+            git worktree add --orphan -b benchmark-data history
+          fi
+          python -m harness.history results/ --out history/
+          cd history
+          git add -A
+          if git diff --cached --quiet; then
+            echo "history unchanged"
+          else
+            git commit -qm "Record run ${{ inputs.run_id || 'dispatched' }}"
+            git push origin HEAD:refs/heads/benchmark-data
+          fi
+
+      - name: Warn when the history was not recorded
+        if: steps.history.outcome == 'failure'
+        run: echo "::warning::the run was not recorded on benchmark-data; Trends shows the runs before it"
+
+      # Renders the overview, per-run, per-case and per-tag pages, Trends, and
+      # the shields.io badge endpoints. It loads nothing from another host:
+      # the theme's tokens, fonts and logo are copied into the deployment.
       #
       # This step must NOT fail when there are no results: refusing to publish
       # leaves the previous run's dashboard standing, so a broken nightly looks
       # like a healthy one. The page says "no results" instead.
       - name: Build site
         run: |
-          python -m harness.report results/ --site site/build
+          python -m harness.report results/ --site site/build --history history/
+
+      # The manual at /docs/, where the HydroCouple Documentation menu points.
+      # The Documentation workflow gates it with -W; here a failure only warns,
+      # so a manual problem never holds back the night's results.
+      - name: Build the manual into the site
+        id: manual
+        continue-on-error: true
+        run: sphinx-build -b html -q docs/manual site/build/docs
+
+      - name: Warn when the manual was not built
+        if: steps.manual.outcome == 'failure'
+        run: echo "::warning::the manual did not build; /docs/ is missing from this deployment"
 
       - uses: actions/upload-pages-artifact@v3
         with:

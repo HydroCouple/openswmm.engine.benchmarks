@@ -170,6 +170,9 @@ runs:
       run: |
         echo "OPENSWMM_ENGINE_DIR=${{ github.workspace }}/${{ inputs.path }}" >> "$GITHUB_ENV"
         echo "OPENSWMM_BUILD_DIR=${{ steps.paths.outputs.build_dir }}" >> "$GITHUB_ENV"
+        # The checkout is detached, so the run manifest (harness/runinfo.py)
+        # takes the branch or tag name from here.
+        echo "OPENSWMM_ENGINE_REF=${{ inputs.ref }}" >> "$GITHUB_ENV"
 
     - name: Verify the harness resolves both engines
       shell: bash

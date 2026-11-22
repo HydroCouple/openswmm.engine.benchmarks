@@ -22,14 +22,16 @@ engine merge).
        cases with ``--max-wall 300`` and comments the results on the pull
        request.
    * - ``nightly.yml``
-     - 07:00 UTC daily; manual (``tier``, ``engine_ref``)
+     - 07:00 UTC daily; manual (``tier``, ``engine_ref``, ``description``)
      - Five jobs on each of Linux and Windows, each building the engines from
        ``engine_ref`` (default ``swmm6_rel``): four run
        ``run_regression.py --suite parity --shard K/4`` and one runs
        ``--suite all --exclude parity``, all with ``--tier nightly
-       --max-wall 300 --summary --badges``. Each uploads ``results/`` and
-       ``badges/`` as ``results-<os>-<part>``, fails if its sweep failed, and
-       the run then calls ``publish.yml``.
+       --max-wall 300 --summary --badges``. Each uploads its evidence
+       (``results/`` and ``badges/``) as ``results-<os>-<part>``, records
+       that artifact's URL in the run manifest, uploads the manifest, the
+       envelopes and the badges as ``scores-<os>-<part>``, and fails if its
+       sweep failed. The run then calls ``publish.yml`` with its run id.
    * - ``on_engine_push.yml``
      - ``repository_dispatch`` of type ``engine-push`` from the engine
        repository
@@ -37,9 +39,12 @@ engine merge).
        sweep at ``client_payload.tier`` (default ``nightly``), uploads
        ``results-engine-<sha>``, gates, then calls ``publish.yml``.
    * - ``publish.yml``
-     - Called by the two workflows above; manual
-     - Renders the dashboard from the run's artifacts and deploys it to
-       GitHub Pages (:doc:`dashboard`).
+     - Called by the two workflows above with their run id; manual (``run_id``,
+       default the last completed Nightly)
+     - Downloads that run's ``scores-*`` artifacts, appends the run to the
+       ``benchmark-data`` branch, renders the dashboard, builds this manual
+       into its ``docs/`` folder, and deploys both to GitHub Pages
+       (:doc:`dashboard`).
    * - ``uk_2d.yml``
      - Pull requests touching the UK 2D suite or cases; Sundays 08:30 UTC;
        manual
@@ -64,8 +69,11 @@ The composite action :repo:`.github/actions/build-engine/action.yml` checks
 out the engine at the requested ref (default ``swmm6_rel``, the branch the
 engine is developed on), builds only the ``openswmm`` and
 ``openswmm_legacy`` targets (tests, GPU plugin and HYPRE off; GeoPackage, 2D
-and 2D HDF5 output on), and exports ``OPENSWMM_ENGINE_DIR`` and
-``OPENSWMM_BUILD_DIR`` for the steps that follow.
+and 2D HDF5 output on), and exports ``OPENSWMM_ENGINE_DIR``,
+``OPENSWMM_BUILD_DIR`` and ``OPENSWMM_ENGINE_REF`` for the steps that follow.
+On Windows it copies the vcpkg runtime DLLs beside the executables. Its last
+step resolves both engines and runs each with ``--version``, so an engine
+that cannot start fails the build step instead of every case.
 
 Runtime budget
 ==============
@@ -94,3 +102,11 @@ Things to know
 * The sweep steps use ``continue-on-error`` so the artifacts upload and the
   dashboard publishes when a sweep fails; a later step fails the job, so the
   workflow status still reflects the sweep.
+* The sweep step sets ``BENCH_JOB_NAME``, ``BENCH_JOB_ID`` (the job's check
+  run, which makes the job-log link), ``BENCH_PART``, ``BENCH_PLATFORM_ALIAS``
+  and ``BENCH_RUN_DESCRIPTION`` for the run manifest.
+* Publish's build job has ``contents: write``, and the workflows that call
+  it grant it, so it can push the run's record to ``benchmark-data``. That
+  branch holds only ``runs/<run id>.json``; nothing else writes to it.
+* Inside a reusable workflow ``github.event_name`` is the caller's event,
+  which is why publish takes the run id as an input rather than guessing it.
