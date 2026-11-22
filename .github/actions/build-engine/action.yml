@@ -150,6 +150,21 @@ runs:
       # The target name is generator-independent, so use it everywhere.
       run: cmake --build build-bench --config Release --target openswmm openswmm_legacy
 
+    # The harness runs bin/Release/openswmm.exe. The engine build copies the
+    # exe and openswmm.engine.dll there, but its dependencies (hdf5.dll,
+    # sqlite3.dll and theirs) only reach vcpkg_installed/ and
+    # src/engine/Release/, and Windows has no LD_LIBRARY_PATH. Without them
+    # every v6 run exited 0xC0000135 (STATUS_DLL_NOT_FOUND) before reading its
+    # input: 979 Windows parity cells, and every 2D, coupling and UK case.
+    - name: Stage runtime DLLs beside the CLIs (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: |
+        set -euo pipefail
+        cp -v build-bench/vcpkg_installed/${{ steps.paths.outputs.triplet }}/bin/*.dll \
+              build-bench/bin/Release/
+
     - name: Export harness environment
       shell: bash
       run: |
@@ -169,4 +184,15 @@ runs:
         if missing:
             sys.exit(f"engine(s) did not resolve after build: {missing}")
         print("both in-tree engines RESOLVED")
+        # Existing is not running: a missing DLL passes the check above and then
+        # fails every case in a fraction of a second, with nothing on stderr.
+        import subprocess
+        for i in ("openswmm-v6", "swmm-5.3.0"):
+            exe = reg.engines[i].exe
+            r = subprocess.run([str(exe), "--version"], capture_output=True,
+                               text=True, env=engines.env())
+            if r.returncode != 0:
+                sys.exit(f"{i} does not start: {exe} --version exited "
+                         f"{r.returncode} ({r.returncode & 0xFFFFFFFF:#x})")
+            print(f"{i} starts: {r.stdout.strip().splitlines()[0]}")
         PY
