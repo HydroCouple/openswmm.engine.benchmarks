@@ -343,6 +343,36 @@ def test_exclude_drops_a_suite_and_rejects_a_typo(monkeypatch):
     assert run_regression.main(["--suite", "all", "--exclude", "partiy"]) == 2
 
 
+def test_a_crashing_suite_fails_the_run_but_not_the_suites_after_it(
+        monkeypatch, tmp_path):
+    """The 2026-11-22 Nightly's other-suites job died inside the SWASHES
+    reference generator, and transitions and reactions never ran. A crash is a
+    failed run, and the summary names the suite; it is not the end of the
+    run."""
+    from types import SimpleNamespace
+    import run_regression
+    ran: list[str] = []
+
+    def boom(argv):
+        raise ValueError("no positive root")
+
+    mods = {
+        "coupling": SimpleNamespace(run=lambda argv: ran.append("coupling"),
+                                    report=lambda argv: []),
+        "analytical/swashes": SimpleNamespace(run=boom, report=lambda argv: []),
+        "transitions": SimpleNamespace(run=lambda argv: ran.append("transitions"),
+                                       report=lambda argv: []),
+    }
+    monkeypatch.setattr(run_regression.suites, "list_suites", lambda: list(mods))
+    monkeypatch.setattr(run_regression.suites, "discover",
+                        lambda names: {n: mods[n] for n in names})
+    summary = tmp_path / "summary.md"
+    assert run_regression.main(["--suite", "all", "--summary", str(summary)]) == 1
+    assert ran == ["coupling", "transitions"]
+    assert ("analytical/swashes: ValueError: no positive root"
+            in summary.read_text(encoding="utf-8"))
+
+
 def test_every_suite_accepts_the_options_nightly_forwards():
     """run_regression.py hands its extra options to EVERY suite. One suite
     rejecting another's --tier (coupling did, with SystemExit 2) ends

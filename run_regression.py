@@ -82,11 +82,23 @@ def main(argv: list[str] | None = None) -> int:
     registry = suites.discover(names)
     rc = 0
     envelopes: list[dict] = []
+    crashed: list[str] = []
     for name in names:
         mod = registry[name]
         print(f"=== suite: {name} ===")
         if not args.report_only:
-            envelope = mod.run(passthrough)
+            try:
+                envelope = mod.run(passthrough)
+            except Exception as exc:
+                # One suite's crash must not take the suites after it down with
+                # it: the 2026-11-22 Nightly lost transitions and reactions to
+                # a ValueError inside the SWASHES reference generator. It still
+                # fails the run, and the summary names the suite.
+                import traceback
+                traceback.print_exc()
+                crashed.append(f"{name}: {type(exc).__name__}: {exc}"[:300])
+                rc |= 1
+                continue
             if envelope is not None:
                 envelopes.append(envelope)
                 print(scoring.summary(envelope))
@@ -103,6 +115,15 @@ def main(argv: list[str] | None = None) -> int:
         if args.badges:
             written = scoring.write_badges(args.badges, scoring.badges(envelopes))
             print(f"wrote {len(written)} badge(s) to {args.badges}")
+
+    if crashed:
+        print(f"{len(crashed)} suite(s) crashed: " + "; ".join(crashed),
+              file=sys.stderr)
+        if args.summary:
+            args.summary.parent.mkdir(parents=True, exist_ok=True)
+            with args.summary.open("a", encoding="utf-8") as fh:
+                fh.write("## Suites that crashed\n\n"
+                         + "".join(f"- {c}\n" for c in crashed) + "\n")
 
     return rc
 
