@@ -12,6 +12,15 @@ cannot give it: its ``ru_maxrss`` is the largest of every child waited for so
 far, so a small run after a large one reads the large one's peak. Windows has
 no ``wait4``, so the value is None there.
 
+On Linux ``wait4`` alone is not enough either: when the child execs, the
+kernel records the memory it inherited from the harness into its
+``ru_maxrss``, so every engine smaller than the harness process read as the
+harness's size (148.6 MB for a 1 MB engine on the Validate runner). There the
+engine's own high-water mark is read from ``/proc/<pid>/status`` (``VmHWM``,
+which belongs to the program after exec) every 20 ms while it runs, and
+``ru_maxrss`` is used only when it clearly exceeds the harness's own peak.
+The sampled value can miss growth in the last 20 ms of a run.
+
 Report parsing lives in harness.rptparse — this module used to carry a second,
 divergent copy of it whose surcharge and flooding patterns matched no real
 report. One parser, one place.
@@ -35,6 +44,26 @@ def inp_sha(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()[:16]
 
 
+_LINUX = sys.platform.startswith("linux")
+#: How far ru_maxrss must exceed the harness's own peak before it is taken as
+#: the engine's: the harness can grow a little between measuring itself and
+#: the exec.
+_INHERITED_MARGIN = 16 * 2**20
+
+
+def _vm_hwm(pid: int) -> int | None:
+    """The process's peak resident memory in bytes from /proc, or None once
+    it has exited (a zombie's status has no VmHWM line)."""
+    try:
+        with open(f"/proc/{pid}/status", encoding="ascii", errors="replace") as fh:
+            for line in fh:
+                if line.startswith("VmHWM:"):
+                    return int(line.split()[1]) * 1024
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
 def _execute(cmd: list[str], env: dict, cwd: str | None,
              timeout: float | None) -> subprocess.CompletedProcess:
     """``subprocess.run(cmd, capture_output=True, text=True, ...)`` that also
@@ -49,8 +78,28 @@ def _execute(cmd: list[str], env: dict, cwd: str | None,
         res.peak_rss = None
         return res
 
+    own_peak = 0
+    if _LINUX:
+        import resource
+        own_peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+    # Popen returns once the child has exec'd (it waits on the exec error
+    # pipe), so /proc from here on describes the engine, not a copy of us.
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                          env=env, cwd=cwd)
+    sampled = [0]
+    stop_sampling = threading.Event()
+
+    def sample():
+        while not stop_sampling.is_set():
+            hw = _vm_hwm(p.pid)
+            if hw is None:
+                return
+            sampled[0] = max(sampled[0], hw)
+            stop_sampling.wait(0.02)
+
+    sampler = threading.Thread(target=sample, daemon=True) if _LINUX else None
+    if sampler:
+        sampler.start()
     captured = {"out": b"", "err": b""}
 
     def drain(stream, key):
@@ -80,6 +129,12 @@ def _execute(cmd: list[str], env: dict, cwd: str | None,
     finally:
         if timer:
             timer.cancel()
+        stop_sampling.set()
+    if sampler:
+        sampler.join()
+        if peak is None or peak <= own_peak + _INHERITED_MARGIN:
+            # ru_maxrss may be our own memory, inherited at exec.
+            peak = sampled[0] or None
     # After a timeout kill, a process the engine started can still hold the
     # pipes open; subprocess.run does not wait for them then, and neither
     # does this (the threads are daemons).

@@ -11,6 +11,8 @@ from __future__ import annotations
 import sys
 import subprocess
 
+import pytest
+
 from harness import runner
 
 
@@ -109,28 +111,40 @@ def test_timeout_keeps_current_progress_instead_of_previous_repeat(tmp_path,monk
 
 
 def test_peak_memory_is_the_engine_process_own(tmp_path):
-    """wait4 reports one child's peak. getrusage(RUSAGE_CHILDREN) would report
-    the largest child so far, so the small run after the large one is the
-    check that tells them apart."""
+    """Two ways to report someone else's memory, both seen:
+
+    * getrusage(RUSAGE_CHILDREN) reports the largest child so far, so the
+      small run after the large one must not read the large one's peak;
+    * on Linux a child's ru_maxrss starts at the memory it inherited from the
+      harness at exec. The Validate runner read 148.6 MB for a 1 MB engine:
+      the pytest process's size. Holding 300 MB here reproduces that on any
+      Linux machine.
+    """
     def engine(megabytes, name):
         script = tmp_path / f"{name}.py"
+        # The pause makes sure a sampled measurement sees the process.
         script.write_text(
-            f"b = bytearray({megabytes} * 2**20)\n"
-            f"for i in range(0, len(b), 4096): b[i] = 1\n", encoding="utf-8")
+            f"import time\nb = bytearray({megabytes} * 2**20)\n"
+            f"for i in range(0, len(b), 4096): b[i] = 1\ntime.sleep(0.2)\n",
+            encoding="utf-8")
         return _fake_engine(
             tmp_path, name=name,
             posix=f'exec "{sys.executable}" "{script}"\n',
             windows=f'"{sys.executable}" "{script}"\r\n')
 
+    harness_ballast = bytearray(300 * 2**20)
+    for i in range(0, len(harness_ballast), 4096):
+        harness_ballast[i] = 1
     big = runner.run(engine(200, "big"), tmp_path / "m.inp", tmp_path / "m.rpt",
                      tmp_path / "m.out")
     small = runner.run(engine(1, "small"), tmp_path / "m.inp", tmp_path / "m.rpt",
                        tmp_path / "m.out")
+    del harness_ballast
     assert big["ok"] and small["ok"]
     if sys.platform == "win32":
         assert big["peak_rss_mb"] is None
         return
-    assert big["peak_rss_mb"] >= 190, big
+    assert 190 <= big["peak_rss_mb"] < 290, big
     assert small["peak_rss_mb"] < 100, small
 
 
@@ -148,3 +162,15 @@ def test_output_and_exit_code_survive_the_memory_measurement(tmp_path):
     assert res["returncode"] == 4
     assert res["stdout"].endswith("x" * 1000 + "\n")
     assert res["stderr"].startswith("y" * 500)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="no wait4 on Windows")
+def test_an_inherited_ru_maxrss_gives_way_to_the_sampled_peak(tmp_path, monkeypatch):
+    """The Linux branch, forced on any POSIX machine: with the harness's own
+    peak above the child's ru_maxrss, the /proc sample is what is reported."""
+    monkeypatch.setattr(runner, "_LINUX", True)
+    monkeypatch.setattr(runner, "_vm_hwm", lambda pid: 7 * 2**20)
+    exe = _fake_engine(tmp_path, posix=f'exec "{sys.executable}" -c "import time; time.sleep(0.1)"\n',
+                       windows="exit /b 0\r\n")
+    res = runner.run(exe, tmp_path / "m.inp", tmp_path / "m.rpt", tmp_path / "m.out")
+    assert res["ok"] and res["peak_rss_mb"] == 7.0, res
