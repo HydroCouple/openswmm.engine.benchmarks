@@ -24,9 +24,18 @@ RESULTS = REPO_ROOT / "results"
 SITE_TEMPLATES = REPO_ROOT / "site" / "templates"
 
 
-def job_summary(envelopes: list[dict]) -> str:
+def job_summary(envelopes: list[dict], manifest: dict | None = None) -> str:
     """Markdown summary of one or more suite envelopes."""
     lines: list[str] = ["# Benchmark run", ""]
+    if manifest:
+        eng, h = manifest.get("engine") or {}, manifest.get("host") or {}
+        lines += [f"**{manifest.get('description', '')}**", "",
+                  "| | |", "|---|---|",
+                  f"| engine | `{eng.get('ref') or ''}@{eng.get('sha') or '?'}` "
+                  f"{eng.get('subject') or ''} |",
+                  f"| host | {h.get('os', '')} {h.get('machine', '')} · "
+                  f"{h.get('cpu') or 'CPU unknown'} · {h.get('cpu_count') or '?'} CPUs |",
+                  f"| benchmarks | `{manifest.get('benchmarks_sha') or '?'}` |", ""]
     for env in envelopes:
         cells = env.get("cells", [])
         lines += [f"## {env.get('suite', '?')}", "",
@@ -69,6 +78,12 @@ def load_envelopes(paths: list[Path]) -> list[dict]:
     The dashboard writes a copy of each envelope into its per-run page. If the
     site is built underneath the directory being scanned, those copies are
     read back as if they were additional runs and every count doubles.
+
+    Each envelope gets the manifest of the run that produced it as ``_run``:
+    the nearest ``run.json`` or ``results/run.json`` above the envelope, up to
+    one level above the path given (``results/parity`` finds
+    ``results/run.json``). Every sweep job's artifact carries its own, so in
+    CI each envelope finds its own job's manifest.
     """
     out = []
     for p in paths:
@@ -78,10 +93,29 @@ def load_envelopes(paths: list[Path]) -> list[dict]:
             if "site" in f.parts or "runs" in f.parts:
                 continue                     # generated copies, not new runs
             try:
-                out.append(json.loads(f.read_text(encoding="utf-8")))
+                env = json.loads(f.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
-                pass
+                continue
+            if not isinstance(env, dict) or "cells" not in env:
+                continue
+            env["_run"] = _manifest_for(f, p if p.is_dir() else f.parent)
+            out.append(env)
     return out
+
+
+def _manifest_for(envelope_file: Path, given: Path) -> dict:
+    root = given.resolve().parent
+    d = envelope_file.resolve().parent
+    while True:
+        for cand in (d / "run.json", d / "results" / "run.json"):
+            if cand.is_file():
+                try:
+                    return json.loads(cand.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    return {}
+        if d == root or root not in d.parents:
+            return {}
+        d = d.parent
 
 
 def main(argv: list[str] | None = None) -> int:

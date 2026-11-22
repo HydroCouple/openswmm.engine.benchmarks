@@ -27,7 +27,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from harness import scoring, suites  # noqa: E402
+from harness import runinfo, scoring, suites  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,6 +54,10 @@ def main(argv: list[str] | None = None) -> int:
                          "warning and a SKIP cell (harness/runtimes.yaml holds "
                          "the measurements). CI passes 300; unset locally, "
                          "where long cases are meant to run.")
+    ap.add_argument("--description", metavar="TEXT",
+                    help="what this run is for, shown on the dashboard (default: "
+                         "$BENCH_RUN_DESCRIPTION, else one generated from the "
+                         "trigger, engine and platform)")
     args, passthrough = ap.parse_known_args(argv)
     # Declared here so --help documents it and a typo is rejected rather than
     # silently ignored, but the suites are what act on it — so hand it on.
@@ -83,6 +87,16 @@ def main(argv: list[str] | None = None) -> int:
     rc = 0
     envelopes: list[dict] = []
     crashed: list[str] = []
+    # Written before the first suite and again after the last, so a run that
+    # never ends still says what it was (see harness/runinfo.py).
+    manifest = None
+    if not args.report_only:
+        manifest = runinfo.collect(
+            argv=list(argv if argv is not None else sys.argv[1:]),
+            description=args.description, max_wall=args.max_wall,
+            tier=_option(passthrough, "--tier"))
+        print(f"run: {manifest['description']}")
+        runinfo.write(manifest)
     for name in names:
         mod = registry[name]
         print(f"=== suite: {name} ===")
@@ -111,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.summary:
             args.summary.parent.mkdir(parents=True, exist_ok=True)
             with args.summary.open("a", encoding="utf-8") as fh:
-                fh.write(report_mod.job_summary(envelopes) + "\n")
+                fh.write(report_mod.job_summary(envelopes, manifest) + "\n")
         if args.badges:
             written = scoring.write_badges(args.badges, scoring.badges(envelopes))
             print(f"wrote {len(written)} badge(s) to {args.badges}")
@@ -125,7 +139,19 @@ def main(argv: list[str] | None = None) -> int:
                 fh.write("## Suites that crashed\n\n"
                          + "".join(f"- {c}\n" for c in crashed) + "\n")
 
+    if manifest is not None:
+        runinfo.write(runinfo.finish(manifest, exit_code=rc, crashed=crashed))
     return rc
+
+
+def _option(argv: list[str], name: str) -> str | None:
+    """The value of `name` in a forwarded argument list, if given."""
+    for i, a in enumerate(argv):
+        if a == name and i + 1 < len(argv):
+            return argv[i + 1]
+        if a.startswith(name + "="):
+            return a.split("=", 1)[1]
+    return None
 
 
 if __name__ == "__main__":

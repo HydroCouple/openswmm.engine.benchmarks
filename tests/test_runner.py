@@ -103,6 +103,48 @@ def test_timeout_keeps_current_progress_instead_of_previous_repeat(tmp_path,monk
         result=next(attempts)
         if isinstance(result,Exception):raise result
         return result
-    monkeypatch.setattr(runner.subprocess,'run',execute)
+    monkeypatch.setattr(runner,'_execute',execute)
     result=runner.run(tmp_path/'engine',tmp_path/'m.inp',tmp_path/'m.rpt',tmp_path/'m.out',reps=2,timeout=1)
     assert not result['ok'] and result['stdout']=='current timeout progress'
+
+
+def test_peak_memory_is_the_engine_process_own(tmp_path):
+    """wait4 reports one child's peak. getrusage(RUSAGE_CHILDREN) would report
+    the largest child so far, so the small run after the large one is the
+    check that tells them apart."""
+    def engine(megabytes, name):
+        script = tmp_path / f"{name}.py"
+        script.write_text(
+            f"b = bytearray({megabytes} * 2**20)\n"
+            f"for i in range(0, len(b), 4096): b[i] = 1\n", encoding="utf-8")
+        return _fake_engine(
+            tmp_path, name=name,
+            posix=f'exec "{sys.executable}" "{script}"\n',
+            windows=f'"{sys.executable}" "{script}"\r\n')
+
+    big = runner.run(engine(200, "big"), tmp_path / "m.inp", tmp_path / "m.rpt",
+                     tmp_path / "m.out")
+    small = runner.run(engine(1, "small"), tmp_path / "m.inp", tmp_path / "m.rpt",
+                       tmp_path / "m.out")
+    assert big["ok"] and small["ok"]
+    if sys.platform == "win32":
+        assert big["peak_rss_mb"] is None
+        return
+    assert big["peak_rss_mb"] >= 190, big
+    assert small["peak_rss_mb"] < 100, small
+
+
+def test_output_and_exit_code_survive_the_memory_measurement(tmp_path):
+    script = tmp_path / "engine.py"
+    script.write_text("import sys\nprint('x' * 300000)\n"
+                      "sys.stderr.write('y' * 300000)\nsys.exit(4)\n",
+                      encoding="utf-8")
+    exe = _fake_engine(
+        tmp_path,
+        posix=f'exec "{sys.executable}" "{script}"\n',
+        windows=f'"{sys.executable}" "{script}"\r\nexit /b %errorlevel%\r\n')
+    res = runner.run(exe, tmp_path / "m.inp", tmp_path / "m.rpt",
+                     tmp_path / "m.out")
+    assert res["returncode"] == 4
+    assert res["stdout"].endswith("x" * 1000 + "\n")
+    assert res["stderr"].startswith("y" * 500)

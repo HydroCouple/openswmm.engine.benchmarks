@@ -2,7 +2,8 @@
 """Verdict taxonomy, reference classes, scores envelope, badges, exit policy.
 
 A suite's sweep produces one envelope:
-    {"suite": str, "engine_sha": str, "timestamp": iso8601, "cells": [cell...]}
+    {"suite": str, "engine_sha": str, "timestamp": iso8601,
+     "platform": str, "machine": str, "cells": [cell...]}
 where each cell minimally carries {"case", "solver", "verdict", ...metrics}.
 Envelopes are written incrementally (rewrite-after-each-cell) so interrupted
 sweeps resume; `save_cell` implements that convention.
@@ -22,6 +23,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import platform
 from pathlib import Path
 
 VERDICTS = ("PASS", "FAIL", "BASELINE-PASS", "BASELINE-FAIL",
@@ -75,8 +77,12 @@ def check_accuracy_allowed(reference_class: str) -> None:
 
 
 def new_envelope(suite: str, engine_sha: str) -> dict:
+    # platform and machine ride on every envelope: the Nightly sweeps Linux and
+    # Windows with the same suites, and a cell's timings and verdicts mean
+    # nothing without the OS and architecture that produced them.
     return {"suite": suite, "engine_sha": engine_sha,
             "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
+            "platform": platform.system(), "machine": platform.machine(),
             "cells": []}
 
 

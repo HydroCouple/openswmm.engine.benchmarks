@@ -19,7 +19,7 @@ Cases are selected by TAG QUERY from manifests/tier_*.yaml, never by path.
 from __future__ import annotations
 
 import argparse
-import platform
+import hashlib
 import re
 import shutil
 import sys
@@ -313,9 +313,12 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
     info["report_errors"] = [s for s in parsed.get("errors", [])
                              if s.startswith("ERROR")]
     info.update({k: v for k, v in parsed.items()
-                 if k in ("runoff_err", "routing_err", "worst_quality_err",
-                          "pct_not_converging", "avg_iter", "min_dt",
-                          "nodes_flooded", "links_instability", "had_error")})
+                 if k in ("runoff_err", "routing_err", "groundwater_err",
+                          "worst_quality_err", "pct_not_converging",
+                          "avg_iter", "min_dt", "avg_dt", "max_dt",
+                          "nodes_flooded", "nodes_surcharged",
+                          "conduits_surcharged", "links_instability",
+                          "had_error")})
 
     produced, why = _usable_output(out) if info["launched"] else (False, "")
     # A readable partial output is not a completed result. Do not let its
@@ -334,7 +337,31 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
         info["stderr"] = ("; ".join(info["report_errors"][:2])
                           or f"exit code {info.get('returncode')} with no "
                              "message and no report errors")[:500]
+    if info["produced_output"]:
+        info["out_bytes"] = out.stat().st_size
+        info["out_sha16"] = _out_fingerprint(out)
     return info
+
+
+#: Larger outputs are not fingerprinted: hashing costs about a second per GiB,
+#: and the corpus writes ~0.1 TiB of .out per engine.
+_FINGERPRINT_MAX_BYTES = 256 * 2**20
+
+
+def _out_fingerprint(out: Path) -> str | None:
+    """First 16 hex digits of the .out's SHA-256, or None when too large.
+
+    The same case and engine on two platforms with the same fingerprint wrote
+    byte-identical results, which is the strongest cross-platform statement the
+    dashboard can make; differing fingerprints say only that some byte moved.
+    """
+    if out.stat().st_size > _FINGERPRINT_MAX_BYTES:
+        return None
+    h = hashlib.sha256()
+    with out.open("rb") as fh:
+        for block in iter(lambda: fh.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()[:16]
 
 
 def _shard(text: str) -> tuple[int, int]:
@@ -383,8 +410,8 @@ def run(argv: list[str] | None = None) -> dict | None:
 
     envelope = scoring.new_envelope(SUITE, engines.engine_sha())
     # Sharded CI jobs on two OSes publish eight parity envelopes for one engine
-    # SHA; without these the dashboard cannot tell them apart.
-    envelope["platform"] = platform.system()
+    # SHA; without the shard (and new_envelope's platform) the dashboard cannot
+    # tell them apart.
     if args.shard:
         envelope["shard"] = "{}/{}".format(*args.shard)
     RESULTS.mkdir(parents=True, exist_ok=True)
@@ -540,10 +567,22 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                             else "ERROR" if info.get("launched", True)
                             else "UNAVAILABLE"),
                 "wall": info.get("wall"),
+                "peak_rss_mb": info.get("peak_rss_mb"),
                 "continuity_err": info.get("routing_err"),
                 "runoff_err": info.get("runoff_err"),
+                "groundwater_err": info.get("groundwater_err"),
                 "quality_err": info.get("worst_quality_err"),
                 "pct_not_converging": info.get("pct_not_converging"),
+                "avg_iter": info.get("avg_iter"),
+                "min_dt": info.get("min_dt"),
+                "avg_dt": info.get("avg_dt"),
+                "max_dt": info.get("max_dt"),
+                "links_instability": info.get("links_instability"),
+                "nodes_flooded": info.get("nodes_flooded"),
+                "nodes_surcharged": info.get("nodes_surcharged"),
+                "conduits_surcharged": info.get("conduits_surcharged"),
+                "out_bytes": info.get("out_bytes"),
+                "out_sha16": info.get("out_sha16"),
                 # Carried onto the cell so the published mass-balance badge can
                 # exclude models that never conserved mass in the first place
                 # (see the tag's definition in harness/schemas/tags.yaml).
