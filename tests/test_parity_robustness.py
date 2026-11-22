@@ -163,6 +163,28 @@ def test_engine_explanation_falls_back_when_report_is_silent(case, tmp_path,
     assert "wrote no .out" in info["stderr"]
 
 
+@pytest.mark.parametrize("report, expected", [
+    ("  ERROR 133: Node 11 has more than one outlet link.\n", "ERROR 133"),
+    ("nothing useful\n", "exit code 5"),
+])
+def test_nonzero_exit_without_stderr_still_says_why(case, tmp_path,
+                                                    monkeypatch, report,
+                                                    expected):
+    """openswmm-v6 rejects a model with exit 5 and a silent stderr; its
+    reasons are only in the .rpt. 979 Windows and 56 Linux nightly ERROR cells
+    carried an empty note this way."""
+    def fake_run(exe, inp, rpt, out, **kw):
+        Path(rpt).write_text(report, encoding="utf-8")
+        return {"ok": False, "launched": True, "returncode": 5,
+                "wall": 0.1, "stderr": ""}
+
+    monkeypatch.setattr(suite.runner, "run", fake_run)
+    engine = type("E", (), {"exe": Path("engine"), "id": "openswmm-v6"})()
+    info = suite._run_case(case, engine, tmp_path / "run", timeout=10)
+    assert info["ok"] is False
+    assert expected in info["stderr"]
+
+
 def test_successful_run_reports_produced_output(case, tmp_path, monkeypatch):
     def fake_run(exe, inp, rpt, out, **kw):
         Path(rpt).write_text("  Flow Routing Continuity\n", encoding="utf-8")

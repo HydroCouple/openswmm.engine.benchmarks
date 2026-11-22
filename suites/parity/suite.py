@@ -300,6 +300,13 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
         engine_said = "; ".join(info["report_errors"][:2])
         info["ok"] = False
         info["stderr"] = (engine_said or why)[:500]
+    elif not info["ok"] and not info.get("stderr"):
+        # openswmm-v6 rejects a model with a non-zero exit, its reasons only
+        # in the .rpt and nothing on stderr, so its ERROR cells carried an
+        # empty note and every rejection read the same as a crash.
+        info["stderr"] = ("; ".join(info["report_errors"][:2])
+                          or f"exit code {info.get('returncode')} with no "
+                             "message and no report errors")[:500]
     return info
 
 
