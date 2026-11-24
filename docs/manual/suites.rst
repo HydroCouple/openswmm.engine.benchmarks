@@ -149,7 +149,20 @@ cells that count toward the ``verification`` badge.
    references. Runs and the envelope
    stay inside the suite folder. The committed
    :repo:`suites/analytical/swashes/SWASHES_REPORT.md` holds the last full
-   matrix. Options: ``--cases <glob>``, ``--solvers a,b``, ``--force``.
+   matrix. Options: ``--cases <glob>``, ``--solvers a,b``, ``--force``,
+   ``--shard K/N`` (every Nth case-solver cell) and ``--ci-resolution``.
+
+   Since the cases were refined to 1 m (2026-08-13) the seven long McDonald
+   cases cost 5–70 min per solver, more than a Nightly job can hold. Each
+   carries a ``ci_nx`` (dx 5 m, 20 m for ``macdonald-periodic``); with
+   ``--ci-resolution`` they run at it and are graded only against a pin made
+   at that resolution in ``cases/<id>/baselines/ci/``, written to
+   ``swashes_ci_scores.json``. A coarse run is not their analytic verdict:
+   measured on 2026-11-22, DW improves when coarse (``macdonald-periodic``
+   FAILs at 1 m and passes at 20 m) and FV worsens. The Nightly passes
+   ``--ci-resolution``; ``swashes_weekly.yml`` grades every case at full
+   resolution. Pin a reviewed coarse run with
+   ``python run_swashes.py pin-baseline --ci --case ID --solver ID``.
 
 ``analytical/transitions``
    Three cases for the moment a pipe goes from open-channel flow to

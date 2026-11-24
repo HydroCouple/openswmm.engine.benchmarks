@@ -15,6 +15,9 @@ CASES_DIR = SUITE_ROOT / "cases"
 RUNS_DIR = SUITE_ROOT / "runs"
 FIGURES_DIR = SUITE_ROOT / "figures"
 SCORES_FILE = SUITE_ROOT / "swashes_scores.json"
+# --ci-resolution runs (CI) keep their own envelope so a local run of them
+# never overwrites the full-resolution results.
+CI_SCORES_FILE = SUITE_ROOT / "swashes_ci_scores.json"
 REPORT_FILE = SUITE_ROOT / "SWASHES_REPORT.md"
 
 GRAVITY = 9.81  # m/s^2 — SWASHES value; all suite math is SI

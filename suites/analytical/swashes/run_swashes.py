@@ -28,6 +28,9 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--force", action="store_true")
     p_run.add_argument("--nx-sweep", action="store_true",
                        help="also run refine_nx resolutions (convergence)")
+    p_run.add_argument("--ci-resolution", action="store_true",
+                       help="run cases that have ci_nx at that resolution "
+                            "(nightly CI), graded against baselines/ci/")
 
     sub.add_parser("report", help="regenerate SWASHES_REPORT.md + figures")
 
@@ -40,6 +43,8 @@ def main(argv: list[str] | None = None) -> int:
                            help="pin current extracted profile as baseline")
     p_pin.add_argument("--case", required=True)
     p_pin.add_argument("--solver", required=True)
+    p_pin.add_argument("--ci", action="store_true",
+                       help="pin the CI-resolution run into baselines/ci/")
 
     p_2dr = sub.add_parser("gen-2d-ref",
                            help="build/run/pin 2D references (bend family)")
@@ -63,7 +68,8 @@ def main(argv: list[str] | None = None) -> int:
                                       solver_ids=(args.solvers.split(",")
                                                   if args.solvers else None),
                                       force=args.force,
-                                      nx_sweep=args.nx_sweep)
+                                      nx_sweep=args.nx_sweep,
+                                      ci_resolution=args.ci_resolution)
         from harness import scoring
         print(scoring.summary(envelope))
         return scoring.exit_code(envelope)
@@ -73,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "pin-baseline":
         from swasheslib import runcase
-        print(runcase.pin_baseline(args.case, args.solver))
+        print(runcase.pin_baseline(args.case, args.solver, ci=args.ci))
         return 0
     if args.cmd == "gen-2d-ref":
         from swasheslib import gen2dref

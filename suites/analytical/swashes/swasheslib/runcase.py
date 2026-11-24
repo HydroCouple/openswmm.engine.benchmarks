@@ -11,6 +11,7 @@ Verdict flow per cell policy mode (harness.scoring taxonomy):
 """
 from __future__ import annotations
 
+import dataclasses
 import fnmatch
 import shutil
 import numpy as np
@@ -78,8 +79,10 @@ def _analytic_metrics(case: CaseSpec, res: dict) -> dict:
     return worst
 
 
-def _baseline_metrics(case: CaseSpec, solver_id: str, res: dict) -> dict | None:
-    pin = config.CASES_DIR / case.id / "baselines" / f"{solver_id}.csv"
+def _baseline_metrics(case: CaseSpec, solver_id: str, res: dict,
+                      ci: bool = False) -> dict | None:
+    pin = (config.CASES_DIR / case.id / "baselines" / ("ci" if ci else "")
+           / f"{solver_id}.csv")
     if not pin.exists():
         return None
     base = extract.read_extracted_csv(pin)
@@ -96,8 +99,38 @@ def _baseline_metrics(case: CaseSpec, solver_id: str, res: dict) -> dict | None:
     return worst
 
 
+def ci_regression(case: CaseSpec, solver_id: str, res: dict, policy,
+                  mass_pct, mass_gate) -> tuple[str, list, dict | None]:
+    """Grade a CI-resolution run against its CI-resolution pin.
+
+    A coarse run is not an analytic verdict -- the documented 1 m findings
+    move with resolution -- so it is a regression check only: same answer as
+    the reviewed coarse run, or not.
+    """
+    bm = _baseline_metrics(case, solver_id, res, ci=True)
+    if bm is None:
+        return ("BASELINE-FAIL",
+                [f"no CI-resolution baseline pinned — review run, then "
+                 f"pin-baseline --ci --case {case.id} --solver {solver_id}"], None)
+    v, r = metrics.grade(bm, "baseline", policy.baseline_tol or {"l1_h": 0.005},
+                         mass_pct=mass_pct, mass_gate=mass_gate)
+    return v, r, bm
+
+
+def _ci_note(case: CaseSpec, full_nx: int) -> str:
+    return (f"CI resolution nx={case.nx} (dx {case.L / case.nx:g} m, 1 m is "
+            f"nx={full_nx}): regression against a CI-resolution pin; the "
+            f"analytic verdict runs weekly at full resolution")
+
+
 def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
-             nx: int | None = None) -> dict:
+             nx: int | None = None, ci: bool = False) -> dict:
+    """``ci``: run a case that has ``ci_nx`` at that resolution, graded by
+    ``ci_regression``; a case without ``ci_nx`` runs as usual."""
+    full_nx = case.nx
+    ci = ci and bool(case.ci_nx) and nx is None
+    if ci:
+        case = dataclasses.replace(case, nx=case.ci_nx)
     cell: dict = {"case": case.id, "solver": solver.id,
                   "nx": nx or case.nx, "dt": case.dt_routing,
                   "mode": None}
@@ -119,7 +152,8 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
             cell["reason"] = ("2D path pending engine [2D_TRIANGLES] "
                               "INIT_DEPTH support")
             return cell
-        return runcase2d.run_cell_2d(case, solver, policy, cell, force=force)
+        return runcase2d.run_cell_2d(case, solver, policy, cell, force=force,
+                                     ci=ci, full_nx=full_nx)
 
     exe = _exe_for(solver)
     if not engines.available(exe):
@@ -133,8 +167,8 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
             cell["reason"] = f"adverse slope (min {s_min:.5f}) — KW inapplicable"
             return cell
 
-    d = _cell_dir(case.id, solver.id, None if (nx or case.nx) == case.nx
-                  else nx)
+    d = _cell_dir(case.id, solver.id, case.nx if ci else
+                  None if (nx or case.nx) == case.nx else nx)
     inp = d / "model.inp"
     text = gen1d.build_inp(case, solver, nx)
     sha = None
@@ -208,7 +242,14 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
         mass_gate=mass_gate, steady_resid=steady_resid,
         steady_gate=case.steady_gate or STEADY_GATE)
 
-    if policy.mode == "analytic":
+    if ci:
+        cell["mode"] = "ci-baseline"
+        cell["analytic_verdict"] = a_verdict
+        cell["verdict"], cell["reasons"], bm = ci_regression(
+            case, solver.id, res, policy, mass_pct, mass_gate)
+        if bm is not None:
+            cell["baseline_metrics"] = bm
+    elif policy.mode == "analytic":
         cell["verdict"], cell["reasons"] = a_verdict, a_reasons
     elif policy.mode == "xfail":
         cell["verdict"] = "XPASS" if a_verdict == "PASS" else "XFAIL"
@@ -231,7 +272,9 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
                                      mass_gate=mass_gate)
                 cell["verdict"], cell["reasons"] = v, r
                 cell["baseline_metrics"] = bm
-    if policy.note:
+    if ci:
+        cell["note"] = _ci_note(case, full_nx)
+    elif policy.note:
         cell["note"] = policy.note
     return cell
 
@@ -239,26 +282,41 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
 def run_matrix(case_glob: str | None = None,
                solver_ids: list[str] | None = None, *,
                force: bool = False, nx_sweep: bool = False,
-               max_wall: float | None = None) -> dict:
-    envelope = scoring.load(config.SCORES_FILE) or scoring.new_envelope(
+               max_wall: float | None = None,
+               ci_resolution: bool = False,
+               shard: tuple[int, int] | None = None) -> dict:
+    """``shard=(K, N)`` runs every Nth (case, solver) cell starting at the
+    Kth, so one case's solvers spread across jobs (the weekly full-resolution
+    sweep: macdonald-periodic alone is hours of solvers)."""
+    scores_file = config.CI_SCORES_FILE if ci_resolution else config.SCORES_FILE
+    envelope = scoring.load(scores_file) or scoring.new_envelope(
         "swashes", engines.engine_sha())
     envelope["engine_sha"] = engines.engine_sha()
+    k, n = shard or (1, 1)
+    if shard:
+        envelope["shard"] = f"{k}/{n}"
     ledger = runtime.load()
+    index = -1
     for case in all_cases():
         if case_glob and not fnmatch.fnmatch(case.id, case_glob):
             continue
         too_slow = runtime.skip_reason(ledger, "swashes", case.id, max_wall)
         if too_slow:
+            if k != 1:
+                continue                  # the first shard records the skip
             runtime.warn(f"{case.id}: {too_slow}")
-            scoring.save_cell(config.SCORES_FILE, envelope,
+            scoring.save_cell(scores_file, envelope,
                               {"case": case.id, "solver": "-",
                                "verdict": "SKIP", "note": too_slow})
             continue
         for solver in SOLVERS:
             if solver_ids and solver.id not in solver_ids:
                 continue
-            cell = run_cell(case, solver, force=force)
-            scoring.save_cell(config.SCORES_FILE, envelope, cell)
+            index += 1
+            if index % n != k - 1:
+                continue
+            cell = run_cell(case, solver, force=force, ci=ci_resolution)
+            scoring.save_cell(scores_file, envelope, cell)
             v = cell["verdict"]
             extras = "; ".join(cell.get("reasons", [])[:1])
             print(f"{case.id:<24s} {solver.id:<18s} {v:<14s} {extras}")
@@ -272,20 +330,24 @@ def run_matrix(case_glob: str | None = None,
                     if sub["verdict"] not in ("ERROR",):
                         sub["verdict"] = "SKIP"   # refinement rows never gate
                         sub["reason"] = "nx-refinement sweep (informational)"
-                    scoring.save_cell(config.SCORES_FILE, envelope, sub)
+                    scoring.save_cell(scores_file, envelope, sub)
                     print(f"  nx={rnx:<5d} {solver.id:<18s} "
                           f"{sub['verdict']:<14s} "
                           f"l1_h={sub.get('metrics', {}).get('l1_h')}")
     return envelope
 
 
-def pin_baseline(case_id: str, solver_id: str) -> str:
+def pin_baseline(case_id: str, solver_id: str, ci: bool = False) -> str:
+    """Pin a reviewed run's extracted profile. ``ci`` pins the CI-resolution
+    run (``run --ci-resolution``) into baselines/ci/."""
     case = case_by_id(case_id)
-    src = _cell_dir(case.id, solver_id) / "extracted.csv"
+    if ci and not case.ci_nx:
+        raise SystemExit(f"{case_id} has no ci_nx; its CI run is its full run")
+    src = _cell_dir(case.id, solver_id, case.ci_nx if ci else None) / "extracted.csv"
     if not src.exists():
         raise SystemExit(f"no extracted.csv for {case_id}/{solver_id} — "
                          "run the cell first")
-    dst_dir = config.CASES_DIR / case.id / "baselines"
+    dst_dir = config.CASES_DIR / case.id / "baselines" / ("ci" if ci else "")
     dst_dir.mkdir(parents=True, exist_ok=True)
     dst = dst_dir / f"{solver_id}.csv"
     shutil.copyfile(src, dst)

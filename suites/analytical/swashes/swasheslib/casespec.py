@@ -57,6 +57,10 @@ class CaseSpec:
     steady_gate: float | None = None
     nx: int = 100
     refine_nx: tuple = ()
+    # Nightly CI resolution for a case too slow at nx (owner 2026-11-22):
+    # with --ci-resolution it runs at ci_nx (same dt) and is graded against a
+    # CI-resolution pin in baselines/ci/; the nx analytic verdict runs weekly.
+    ci_nx: int | None = None
     h_dry_frac: float = 1e-3
     steady: bool = True
     rain: float | None = None       # m/s — uniform rain, emitted as per-node

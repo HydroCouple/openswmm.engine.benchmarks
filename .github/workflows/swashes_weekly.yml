@@ -1,0 +1,87 @@
+# SWASHES graded against its analytic solutions at full resolution (1 m).
+#
+# The nightly runs the McDonald cases coarse (--ci-resolution) as a regression
+# check only: at 1 m they cost 5-70 min per solver, and their verdicts move
+# with resolution (DW improves coarse, FV worsens; measured 2026-11-22), so a
+# coarse run is never their analytic verdict. This is where the documented 1 m
+# findings are graded. It does not publish: a SWASHES-only run would replace
+# the dashboard's latest Nightly.
+name: SWASHES weekly
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: "0 10 * * 0"
+  workflow_dispatch:
+    inputs:
+      engine_ref:
+        description: openswmm.engine ref to build
+        default: swmm6_rel
+        required: false
+
+env:
+  OMP_NUM_THREADS: 1
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  sweep:
+    name: SWASHES (${{ matrix.platform.alias }}, ${{ matrix.shard }}/4)
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {os: ubuntu-latest, alias: Linux-x64}
+          - {os: windows-latest, alias: Windows-x64}
+        # Every fourth (case, solver) cell, so one case's solvers spread
+        # across jobs: macdonald-periodic alone is hours of solvers at 1 m.
+        shard: [1, 2, 3, 4]
+    runs-on: ${{ matrix.platform.os }}
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      - name: Build engines
+        uses: ./.github/actions/build-engine
+        with:
+          ref: ${{ inputs.engine_ref || 'swmm6_rel' }}
+
+      - name: Run SWASHES at full resolution
+        id: sweep
+        env:
+          BENCH_JOB_NAME: SWASHES (${{ matrix.platform.alias }}, ${{ matrix.shard }}/4)
+          BENCH_JOB_ID: ${{ job.check_run_id }}
+          BENCH_PART: swashes-${{ matrix.shard }}of4
+          BENCH_PLATFORM_ALIAS: ${{ matrix.platform.alias }}
+        run: |
+          python run_regression.py --suite analytical/swashes \
+            --shard ${{ matrix.shard }}/4 \
+            --tier weekly \
+            --max-wall 3600 \
+            --summary "$GITHUB_STEP_SUMMARY"
+        shell: bash
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swashes-${{ matrix.platform.alias }}-${{ matrix.shard }}of4
+          path: |
+            results/run.json
+            suites/analytical/swashes/swashes_scores.json
+            suites/analytical/swashes/runs/**/extracted.csv
+            suites/analytical/swashes/runs/**/model.rpt
+          retention-days: 30
+          if-no-files-found: warn
+
+      # continue-on-error above exists only so the artifact uploads.
+      - name: Gate on the sweep result
+        if: steps.sweep.outcome == 'failure'
+        run: |
+          echo "::error::the SWASHES sweep reported failures; see the job summary"
+          exit 1

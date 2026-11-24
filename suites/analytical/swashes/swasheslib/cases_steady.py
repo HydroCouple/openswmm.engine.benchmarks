@@ -260,7 +260,7 @@ STEADY_CASES = [
         downstream=BC("stage", eta=_mac_sub_eta_L()),
         h0=None,                                     # dry start (paper)
         t_end=6000.0, dt_routing=0.04, report_step=60.0,  # c_max ~ 6.0 m/s
-        compare_times=(6000.0,), nx=1000, refine_nx=(200,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(6000.0,), nx=1000, refine_nx=(200,), ci_nx=200,  # dx=1.0 (2026-08-13 hires)
         # Recorded deviation (2026-08-13, dx=1.0): NONE was fine at dx=2.5 but
         # the undamped odd-even mode is CATASTROPHIC at dx=1.0 — every DW
         # column l1 6.6 (662%), never steady (drift 0.49), node continuity
@@ -288,7 +288,7 @@ STEADY_CASES = [
         upstream=BC("inflow_q", q=2.5), downstream=BC("free"),
         h0=None,
         t_end=6000.0, dt_routing=0.035, report_step=60.0,  # c_max ~ 7.0 m/s
-        compare_times=(6000.0,), nx=1000, refine_nx=(200,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(6000.0,), nx=1000, refine_nx=(200,), ci_nx=200,  # dx=1.0 (2026-08-13 hires)
         interior_mask=(0.05, 1.0),
         # Recorded deviation (2026-08-13): at dx=2.5 the undamped NONE block
         # checkerboards this supercritical channel (DW l1 11.6%, VJ 15.6%,
@@ -360,7 +360,7 @@ STEADY_CASES = [
         upstream=BC("inflow_q", q=2.0), downstream=BC("free"),
         h0=None,                                     # dry start (paper)
         t_end=6000.0, dt_routing=0.04, report_step=60.0,  # c_max ~ 5.7 m/s
-        compare_times=(6000.0,), nx=1000, refine_nx=(200,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(6000.0,), nx=1000, refine_nx=(200,), ci_nx=200,  # dx=1.0 (2026-08-13 hires)
         opts_1d={"INERTIAL_DAMPING": "PARTIAL"},
         opts_2d={"FROUDE_MAX": "3"},
         cells={
@@ -402,7 +402,7 @@ STEADY_CASES = [
         downstream=BC("stage", eta=_mac_jump_eta),
         h0=None,
         t_end=6000.0, dt_routing=0.04, report_step=60.0,  # c_max ~ 6.0 m/s
-        compare_times=(6000.0,), nx=1000, refine_nx=(200,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(6000.0,), nx=1000, refine_nx=(200,), ci_nx=200,  # dx=1.0 (2026-08-13 hires)
         interior_mask=(0.05, 1.0),      # upstream q+h cannot both be pinned
         opts_1d={"INERTIAL_DAMPING": "PARTIAL"},
         # dx=1.0 (2026-08-13): the 2D strip's jump-toe seiche no longer
@@ -592,7 +592,7 @@ STEADY_CASES = [
         downstream=BC("stage", eta=_mac_per_eta),
         h0=lambda x: np.maximum(_mac_per_eta - _mac_per_z(x), 0.0),
         t_end=12000.0, dt_routing=0.04, report_step=120.0,  # c_max ~ 5.2 m/s
-        compare_times=(12000.0,), nx=5000, refine_nx=(250,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(12000.0,), nx=5000, refine_nx=(250,), ci_nx=250,  # dx=1.0 (2026-08-13 hires)
         cells={
             # ENGINE FINDING (deliberate red, 2026-08-13, dx=1.0 — see
             # runs/_periodic_probe/FINDINGS.md): DW PASSED here at dx=10
@@ -630,7 +630,7 @@ STEADY_CASES = [
         downstream=BC("stage", eta=_mac_rsub_eta),
         h0=None, rain=0.001,
         t_end=6000.0, dt_routing=0.04, report_step=60.0,
-        compare_times=(6000.0,), nx=1000, refine_nx=(200,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(6000.0,), nx=1000, refine_nx=(200,), ci_nx=200,  # dx=1.0 (2026-08-13 hires)
         # Recorded deviation (2026-08-13, dx=1.0): same catastrophic undamped
         # checkerboard as macdonald-long-sub at this resolution (all DW
         # columns l1 4.65, and the violent oscillation drives depths above
@@ -669,7 +669,7 @@ STEADY_CASES = [
         # adjustment (at 6000 the drift window STARTED at tR, resid 0.021;
         # at 9000 the finer dx=2.5 grid still read its tail, resid 0.046)
         t_end=12000.0, dt_routing=0.03, report_step=60.0,
-        compare_times=(12000.0,), nx=1000, refine_nx=(200,),  # dx=1.0 (2026-08-13 hires)
+        compare_times=(12000.0,), nx=1000, refine_nx=(200,), ci_nx=200,  # dx=1.0 (2026-08-13 hires)
         interior_mask=(0.05, 1.0),
         # The rained steady state is Vedernikov-UNSTABLE over most of the
         # channel (q grows to 3.5 m²/s while h follows eq. 13: Fr up to 2.1,

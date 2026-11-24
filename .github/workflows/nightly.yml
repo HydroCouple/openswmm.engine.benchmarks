@@ -45,12 +45,16 @@ jobs:
         # Linux job reached 889 of 1,402 cases in 5.3 h and was canceled, every
         # night since October. Parity is split across four jobs, each with its
         # own time limit; every other suite runs once in a fifth.
+        # --ci-resolution: the SWASHES McDonald cases cost 5-70 min per solver
+        # at 1 m, and SWASHES alone ran out the job's time on 2026-11-22. Here
+        # they run coarse as a regression check; the 1 m analytic verdict runs
+        # in swashes_weekly.yml.
         part:
           - {name: parity-1of4, args: --suite parity --shard 1/4}
           - {name: parity-2of4, args: --suite parity --shard 2/4}
           - {name: parity-3of4, args: --suite parity --shard 3/4}
           - {name: parity-4of4, args: --suite parity --shard 4/4}
-          - {name: other-suites, args: --suite all --exclude parity}
+          - {name: other-suites, args: --suite all --exclude parity --ci-resolution}
     runs-on: ${{ matrix.platform.os }}
     # A full-corpus sweep can outrun the 6h default, and a
     # canceled job reads as infrastructure noise rather than a result.

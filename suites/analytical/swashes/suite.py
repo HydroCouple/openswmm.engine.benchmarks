@@ -44,18 +44,25 @@ def run(argv: list[str] | None = None) -> dict | None:
         case_glob = argv[argv.index("--cases") + 1]
     if "--solvers" in argv:
         solver_ids = argv[argv.index("--solvers") + 1].split(",")
-    # Honored for uniformity with the rest of the platform, though no case
-    # here comes close: the slowest cell in this suite is bend00-gentle on
-    # 1d-dynwave-vj at ~50 s, a sixth of the 300 s CI threshold. Every case
-    # therefore keeps running on Actions and keeps being graded against the
-    # Delestre closed-form solutions, which is the whole point of the suite —
-    # a SKIP here would silently drop cells out of the verification badge.
+    # Honored for uniformity with the rest of the platform. Since the
+    # 2026-08-13 1 m re-resolution the McDonald cases cost 5-70 min per
+    # solver (macdonald-periodic is 5,000 links at dt 0.04 s), so the nightly
+    # passes --ci-resolution: cases with a ci_nx run coarse as a regression
+    # check, and the full-resolution analytic verdict runs weekly. A SKIP here
+    # would silently drop cells out of the verification badge.
     if "--max-wall" in argv:
         max_wall = float(argv[argv.index("--max-wall") + 1])
+    shard = None
+    if "--shard" in argv:
+        shard = tuple(int(x) for x in argv[argv.index("--shard") + 1].split("/"))
+        if len(shard) != 2 or not 1 <= shard[0] <= shard[1]:
+            raise SystemExit(f"--shard needs K/N with 1 <= K <= N, got {shard}")
     return _stamp(runcase.run_matrix(case_glob=case_glob,
                                      solver_ids=solver_ids,
                                      force="--force" in argv,
-                                     max_wall=max_wall))
+                                     max_wall=max_wall,
+                                     ci_resolution="--ci-resolution" in argv,
+                                     shard=shard))
 
 
 def report(argv: list[str] | None = None) -> list[Path]:

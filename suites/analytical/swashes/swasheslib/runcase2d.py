@@ -37,9 +37,10 @@ def extract_for_case(case: CaseSpec, h5) -> dict:
 
 
 def run_cell_2d(case: CaseSpec, solver: SolverSpec, policy: CellPolicy,
-                cell: dict, *, force: bool = False) -> dict:
+                cell: dict, *, force: bool = False, ci: bool = False,
+                full_nx: int | None = None) -> dict:
     from .runcase import (_analytic_metrics, _baseline_metrics, _cell_dir,
-                          _reference_at)
+                          _ci_note, _reference_at, ci_regression)
 
     exe = engines.REFACT_EXE
     if not engines.available(exe):
@@ -47,7 +48,7 @@ def run_cell_2d(case: CaseSpec, solver: SolverSpec, policy: CellPolicy,
         cell["reason"] = f"missing executable {exe}"
         return cell
 
-    d = _cell_dir(case.id, solver.id)
+    d = _cell_dir(case.id, solver.id, case.nx if ci else None)
     inp = d / "model.inp"
     h5 = d / "surface.h5"
     text = gen2d.build_inp(case, solver, "surface.h5")
@@ -107,7 +108,14 @@ def run_cell_2d(case: CaseSpec, solver: SolverSpec, policy: CellPolicy,
         steady_resid=steady_resid,
         steady_gate=case.steady_gate or STEADY_GATE)
 
-    if policy.mode == "analytic":
+    if ci:
+        cell["mode"] = "ci-baseline"
+        cell["analytic_verdict"] = a_verdict
+        cell["verdict"], cell["reasons"], bm = ci_regression(
+            case, solver.id, res, policy, mass_pct, mass_gate)
+        if bm is not None:
+            cell["baseline_metrics"] = bm
+    elif policy.mode == "analytic":
         cell["verdict"], cell["reasons"] = a_verdict, a_reasons
     elif policy.mode == "xfail":
         cell["verdict"] = "XPASS" if a_verdict == "PASS" else "XFAIL"
@@ -129,6 +137,8 @@ def run_cell_2d(case: CaseSpec, solver: SolverSpec, policy: CellPolicy,
                                      mass_pct=mass_pct, mass_gate=mass_gate)
                 cell["verdict"], cell["reasons"] = v, r
                 cell["baseline_metrics"] = bm
-    if policy.note:
+    if ci:
+        cell["note"] = _ci_note(case, full_nx)
+    elif policy.note:
         cell["note"] = policy.note
     return cell

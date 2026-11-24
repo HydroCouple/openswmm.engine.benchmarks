@@ -26,7 +26,8 @@ engine merge).
      - Five jobs on each of Linux and Windows, each building the engines from
        ``engine_ref`` (default ``swmm6_rel``): four run
        ``run_regression.py --suite parity --shard K/4`` and one runs
-       ``--suite all --exclude parity``, all with ``--tier nightly
+       ``--suite all --exclude parity --ci-resolution`` (the slow SWASHES
+       cases run coarse, see :doc:`../suites`), all with ``--tier nightly
        --max-wall 300 --summary --badges``. Each uploads its evidence
        (``results/`` and ``badges/``) as ``results-<os>-<part>``, records
        that artifact's URL in the run manifest, uploads the manifest, the
@@ -56,6 +57,13 @@ engine merge).
        manual
      - The UK river tests, the ``pr`` pilot, and outside pull requests the
        full available-evidence sweep.
+   * - ``swashes_weekly.yml``
+     - Sundays 10:00 UTC; manual (``engine_ref``)
+     - SWASHES at full resolution against its analytic solutions, four
+       ``--shard K/4`` jobs on each of Linux and Windows with ``--max-wall
+       3600``. Uploads the envelope, extracted profiles and reports as
+       ``swashes-<os>-<K>of4`` and fails if the sweep failed. It does not
+       publish: a SWASHES-only run would replace the dashboard's Nightly.
    * - ``documentation.yml``
      - Push or pull request to ``dev`` or ``main`` touching the manual or the
        Python sources it documents; manual
@@ -87,7 +95,10 @@ case measured to cost more is skipped there with a warning, and cases with a
 job for the whole parity corpus did not fit (it reached 889 of 1,402 cases),
 which is why parity runs as four ``--shard`` jobs. A shard takes every fourth
 case of the selection, so the large networks, which sort together, spread
-across all four.
+across all four. SWASHES ran the other-suites job out of time on 2026-11-22
+(five hours in the 1 m McDonald cases), which is why the Nightly runs those
+cases coarse with ``--ci-resolution`` and ``swashes_weekly.yml`` runs them at
+full resolution, split by case-solver cell.
 
 Things to know
 ==============
