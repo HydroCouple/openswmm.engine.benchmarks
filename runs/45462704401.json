@@ -1,0 +1,135 @@
+{
+ "benchmarks_sha": "c3e5469",
+ "description": "Nightly (scheduled) \u00b7 swmm6_rel@468796ff",
+ "engine": {
+  "commit_date": "2026-11-24T13:09:18-05:00",
+  "ref": "swmm6_rel",
+  "sha": "468796ff",
+  "sha_full": "468796ff879d4e8ff7639e61ae44c415dfee1bee",
+  "subject": "Build development wheels on a manual run on swmm6_rel"
+ },
+ "event": "schedule",
+ "groups": [
+  {
+   "cells": 3,
+   "engines": {
+    "cpu": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 3,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "UNAVAILABLE": 3
+   }
+  },
+  {
+   "cells": 29,
+   "engines": {
+    "cpu": {
+     "continuity_worst": 1.7875617269328588,
+     "passed": 27,
+     "peak_rss_max": null,
+     "runs": 29,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "PASS": 27,
+    "UNAVAILABLE": 2
+   }
+  },
+  {
+   "cells": 3925,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064495.696,
+     "passed": 1048,
+     "peak_rss_max": 1442.6,
+     "runs": 1263,
+     "stable_pct": 50.51,
+     "wall_median": 0.28192185849991347,
+     "wall_p90": 29.791804147999983,
+     "wall_total": 13272.175
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064495.696,
+     "passed": 1049,
+     "peak_rss_max": 2898.5,
+     "runs": 1263,
+     "stable_pct": 50.45,
+     "wall_median": 0.1412592379997477,
+     "wall_p90": 21.73454874999993,
+     "wall_total": 10463.826
+    }
+   },
+   "gating": 401,
+   "platform": "Linux-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 398,
+    "FAIL": 3,
+    "PASS": 3136,
+    "SKIP": 136,
+    "UNAVAILABLE": 201,
+    "XFAIL": 45
+   }
+  },
+  {
+   "cells": 3925,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064499.291,
+     "passed": 1048,
+     "peak_rss_max": null,
+     "runs": 1263,
+     "stable_pct": 50.51,
+     "wall_median": 0.28408394999996744,
+     "wall_p90": 30.86203639999985,
+     "wall_total": 14933.016
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064499.291,
+     "passed": 1049,
+     "peak_rss_max": null,
+     "runs": 1263,
+     "stable_pct": 50.45,
+     "wall_median": 0.19348390000004656,
+     "wall_p90": 26.65166599999975,
+     "wall_total": 13053.353
+    }
+   },
+   "gating": 401,
+   "platform": "Windows-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 398,
+    "FAIL": 3,
+    "PASS": 3136,
+    "SKIP": 136,
+    "UNAVAILABLE": 201,
+    "XFAIL": 45
+   }
+  }
+ ],
+ "id": "45462704401",
+ "schema": 1,
+ "started": "2026-11-24T18:53:03+00:00",
+ "url": "https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/runs/45462704401"
+}
