@@ -241,9 +241,11 @@ STEADY_CASES = [
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.05, "shock_err_m": 3.0,
                                              "mass_pct": 3.0}),
             "2d-explicit": CellPolicy(
-                "baseline", {"l1_h": 0.05, "shock_err_m": 3.0},
+                "analytic", {"l1_h": 0.05, "shock_err_m": 3.0},
                 baseline_tol=BASE_TOL,
-                note="local-inertial through a hydraulic jump"),
+                note="PROMOTED 2026-11-22: under FULL_SWE (the 2D default "
+                     "since 2026-11-13) l1 3.1% meets the analytic gates; the "
+                     "pinned local-inertial run was l1 11.8% (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "baseline", {"l1_h": 0.05, "shock_err_m": 3.0},
                 baseline_tol=BASE_TOL,
@@ -330,15 +332,13 @@ STEADY_CASES = [
                      "0.60%) and is machine-steady (resid 1e-8)"),
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
-                "xfail", {"l1_h": 0.04},
-                note="supercritical throughout; FROUDE_MAX 3. XFAIL: the "
-                     "local-inertial scheme carries no convective advection "
-                     "term, so the fully supercritical profile never "
-                     "steadies (roll-wave-like unsteadiness, drift ~0.9, q "
-                     "spikes with drying cells) — a physics limit, not a "
-                     "defect; requires a full-SWE momentum solver "
-                     "(investigated 2026-08-03: survives the inertial-BC, "
-                     "dt0-refresh and hysteresis fixes)"),
+                "analytic", {"l1_h": 0.04},
+                note="supercritical throughout; FROUDE_MAX 3. PROMOTED "
+                     "2026-11-22: it was XFAIL because local inertia carries "
+                     "no convective advection term and the profile never "
+                     "steadies; FULL_SWE (the 2D default since 2026-11-13) "
+                     "has it: l1 0.56%, local inertial still l1 10.0% "
+                     "(1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="supercritical throughout; FROUDE_MAX 3. XFAIL: the "
@@ -379,15 +379,11 @@ STEADY_CASES = [
                      "NONE (checkerboard mode of the undamped chain)"),
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
-                "baseline", {"l1_h": 0.04}, baseline_tol=BASE_TOL,
-                note="downstream half is supercritical — the "
-                     "macdonald-long-sup no-advection limit. The retired "
-                     "THETA 0.7/0.5 columns met the analytic gate here purely "
-                     "by adding q-centred smoothing over the residual "
-                     "sawtooth; the 0.8 default does not. That is a "
-                     "damping-tuning artefact, not a physics fix — the "
-                     "advection column is the term this case is actually "
-                     "missing"),
+                "analytic", {"l1_h": 0.04}, baseline_tol=BASE_TOL,
+                note="downstream half is supercritical. PROMOTED 2026-11-22: "
+                     "FULL_SWE (the 2D default since 2026-11-13) l1 0.10%; "
+                     "local inertial now meets the gate too, l1 2.1% "
+                     "(1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="never steadies with ADVECTION on (drift 0.34): the "
@@ -435,14 +431,13 @@ STEADY_CASES = [
                                 note="l1 0.65%, shock error 2.5 m — the "
                                      "shock-capturing reference column"),
             "2d-explicit": CellPolicy(
-                "baseline", {"l1_h": 0.05, "shock_err_m": 25.0},
+                "analytic", {"l1_h": 0.05, "shock_err_m": 25.0},
                 baseline_tol=BASE_TOL,
-                note="MET analytic at dx=2.5 (l1 3.0%, shock 2.5 m); at 1 m "
-                     "edges the jump-toe seiche no longer decays and the "
-                     "time-mean shock smears over x 430-520 (shock_err 69 m, "
-                     "l1 4.5%) — the local-inertial jump limitation "
-                     "resolution re-reveals. Analytic gates stay recorded; "
-                     "a better 2D scheme flips this cell loudly"),
+                note="PROMOTED 2026-11-22: FULL_SWE (the 2D default since "
+                     "2026-11-13) l1 0.54% meets the gates at 1 m, where "
+                     "local inertial had smeared the shock (shock_err 69 m, "
+                     "l1 4.5%, 2026-08); local inertial now meets them too, "
+                     "l1 3.0% (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.05, "shock_err_m": 25.0},
                 note="never steadies with ADVECTION on (drift 0.21, shock "
@@ -486,7 +481,12 @@ STEADY_CASES = [
             "2d-explicit": CellPolicy(
                 "baseline", {"l1_h": 0.05, "shock_err_m": 5.0},
                 baseline_tol=BASE_TOL,
-                note="local-inertial through a hydraulic jump"),
+                note="ENGINE FINDING 2026-11-22: FULL_SWE (the 2D default "
+                     "since 2026-11-13) is LESS accurate here than local "
+                     "inertial: l1 15.5% vs 7.0%, all of it a shallow jet at "
+                     "the SPECIFIED_FLOW inlet (HydroCouple/openswmm.engine#214). "
+                     "The baseline is re-pinned under FULL_SWE; local inertial "
+                     "reproduced the old pin exactly (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.05, "shock_err_m": 5.0},
                 note="never steadies with ADVECTION on (drift 0.057): "
@@ -524,9 +524,12 @@ STEADY_CASES = [
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
                 "xfail", {"l1_h": 0.04},
-                note="fully supercritical — macdonald-long-sup precedent: "
-                     "local inertia never steadies without the convective "
-                     "term"),
+                note="fully supercritical. XFAIL under FULL_SWE too (the 2D "
+                     "default since 2026-11-13), so the missing-advection "
+                     "reason no longer applies: FULL_SWE l1 17.1%, local "
+                     "inertial 5.5% — ENGINE FINDING: a shallow jet at the "
+                     "SPECIFIED_FLOW inlet, HydroCouple/openswmm.engine#214 "
+                     "(1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="l1 41% at CFL 0.5 (drifting); NOT a CFL-margin issue "
@@ -564,7 +567,12 @@ STEADY_CASES = [
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
                 "baseline", {"l1_h": 0.04}, baseline_tol=BASE_TOL,
-                note="supercritical downstream half — no-advection limit"),
+                note="ENGINE FINDING 2026-11-22: FULL_SWE (the 2D default "
+                     "since 2026-11-13) is LESS accurate here than local "
+                     "inertial: l1 25.1% vs 6.4%, all of it a shallow jet at "
+                     "the SPECIFIED_FLOW inlet (HydroCouple/openswmm.engine#214). "
+                     "The baseline is re-pinned under FULL_SWE; local inertial "
+                     "reproduced the old pin exactly (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="never steadies with ADVECTION on (drift 0.10): "

@@ -44,10 +44,10 @@ cells:
     mode: analytic
     tol: {'l1_h': 0.05, 'shock_err_m': 3.0, 'mass_pct': 3.0}
   2d-explicit:
-    mode: baseline
+    mode: analytic
     tol: {'l1_h': 0.05, 'shock_err_m': 3.0}
     baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
-    note: "local-inertial through a hydraulic jump"
+    note: "PROMOTED 2026-11-22: under FULL_SWE (the 2D default since 2026-11-13) l1 3.1% meets the analytic gates; the pinned local-inertial run was l1 11.8% (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"
   2d-explicit-adv:
     mode: baseline
     tol: {'l1_h': 0.05, 'shock_err_m': 3.0}

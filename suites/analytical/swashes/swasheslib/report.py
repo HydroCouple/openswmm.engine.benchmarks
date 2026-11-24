@@ -57,7 +57,7 @@ _STYLE = {
     "2d-explicit-adv":   ("#999999", "*", (0, (5, 2))),
 }
 _LABEL = {
-    "2d-explicit": "2d-explicit (local accel.)",
+    "2d-explicit": "2d-explicit (full SWE)",
     "2d-explicit-adv": "2d-explicit-adv (+advection)",
 }
 

@@ -41,10 +41,10 @@ cells:
     mode: analytic
     tol: {'l1_h': 0.04}
   2d-explicit:
-    mode: baseline
+    mode: analytic
     tol: {'l1_h': 0.04}
     baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
-    note: "downstream half is supercritical — the macdonald-long-sup no-advection limit. The retired THETA 0.7/0.5 columns met the analytic gate here purely by adding q-centred smoothing over the residual sawtooth; the 0.8 default does not. That is a damping-tuning artefact, not a physics fix — the advection column is the term this case is actually missing"
+    note: "downstream half is supercritical. PROMOTED 2026-11-22: FULL_SWE (the 2D default since 2026-11-13) l1 0.10%; local inertial now meets the gate too, l1 2.1% (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"
   2d-explicit-adv:
     mode: xfail
     tol: {'l1_h': 0.04}

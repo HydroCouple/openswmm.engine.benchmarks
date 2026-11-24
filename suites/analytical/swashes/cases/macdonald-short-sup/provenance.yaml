@@ -45,7 +45,7 @@ cells:
   2d-explicit:
     mode: xfail
     tol: {'l1_h': 0.04}
-    note: "fully supercritical — macdonald-long-sup precedent: local inertia never steadies without the convective term"
+    note: "fully supercritical. XFAIL under FULL_SWE too (the 2D default since 2026-11-13), so the missing-advection reason no longer applies: FULL_SWE l1 17.1%, local inertial 5.5% — ENGINE FINDING: a shallow jet at the SPECIFIED_FLOW inlet, HydroCouple/openswmm.engine#214 (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"
   2d-explicit-adv:
     mode: xfail
     tol: {'l1_h': 0.04}
