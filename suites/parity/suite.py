@@ -265,6 +265,48 @@ def _seed_run_dir(case: corpus.Case, run_dir: Path) -> Path:
     return run_dir / case.inp.name
 
 
+_SECTION = re.compile(r"^\s*\[([A-Za-z0-9_]+)\]")
+_DRIVE_QUOTED = re.compile(r'"([A-Za-z]:[\\/][^"]*)"')
+_DRIVE_BARE = re.compile(r'(?<![\S"])([A-Za-z]:[\\/][^\s"]+)')
+
+
+def _localize_outputs(model: Path) -> str:
+    """Point output files the deck names by another machine's absolute path
+    (``SAVE OUTFLOWS "D:\\...\\Extran3.txt"``, an [LID_USAGE] report file
+    ``"C:\\...\\drain_out.txt"``) at their bare file names in the run directory.
+
+    Legacy cannot open a drive that does not exist (ERROR 351 / 305 on
+    Windows), while on Linux the same path is a literal file name with
+    backslashes and a colon -- so one deck was an error on one platform and
+    a pass on the other. Only output columns change, and only in the SEEDED
+    copy: an input such as ``USE RAINFALL`` or a rain-gage FILE stays as
+    written, since the file it names is not in the corpus under any name.
+    """
+    data = model.read_bytes().decode("latin-1")
+    out, changed, section = [], 0, None
+
+    def local(m):
+        name = re.split(r"[\\/]", m.group(1))[-1]
+        return f'"{name}"' if m.group(0).startswith('"') else name
+
+    for line in data.splitlines(keepends=True):
+        m = _SECTION.match(line)
+        if m:
+            section = m.group(1).upper()
+        elif not line.lstrip().startswith(";") and (
+                (section == "FILES" and line.split()[:1] and line.split()[0].upper() == "SAVE")
+                or section == "LID_USAGE"):
+            new = _DRIVE_BARE.sub(local, _DRIVE_QUOTED.sub(local, line))
+            changed += new != line
+            line = new
+        out.append(line)
+    if not changed:
+        return ""
+    model.write_bytes("".join(out).encode("latin-1"))
+    return (f"seeded copy: {changed} output path(s) on another machine's drive "
+            f"written to the run directory")
+
+
 def _usable_output(out: Path) -> tuple[bool, str]:
     """Did the engine actually produce a readable ``.out``?
 
@@ -293,6 +335,7 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
     """Run one case through one engine; return run info + .rpt metrics."""
     out_dir.mkdir(parents=True, exist_ok=True)
     model = _seed_run_dir(case, out_dir)
+    localized_note = _localize_outputs(model)
     trim_note = ""
     if trim_h:
         # The SEEDED copy only — corpus/ holds the model exactly as it was
@@ -308,6 +351,7 @@ def _run_case(case: corpus.Case, engine: engines.Engine, out_dir: Path,
     info["rpt"] = rpt
     info["out"] = out
     info["trim_note"] = trim_note
+    info["localized_note"] = localized_note
 
     parsed = rptparse.parse(rpt)
     info["report_errors"] = [s for s in parsed.get("errors", [])
@@ -592,6 +636,7 @@ def _sweep_case(case, resolved, reg, scores, envelope, timeout,
                 # never be published as if they came from the full period.
                 "trimmed": bool(info.get("trim_note")),
                 "note": "; ".join(x for x in (info.get("trim_note"),
+                                              info.get("localized_note"),
                                               info.get("stderr", ""))
                                   if x)[:280]})
 

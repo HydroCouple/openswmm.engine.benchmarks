@@ -757,3 +757,28 @@ def test_failed_exit_cannot_supply_a_passing_comparison(case, tmp_path, monkeypa
     info = suite._run_case(case, engine, tmp_path / "run", timeout=10)
     assert not info["ok"]
     assert not info["produced_output"]
+
+
+def test_output_paths_on_another_machines_drive_are_written_locally(tmp_path):
+    """Legacy on Windows cannot open D:\\ (ERROR 351/305) while Linux writes a
+    file literally named after the path, so the same deck errored on one
+    platform and passed on the other (Nightly 45045451271: 30 cells). Only
+    output columns of the seeded copy change; inputs stay as written."""
+    deck = tmp_path / "model.inp"
+    deck.write_bytes(
+        b"[FILES]\r\n"
+        b';;SAVE OUTFLOWS "D:\\commented\\out.txt"\r\n'
+        b'SAVE Outflows/Calibration "D:\\SWMM\\OWA_EXTRAN\\Extran3.txt"\r\n'
+        b'USE RAINFALL "C:\\data\\rain.dat"\r\n'
+        b"\r\n[LID_USAGE]\r\n"
+        b'wBC BC 100 50 10 0 25 0 "C:\\Xing\\LID\\drain_out.txt" woBC 2\r\n'
+        b"CA-1 RB 10 1000 4 0 22 1 D:\\x\\CA-1_RB.txt\r\n")
+    note = suite._localize_outputs(deck)
+    text = deck.read_bytes()
+    assert b'SAVE Outflows/Calibration "Extran3.txt"\r\n' in text
+    assert b'"drain_out.txt" woBC 2\r\n' in text
+    assert b" 1 CA-1_RB.txt\r\n" in text
+    assert b'USE RAINFALL "C:\\data\\rain.dat"\r\n' in text
+    assert b';;SAVE OUTFLOWS "D:\\commented\\out.txt"\r\n' in text
+    assert note.startswith("seeded copy: 3 output path(s)")
+    assert suite._localize_outputs(deck) == ""          # idempotent on reuse
