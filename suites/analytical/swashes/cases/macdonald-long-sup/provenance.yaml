@@ -47,7 +47,7 @@ cells:
   2d-explicit:
     mode: analytic
     tol: {'l1_h': 0.04}
-    note: "supercritical throughout; FROUDE_MAX 3. PROMOTED 2026-11-22: it was XFAIL because local inertia carries no convective advection term and the profile never steadies; FULL_SWE (the 2D default since 2026-11-13) has it: l1 0.56%, local inertial still l1 10.0% (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"
+    note: "CI pin (nx 200) re-recorded 2026-11-24 after the FULL_SWE inlet fix (HydroCouple/openswmm.engine#214): l1 vs analytic 3.94 % -> 2.94 %, inlet depth 0.22 -> 0.90 m (a q-only inlet enters at critical depth, 0.74 m; the supercritical analytic inlet is 0.74 m too)."
   2d-explicit-adv:
     mode: xfail
     tol: {'l1_h': 0.04}

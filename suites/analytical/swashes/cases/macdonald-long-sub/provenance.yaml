@@ -41,7 +41,7 @@ cells:
   2d-explicit:
     mode: analytic
     tol: {'l1_h': 0.03}
-    note: "R=h native — no width correction"
+    note: "CI pin (nx 200) re-recorded 2026-11-24 after the FULL_SWE inlet fix (HydroCouple/openswmm.engine#214): l1 vs analytic 1.84 % -> 0.44 %, inlet depth 0.16 -> 0.82 m (analytic 0.75)."
   2d-explicit-adv:
     mode: analytic
     tol: {'l1_h': 0.03}

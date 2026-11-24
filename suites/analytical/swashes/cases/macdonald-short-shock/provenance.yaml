@@ -40,10 +40,10 @@ cells:
     tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
     note: "l1 0.38%, shock 0.08 m at dx=0.5"
   2d-explicit:
-    mode: baseline
+    mode: analytic
     tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
     baseline_tol: {'l1_h': 0.005, 'linf_h': 0.01}
-    note: "ENGINE FINDING 2026-11-22: FULL_SWE (the 2D default since 2026-11-13) is LESS accurate here than local inertial: l1 15.5% vs 7.0%, all of it a shallow jet at the SPECIFIED_FLOW inlet (HydroCouple/openswmm.engine#214). The baseline is re-pinned under FULL_SWE; local inertial reproduced the old pin exactly (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"
+    note: "FULL_SWE inlet jet fixed in the engine (HydroCouple/openswmm.engine#214, 2026-11-24: a SPECIFIED_FLOW inflow ghost is never shallower than the critical depth of its discharge); analytic tolerance met at nx (l1 within 5 %), so the cell is graded analytically again. Before the fix: l1 15.5 % from a shallow jet at the inlet; local inertial 7.0 %."
   2d-explicit-adv:
     mode: xfail
     tol: {'l1_h': 0.05, 'shock_err_m': 5.0}
