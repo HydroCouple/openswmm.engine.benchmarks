@@ -84,27 +84,42 @@ def measured(ledger: dict, suite: str, case: str) -> dict | None:
     return None
 
 
-def record(envelope: dict, path: Path | None = None) -> int:
+def record(envelopes: dict | list[dict], path: Path | None = None,
+           sweep: str | None = None) -> int:
     """Merge the wall times from a completed sweep into the ledger.
 
     Keeps the SLOWEST engine's time for each case: the gate is about what the
     case costs a runner, and a case is only as cheap as its slowest engine.
-    Returns the number of entries written or updated.
+    A sweep that spans several envelopes (CI shards, two platforms) must be
+    recorded in ONE call, so the slowest of them is kept rather than whichever
+    was recorded last. ``sweep`` labels the entries (default: the envelope's
+    timestamp). Returns the number of entries written or updated.
     """
     import yaml
-    suite = envelope.get("suite") or "?"
-    stamp = envelope.get("timestamp") or _dt.datetime.now().isoformat(
-        timespec="seconds")
+    if isinstance(envelopes, dict):
+        envelopes = [envelopes]
 
-    worst: dict[str, dict] = {}
-    for cell in envelope.get("cells") or []:
-        wall, case = cell.get("wall"), cell.get("case")
-        if wall is None or not case or wall < RECORD_FLOOR_S:
-            continue
-        if case not in worst or wall > worst[case]["wall_s"]:
+    worst: dict[tuple[str, str], dict] = {}
+    for envelope in envelopes:
+        suite = envelope.get("suite") or "?"
+        stamp = sweep or envelope.get("timestamp") or _dt.datetime.now().isoformat(
+            timespec="seconds")
+        where = f" ({envelope['platform']})" if envelope.get("platform") else ""
+        for cell in envelope.get("cells") or []:
+            wall, case = cell.get("wall"), cell.get("case")
+            if wall is None or not case or wall < RECORD_FLOOR_S:
+                continue
+            # A CI-trimmed run simulated a shortened period, so its wall time
+            # is not what the case costs; keep the full-length measurement
+            # that justifies the trim.
+            if cell.get("trimmed"):
+                continue
+            key = (suite, case)
+            if key in worst and wall <= worst[key]["wall_s"]:
+                continue
             entry = {
                 "wall_s": round(float(wall), 1),
-                "engine": cell.get("solver") or "?",
+                "engine": (cell.get("solver") or "?") + where,
                 "sweep": stamp,
             }
             # A killed run reports the timeout as its wall, so the recorded
@@ -113,14 +128,14 @@ def record(envelope: dict, path: Path | None = None) -> int:
             # what it costs.
             if "timeout" in str(cell.get("note", "")).lower():
                 entry["timed_out"] = True
-            worst[case] = entry
+            worst[key] = entry
 
     p = Path(path or LEDGER)
     ledger = load(p)
-    if worst:
-        bucket = ledger.setdefault("suites", {}).setdefault(suite, {})
-        bucket.update(worst)
-        ledger["suites"][suite] = dict(sorted(bucket.items()))
+    for (suite, case), entry in worst.items():
+        ledger.setdefault("suites", {}).setdefault(suite, {})[case] = entry
+    for suite in {s for s, _ in worst}:
+        ledger["suites"][suite] = dict(sorted(ledger["suites"][suite].items()))
 
     header = (
         "# Measured wall-clock seconds per case, worst engine, from local\n"
@@ -278,15 +293,19 @@ def main(argv: list[str] | None = None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--max-wall", type=float, default=DEFAULT_MAX_WALL_S,
                     help="threshold to report against (default %(default)s)")
-    ap.add_argument("--record", type=Path, metavar="SCORES.JSON",
-                    help="merge the wall times from a scores envelope "
-                         "into the ledger")
+    ap.add_argument("--record", type=Path, nargs="+", metavar="SCORES.JSON",
+                    help="merge the wall times from one sweep's scores "
+                         "envelopes into the ledger (all shards and platforms "
+                         "of a CI run in one call)")
+    ap.add_argument("--sweep", metavar="LABEL",
+                    help="what the entries say they were measured by, e.g. "
+                         "'CI nightly run 123, engine swmm6_rel abc1234'")
     args = ap.parse_args(argv)
 
     if args.record:
         import json
-        envelope = json.loads(args.record.read_text(encoding="utf-8"))
-        n = record(envelope)
+        envelopes = [json.loads(f.read_text(encoding="utf-8")) for f in args.record]
+        n = record(envelopes, sweep=args.sweep)
         print(f"recorded {n} case(s) over {RECORD_FLOOR_S:.0f}s into {LEDGER}")
         return 0
     return _census(args.max_wall)

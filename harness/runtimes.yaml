@@ -7,19 +7,59 @@
 #   python -m harness.runtime --record results/parity/scores_nightly.json
 suites:
   parity:
+    10-outfalls:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 332.7
+    1000yearsimulation-case0:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 495.4
+    1000yearsimulation-case0-wq:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 487.2
+    1000yearsimulation-case1:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 461.9
+    1000yearsimulation-case5:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 226.3
+    1000yearsimulation-case6:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 521.2
     10033-h-elements:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       timed_out: true
       wall_s: 600.0
+    108-pumps-fm:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 272.4
     1080-nodes:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 166.6
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 153.7
+    1084-nodes-84-rdii-si-units:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 294.8
     10860-nodes:
       engine: swmm-5.3.0 (Linux-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 415.2
+    1100-h-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 96.0
+    1138-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 69.6
     115468-nodes:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -31,9 +71,9 @@ suites:
       timed_out: true
       wall_s: 600.0
     1220-nodes:
-      engine: swmm-5.3.0
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 182.5
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 246.1
     12267-nodes:
       engine: swmm-5.3.0 (Linux-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -43,18 +83,34 @@ suites:
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       timed_out: true
       wall_s: 600.0
+    12350-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 176.3
+    12840-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 98.3
+    1350-h-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 424.9
     1350-nodes:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 76.7
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 102.8
     1365-nodes:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 75.7
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 106.7
+    1369-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 174.8
     14400-h-h-elements:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 228.5
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 327.1
     14434-nodes:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -73,22 +129,42 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 73.6
+    16-subs-continuous-usa-units:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 134.3
     1610-nodes-600-subs-si:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 66.4
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 78.7
+    1658-h-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 63.0
+    1771-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 135.5
+    20-pumps-26-rgs:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 163.6
+    20-subs-1050-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 142.9
     2002-nodes-19-rdii-nodes:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 132.1
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 217.5
     2009-nodes-si:
-      engine: swmm-5.3.0
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 149.5
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 297.2
     203-rg-model:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 121.3
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 230.4
     21491-nodes:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -100,9 +176,21 @@ suites:
       timed_out: true
       wall_s: 600.0
     2180-nodes:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 71.9
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 119.1
+    2227-nodes-rdii:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 83.6
+    2293-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 79.3
+    2348-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 211.3
     235-subs-rdii:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -111,15 +199,31 @@ suites:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 309.1
+    2451-h-h-elements-si-units:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 99.5
     24650-nodes:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       timed_out: true
       wall_s: 600.0
+    26500-h-elements-si-units:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 516.8
+    272-rdii-uh-2910-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 68.5
     3000-nodemodel:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 516.4
+    3010-h-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 85.8
     3224-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -129,10 +233,30 @@ suites:
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       timed_out: true
       wall_s: 600.0
+    3440-h-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 99.1
+    3472-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 306.6
+    3487-h-elements-si-units:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 173.4
     3900-h-h-elements:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 61.5
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 77.5
+    3974-subs-horton:
+      engine: swmm-5.3.0 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 65.6
+    418-subs-4300-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 71.4
     4190-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
@@ -142,21 +266,37 @@ suites:
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 304.4
     4610-h-h-elements:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 172.3
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 195.8
+    470-h-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 66.0
     48-subs:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 69.9
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 102.2
+    487-nodes-copper:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 86.1
     4873-nodes:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 490.5
+    4900-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 65.6
     4902-h-elements:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 310.6
+    495-subs:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 358.1
     49500-h-h-si-units-elements:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -166,6 +306,18 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 452.3
+    5250-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 240.2
+    534-node-tunnel-network-300-subs:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 66.3
+    54-nodes-kw:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 95.4
     5436-h-h-si-units:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
@@ -178,26 +330,221 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 310.6
+    57736-h-elements-si-units:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 288.4
     5920-nodes:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 460.5
+    6058-h-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 71.9
+    6250-h-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 62.3
+    6250-h-h-elements-f538d5:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 75.0
+    6450-h-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 78.4
+    6469-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 312.0
+    6500-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 230.9
     669-subs-4500-nodes:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 359.9
+    6715-nodes-400-subs:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 178.9
+    700-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 141.5
+    701-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 126.9
+    7145-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 301.8
+    72-h-h-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 71.5
+    757-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 264.5
+    761-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 65.5
+    78121-h-h-elements:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
+    80-subs:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 82.1
+    800-node-sewer:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 125.8
+    8117-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 365.4
+    8367-nodes:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
+    8394-h-h-elements:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
+    8485-nodes:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 98.4
+    8515-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 432.8
+    872-h-h-elements:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 94.0
+    9368-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 492.1
+    9651-nodes:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
     99-subs:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 62.1
+    99188-h-elements:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
+    bend:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 67.4
+    ddc-swmm-24hr-100yr:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 80.4
+    dr6:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 75.2
+    dummy-polygon-for-subcatchments:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 92.8
+    dynamic-wave-2-overflows:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 140.8
+    falsepumps:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 440.4
     ftr-prelim-model-updated:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 62.2
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 116.0
     greenville-6lidcontrols-all-lid-usage:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 102.4
+    indy-small:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 203.4
+    lakes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 239.7
+    linear-force-main:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 91.9
+    ll-export-2:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 76.8
+    long-ps-model:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
+    longts-extran1:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
+    many-gages:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 83.7
+    many-isolated-nodes:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 459.4
+    many-natural-channels:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 92.2
+    middlemillcreek-sw5:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 128.4
+    mj-dubai:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 255.8
+    nimmer:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 265.7
+    ocp-neid123-base-alt-v3-h:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 88.0
+    oneyear-extran1:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 416.8
+    pump-fm-w-rdii-50-elements:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 98.4
     session10-outfallbc-65-h-element:
       engine: swmm-5.3.0
       sweep: '2026-09-03T15:25:53'
@@ -206,18 +553,35 @@ suites:
       engine: openswmm-v6
       sweep: '2026-09-03T15:25:53'
       wall_s: 155.2
+    si-nippean:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 160.1
+    small-rdii-example:
+      engine: openswmm-v6 (Linux)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 81.8
     swmm-2ea-rw-gw:
       engine: openswmm-v6 (Linux-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 583.3
+    swsflooding:
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 165.2
     terreno-parz-saturo:
       engine: swmm-5.3.0 (Windows-x64)
       sweep: 2026-11-21 CI nightly run 44917809878, engine develop 8dd7387c
       wall_s: 460.2
+    test-base:
+      engine: swmm-5.3.0 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      timed_out: true
+      wall_s: 600.0
     v15-2002-nodes-19-rdii-nodes:
-      engine: openswmm-v6
-      sweep: '2026-09-03T15:25:53'
-      wall_s: 131.2
+      engine: openswmm-v6 (Windows)
+      sweep: 2026-11-22 CI nightly run 45045451271, engine swmm6_rel cf57af60
+      wall_s: 235.1
   uk_2d:
     uk-ea-2013-t02:
       engine: swmm2d-cpu-full-swe-rk2

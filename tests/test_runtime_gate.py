@@ -97,6 +97,32 @@ def test_record_flags_a_timeout(tmp_path):
     assert yaml.safe_load(p.read_text(encoding='utf-8'))["suites"]["parity"]["c"]["timed_out"]
 
 
+def test_record_keeps_the_slowest_platform_of_a_sweep(tmp_path):
+    """A CI sweep is eight envelopes. Recorded one by one, the last platform
+    used to replace the slower one before it."""
+    p = tmp_path / "runtimes.yaml"
+    runtime.record([
+        {"suite": "parity", "platform": "Windows", "cells": [
+            {"case": "c", "solver": "e", "wall": 600.0, "note": "timeout after 600s"}]},
+        {"suite": "parity", "platform": "Linux", "cells": [
+            {"case": "c", "solver": "e", "wall": 415.0}]},
+    ], p, sweep="CI nightly run 1")
+    assert yaml.safe_load(p.read_text(encoding='utf-8'))["suites"]["parity"]["c"] == {
+        "wall_s": 600.0, "engine": "e (Windows)", "sweep": "CI nightly run 1",
+        "timed_out": True}
+
+
+def test_record_skips_a_trimmed_run(tmp_path):
+    """A CI trim simulates a shorter period; its wall time must not replace
+    the full-length measurement that justifies the trim."""
+    p = tmp_path / "runtimes.yaml"
+    p.write_text(yaml.safe_dump({"suites": {"parity": {"c": {
+        "wall_s": 500.0, "engine": "e", "sweep": "full"}}}}), encoding="utf-8")
+    runtime.record({"suite": "parity", "cells": [
+        {"case": "c", "solver": "e", "wall": 250.0, "trimmed": True}]}, p)
+    assert yaml.safe_load(p.read_text(encoding='utf-8'))["suites"]["parity"]["c"]["wall_s"] == 500.0
+
+
 def test_a_missing_ledger_means_nothing_measured(tmp_path):
     """The gate must never be the reason a sweep cannot start."""
     assert runtime.load(tmp_path / "absent.yaml") == {"suites": {}}
