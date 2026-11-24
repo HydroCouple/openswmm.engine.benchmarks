@@ -962,7 +962,15 @@ fails locally rather than taking the nightly offline.
 
 ---
 
-## F24 — `[REPORT]` element selection: an accepted divergence, now graded as one · **ACCEPTED (flagged XFAIL)**
+## F24 — `[REPORT]` element selection: an accepted divergence, now graded as one · **RESOLVED by engine 5236ccc7**
+
+**Resolved 2026-11-22.** Engine 5236ccc7 (2026-10-03) made v6 read an `.inp`
+the way legacy does: no subcatchments, nodes or links are reported unless
+`[REPORT]` names them; ALL stays the default only for models built through the
+API. That reversed the decision recorded below. Both decks have compared
+bit-exact since (their `.out` files carry the system totals only), so their
+XFAIL entries graded XPASS (Nightly 45045451271) and were retired on the
+owner's call to keep 5236ccc7. The history below is kept as it was written.
 
 Legacy writes to the `.out` only the elements a deck's `[REPORT]` section asks
 for. Every object's `rptFlag` starts FALSE and is set only by an explicit
