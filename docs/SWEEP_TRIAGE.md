@@ -1020,9 +1020,8 @@ silent win. Those verdicts and that gating rule were already defined in
 
 - **`ERROR-MISMATCH`, 18 decks.** Seventeen are the `user1/3/5-*` family, whose
   `[XSECT]` rows use `SEMI_ELLIPTICAL`, `SEMI_CIRCULAR`, `MODBASKETHANDLE` or a
-  named `CUSTOM` shape. Legacy 5.3.0 rejects all four; v6 supports them. v6 is
-  a deliberate superset there, so no oracle can exist and these can never PASS.
-  Candidates for the same XFAIL treatment.
+  named `CUSTOM` shape. Since engine fd64e780 both engines reject them with the
+  same diagnostic; see [F25](#f25).
 - **Sweep timeouts.** `3974-subs-horton`, `8367-nodes` and `9651-nodes` have
   each been reported `PASS -> BOTH-ERROR` on one sweep and `PASS` on the next.
   All three hit the 1800 s per-deck cap under `--workers 6..8` while legacy
@@ -1034,17 +1033,24 @@ silent win. Those verdicts and that gating rule were already defined in
 <a id="f25"></a>
 ## F25 — pinned legacy rejection of extended cross-section decks
 
-Seventeen `user1-*`, `user3-*`, and `user5-*` decks are accepted by v6 but
-rejected by the pinned Sep-5 legacy oracle. Their metadata now records the
-specific legacy diagnostic in `expected_failures.report_error`:
+Seventeen `user1-*`, `user3-*`, and `user5-*` decks are invalid input, and
+both engines reject them with the same diagnostic. Their metadata records it in
+`expected_failures.report_error` with `engine: '*'`:
 
 - `user1/3/5-{all-closed-shapes,every-shape,semi-elliptical}`: `SEMI_ELLIPTICAL`, ERROR 205.
 - `user1/3/5-semi-circular`: `SEMI_CIRCULAR`, ERROR 205.
-- `user1/3/5-modbaskethandle`: `MODBASKETHANDLE`, ERROR 211.
-- `user3/5-custom-shape`: `CUSTOM` referencing `CustomShape`, ERROR 209.
+- `user1/3/5-modbaskethandle`: `MODBASKETHANDLE` with a zero bottom width
+  (Geom2 = 0.0), ERROR 211.
+- `user3/5-custom-shape`: `CUSTOM` referencing a `CustomShape` curve the deck
+  never defines, ERROR 209 (`user1-custom-shape` defines it and passes).
 
-These are exceptions for the authored decks against that oracle, not a claim
-that all legacy versions lack the shapes. No v6 capability is removed.
+SWMM's keywords are `SEMIELLIPTICAL` and `SEMICIRCULAR`; the decks add an
+underscore. This note first recorded the decks as accepted by v6 and rejected
+by legacy only. Engine fd64e780 (2026-09-27) made an unmatched cross-section
+keyword an error, as it is in legacy (v6 had run such a link as the default
+shape), so from then on v6 rejected them too and the legacy-only entries let
+v6's identical rejection gate (Nightly 45045451271, 2026-11-22). The entries
+now cover both engines.
 
 The former expected-failure path required two usable output files, so an input
 rejection bypassed it and produced a gating engine ERROR plus an UNAVAILABLE

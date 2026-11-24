@@ -679,6 +679,35 @@ def test_expected_input_rejection_requires_its_diagnostic(
     assert scoring.exit_code(envelope) == (0 if mode in ("expected", "unavailable") else 1)
 
 
+def test_a_rejection_documented_for_every_engine_xfails_both(case, tmp_path, monkeypatch):
+    """The F25 decks: both engines reject the same invalid keyword. With the
+    entry scoped to one engine, the other's identical rejection gated."""
+    from types import SimpleNamespace
+    from harness import scoring
+
+    case.meta["expected_failures"] = [{
+        "engine": "*", "reason": "invalid authored keyword",
+        "report_error": "ERROR 205: invalid keyword SEMI_ELLIPTICAL",
+    }]
+    monkeypatch.setattr(suite, "RESULTS", tmp_path / "runs")
+    pair = SimpleNamespace(a="legacy", b="v6", rtol=1e-9, atol=1e-12, gate="fail")
+    reg = SimpleNamespace(active_comparisons=lambda: [pair])
+    resolved = {eid: SimpleNamespace(id=eid) for eid in ("legacy", "v6")}
+
+    def fake_run(case, engine, out_dir, *args):
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return {"ok": False, "launched": True, "produced_output": False,
+                "out": out_dir / "model.out", "returncode": 0, "stderr": "",
+                "report_errors": ["ERROR 205: invalid keyword SEMI_ELLIPTICAL."]}
+
+    monkeypatch.setattr(suite, "_run_case", fake_run)
+    envelope = scoring.new_envelope("parity", "sha")
+    suite._sweep_case(case, resolved, reg, tmp_path / "scores.json", envelope,
+                      10, suite._Reclaimer(keep="none"))
+    assert [c["verdict"] for c in envelope["cells"]] == ["XFAIL", "XFAIL", "XFAIL"]
+    assert scoring.exit_code(envelope) == 0
+
+
 def test_readable_output_with_fatal_footer_is_not_usable(tmp_path):
     import struct
     p = write_out(tmp_path / 'fatal.out')
