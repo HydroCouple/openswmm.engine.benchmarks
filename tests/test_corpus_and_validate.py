@@ -301,3 +301,28 @@ def test_undeterminable_diff_validates_everything_rather_than_nothing(monkeypatc
 def test_resolvable_diff_still_narrows_to_changed_cases():
     """The fallback must not defeat the optimization when the ref is fine."""
     assert validate.changed_paths("HEAD") == []
+
+
+def test_an_id_used_by_another_directory_is_rejected(tmp_path):
+    """Two directories with one id overwrote each other's results, ledger
+    entries and run directories (77 ids, Nightly 45045451271)."""
+    a = _make_case(tmp_path / "epa")
+    b = _make_case(tmp_path / "hydraulics")
+    assert a.name == b.name
+    r = validate.validate_case(b, ids={a.name: [a, b]})
+    assert not r.ok
+    assert any("also used by" in e and str(a) in e for e in r.errors)
+
+
+def test_an_id_that_differs_from_its_directory_is_rejected(tmp_path):
+    case = _make_case(tmp_path)
+    renamed = case.parent / "other-name"
+    case.rename(renamed)
+    r = validate.validate_case(renamed)
+    assert any("must match the directory name" in e for e in r.errors)
+
+
+def test_committed_case_ids_are_unique_and_match_their_directories():
+    ids = validate.corpus_ids()
+    assert {k: v for k, v in ids.items() if len(v) > 1} == {}
+    assert [d for k, v in ids.items() for d in v if d.name != k] == []

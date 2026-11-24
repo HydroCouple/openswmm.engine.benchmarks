@@ -80,8 +80,23 @@ def is_absolute_anywhere(path: str) -> bool:
             or bool(re.match(r"^[A-Za-z]:[\\/]", p)))
 
 
-def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
-    """Validate one corpus case directory."""
+def corpus_ids() -> dict[str, list[Path]]:
+    """Every case directory in the corpus, by the id it declares."""
+    import yaml
+    ids: dict[str, list[Path]] = {}
+    for d in find_cases(None):
+        try:
+            meta = yaml.safe_load((d / "metadata.yaml").read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError:
+            meta = {}
+        ids.setdefault(str(meta.get("id", d.name)), []).append(d)
+    return ids
+
+
+def validate_case(case_dir: Path, vocab: dict | None = None,
+                  ids: dict[str, list[Path]] | None = None) -> Result:
+    """Validate one corpus case directory. ``ids`` (``corpus_ids()``) adds the
+    check that no other directory declares the same id."""
     import yaml
     vocab = load_tags() if vocab is None else vocab
     r = Result(case=case_dir)
@@ -103,6 +118,18 @@ def validate_case(case_dir: Path, vocab: dict | None = None) -> Result:
     for key in REQUIRED_METADATA:
         if key not in meta:
             r.errors.append(f"metadata.yaml: required field {key!r} missing")
+
+    # Results, the runtime ledger, Trends and run directories are all keyed
+    # by id: two directories with one id overwrote each other's results
+    # (77 ids did until 2026-11-23).
+    cid = str(meta.get("id", case_dir.name))
+    if cid != case_dir.name:
+        r.errors.append(f"id {cid!r} must match the directory name {case_dir.name!r}")
+    others = [d for d in (ids or {}).get(cid, []) if d.resolve() != case_dir.resolve()]
+    if others:
+        r.errors.append(f"id {cid!r} is also used by "
+                        + ", ".join(str(d.relative_to(CORPUS)) if d.is_relative_to(CORPUS)
+                                    else str(d) for d in others))
 
     tags = meta.get("tags") or []
     if not isinstance(tags, list) or not tags:
@@ -293,9 +320,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     vocab = load_tags()
+    ids = corpus_ids()
     n_bad = n_warn = 0
     for case in cases:
-        r = validate_case(case, vocab)
+        r = validate_case(case, vocab, ids)
         rel = case.relative_to(REPO_ROOT)
         if r.errors:
             n_bad += 1
