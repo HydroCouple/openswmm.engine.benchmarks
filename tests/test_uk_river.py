@@ -15,6 +15,18 @@ def test_all_committed_cases_and_reference_identities():
         if meta['kind']!='unavailable':assert meta['source_hashes']
 
 
+def test_committed_step_clocks_are_explicit():
+    """A bare step token is legacy decimal HOURS: uk-river-l's REPORT_STEP 0.04
+    became 144 s (clamped to its 10 s run), so its 2D output held one frame and
+    sampling raised 'Invalid output time axis' (Nightly 45045451271)."""
+    import re
+    for path in references.CORPUS.glob('*/model.inp'):
+        text=path.read_text(encoding='utf-8')
+        for key in ['REPORT_STEP','WET_STEP','DRY_STEP']:
+            field=re.search(r'^'+key+r'\s+(\S+)',text,re.M)
+            assert field is None or field.group(1).count(':')==2, (path.parent.name,key,field.group(1))
+
+
 def test_original_laboratory_grid_and_gauge_arrivals():
     data=np.genfromtxt(build.reference('l')/'reference.csv',delimiter=',',names=True)
     assert data.shape==(251,)

@@ -1,12 +1,12 @@
 {
-  "model_sha256": "9914a486923eb6f1cf1083ddd0b0d4dccf3932f714332fa355ba5017c151f046",
+  "model_sha256": "9488241ff0760bf31f266f2541048e3a469d5b3d1f59e7dd9136dc7ef5687b41",
   "probes_sha256": "403ab63b0a88e78871883522e7fbadee5e1a58bf1c2fb536933d37d08d31fd24",
   "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
   "reference_sha256": "6e934efb94e6747d17a02e8ff64e63789c986c0799fc440da45956d50fc1bf84",
   "data_sha256": "d36797accd2ebc1aceeb7925848e29ff93d8ad5a0f569a74a27c930d01f72a28",
   "rtol": 1e-07,
   "atol": 1e-08,
-  "review": "Initial numerical anchors reviewed against checksum-locked source inputs and full-duration output; finite fields, conservation, original laboratory tables and analytical profile sampling checked. Gate opening, sidewall/friction-law differences and pending physical qualification remain explicit. No fit calibration. UTF-8 and probe identity bindings verified; cross-platform tolerances remain unqualified.",
+  "review": "Initial numerical anchors reviewed against checksum-locked source inputs and full-duration output; finite fields, conservation, original laboratory tables and analytical profile sampling checked. Gate opening, sidewall/friction-law differences and pending physical qualification remain explicit. No fit calibration. UTF-8 and probe identity bindings verified; cross-platform tolerances remain unqualified. Re-anchored 2026-11-22 to the regenerated deck (REPORT/WET/DRY_STEP 0.04 -> 0:00:00.04): at the baseline's engine 0ff03ce1 a bare 0.04 still meant 0.04 s (legacy decimal hours arrived in engine 63b59b41, 2026-10-24), so the deck's meaning is unchanged. The values were not re-pinned.",
   "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
   "binaries": {
     "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",

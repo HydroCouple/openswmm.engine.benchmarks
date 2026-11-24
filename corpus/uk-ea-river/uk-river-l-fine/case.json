@@ -21,7 +21,7 @@
   "initial_volume_m3": 0.9333599999999824,
   "initial_state": "Physical still-water initial state",
   "source_reference": "uk-river-l/reference",
-  "model_sha256": "b5b6161f15db85685edb78384a8fa8202f767f919b2f4384f084d120658308a4",
+  "model_sha256": "959fbee8d0aed32749265ed927e4b4f8deff32d5462f8cf966ef5d921a74b85d",
   "probes_sha256": "403ab63b0a88e78871883522e7fbadee5e1a58bf1c2fb536933d37d08d31fd24",
   "numerical_limits": {
     "continuity_pct": 0.5,
