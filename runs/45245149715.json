@@ -1,0 +1,595 @@
+{
+ "benchmarks_sha": "6e00d95",
+ "description": "Nightly (scheduled) \u00b7 swmm6_rel@c8ebff77",
+ "engine": {
+  "commit_date": "2026-11-23T09:24:46-05:00",
+  "ref": "swmm6_rel",
+  "sha": "c8ebff77",
+  "sha_full": "c8ebff77fada48613c6b64a3e123e3825636623e",
+  "subject": "Start a kinematic-wave conduit with its initial flow, as legacy does"
+ },
+ "event": "schedule",
+ "groups": [
+  {
+   "cells": 16,
+   "engines": {
+    "swmm2d-cpu-full-swe": {
+     "continuity_worst": null,
+     "passed": 16,
+     "peak_rss_max": null,
+     "runs": 16,
+     "stable_pct": null,
+     "wall_median": 3.446221550500013,
+     "wall_p90": 11.779664254999943,
+     "wall_total": 89.808
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "analytical/hydraulic_jumps",
+   "verdicts": {
+    "PASS": 16
+   }
+  },
+  {
+   "cells": 16,
+   "engines": {
+    "swmm2d-cpu-full-swe": {
+     "continuity_worst": null,
+     "passed": 16,
+     "peak_rss_max": null,
+     "runs": 16,
+     "stable_pct": null,
+     "wall_median": 3.626218849999759,
+     "wall_p90": 11.543769500000053,
+     "wall_total": 91.289
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "analytical/hydraulic_jumps",
+   "verdicts": {
+    "PASS": 16
+   }
+  },
+  {
+   "cells": 17,
+   "engines": {
+    "closed-form": {
+     "continuity_worst": null,
+     "passed": 6,
+     "peak_rss_max": null,
+     "runs": 17,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "analytical/manufactured",
+   "verdicts": {
+    "PASS": 6,
+    "SKIP": 11
+   }
+  },
+  {
+   "cells": 17,
+   "engines": {
+    "closed-form": {
+     "continuity_worst": null,
+     "passed": 6,
+     "peak_rss_max": null,
+     "runs": 17,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "analytical/manufactured",
+   "verdicts": {
+    "PASS": 6,
+    "SKIP": 11
+   }
+  },
+  {
+   "cells": 18,
+   "engines": {
+    "swmm2d-cpu-full-swe": {
+     "continuity_worst": null,
+     "passed": 18,
+     "peak_rss_max": null,
+     "runs": 18,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "analytical/momentum2d",
+   "verdicts": {
+    "PASS": 18
+   }
+  },
+  {
+   "cells": 18,
+   "engines": {
+    "swmm2d-cpu-full-swe": {
+     "continuity_worst": null,
+     "passed": 18,
+     "peak_rss_max": null,
+     "runs": 18,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "analytical/momentum2d",
+   "verdicts": {
+    "PASS": 18
+   }
+  },
+  {
+   "cells": 3,
+   "engines": {
+    "cpu": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 3,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "UNAVAILABLE": 3
+   }
+  },
+  {
+   "cells": 29,
+   "engines": {
+    "cpu": {
+     "continuity_worst": 1.7875617269328588,
+     "passed": 27,
+     "peak_rss_max": null,
+     "runs": 29,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "PASS": 27,
+    "UNAVAILABLE": 2
+   }
+  },
+  {
+   "cells": 3938,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064495.696,
+     "passed": 1068,
+     "peak_rss_max": 2683.5,
+     "runs": 1274,
+     "stable_pct": 50.05,
+     "wall_median": 0.37834644700001263,
+     "wall_p90": 50.341641858,
+     "wall_total": 22644.409
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064495.696,
+     "passed": 1069,
+     "peak_rss_max": 2898.7,
+     "runs": 1274,
+     "stable_pct": 50.0,
+     "wall_median": 0.20900285599987,
+     "wall_p90": 37.15713329099981,
+     "wall_total": 16134.092
+    }
+   },
+   "gating": 410,
+   "platform": "Linux-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 397,
+    "FAIL": 11,
+    "PASS": 3186,
+    "SKIP": 116,
+    "UNAVAILABLE": 206,
+    "XFAIL": 14,
+    "XPASS": 2
+   }
+  },
+  {
+   "cells": 3938,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064499.291,
+     "passed": 1069,
+     "peak_rss_max": null,
+     "runs": 1274,
+     "stable_pct": 50.0,
+     "wall_median": 0.30269789999965724,
+     "wall_p90": 46.90250940000078,
+     "wall_total": 20922.449
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064499.291,
+     "passed": 1034,
+     "peak_rss_max": null,
+     "runs": 1274,
+     "stable_pct": 50.0,
+     "wall_median": 0.26919574999965334,
+     "wall_p90": 39.087208799999644,
+     "wall_total": 17084.409
+    }
+   },
+   "gating": 444,
+   "platform": "Windows-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 431,
+    "FAIL": 11,
+    "PASS": 3117,
+    "SKIP": 116,
+    "UNAVAILABLE": 241,
+    "XFAIL": 14,
+    "XPASS": 2
+   }
+  },
+  {
+   "cells": 74,
+   "engines": {
+    "1d-dynwave": {
+     "continuity_worst": null,
+     "passed": 8,
+     "peak_rss_max": null,
+     "runs": 13,
+     "stable_pct": null,
+     "wall_median": 66.08907098000054,
+     "wall_p90": 384.4867171400001,
+     "wall_total": 1025.731
+    },
+    "1d-dynwave-legacy": {
+     "continuity_worst": null,
+     "passed": 8,
+     "peak_rss_max": null,
+     "runs": 13,
+     "stable_pct": null,
+     "wall_median": 40.458344488000876,
+     "wall_p90": 272.3704192790001,
+     "wall_total": 719.826
+    },
+    "1d-dynwave-semi": {
+     "continuity_worst": null,
+     "passed": 9,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 69.48190120899926,
+     "wall_p90": 435.2407164490005,
+     "wall_total": 1475.211
+    },
+    "1d-dynwave-vj": {
+     "continuity_worst": null,
+     "passed": 5,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 674.1998365490003,
+     "wall_p90": 1035.5031697069999,
+     "wall_total": 2950.13
+    },
+    "1d-fv": {
+     "continuity_worst": null,
+     "passed": 11,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 13.905834605000564,
+     "wall_p90": 110.14532866299987,
+     "wall_total": 495.626
+    },
+    "2d-explicit": {
+     "continuity_worst": null,
+     "passed": 4,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 0.5914869100000715,
+     "wall_p90": 491.2378682589997,
+     "wall_total": 492.452
+    }
+   },
+   "gating": 24,
+   "platform": "Linux-x64",
+   "suite": "swashes",
+   "verdicts": {
+    "BASELINE-FAIL": 11,
+    "BASELINE-PASS": 10,
+    "FAIL": 9,
+    "PASS": 35,
+    "SKIP": 4,
+    "XFAIL": 1,
+    "XPASS": 4
+   }
+  },
+  {
+   "cells": 73,
+   "engines": {
+    "1d-dynwave": {
+     "continuity_worst": null,
+     "passed": 9,
+     "peak_rss_max": null,
+     "runs": 13,
+     "stable_pct": null,
+     "wall_median": 61.81114610000077,
+     "wall_p90": 426.9339352999996,
+     "wall_total": 1454.883
+    },
+    "1d-dynwave-legacy": {
+     "continuity_worst": null,
+     "passed": 9,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 47.55237109999871,
+     "wall_p90": 343.30174550000083,
+     "wall_total": 1184.801
+    },
+    "1d-dynwave-semi": {
+     "continuity_worst": null,
+     "passed": 9,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 63.368480299999646,
+     "wall_p90": 447.0129809,
+     "wall_total": 1468.522
+    },
+    "1d-dynwave-vj": {
+     "continuity_worst": null,
+     "passed": 5,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 710.1563934999999,
+     "wall_p90": 1201.4837928999996,
+     "wall_total": 3281.77
+    },
+    "1d-fv": {
+     "continuity_worst": null,
+     "passed": 11,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 15.565835100000186,
+     "wall_p90": 121.45329900000024,
+     "wall_total": 571.85
+    },
+    "2d-explicit": {
+     "continuity_worst": null,
+     "passed": 4,
+     "peak_rss_max": null,
+     "runs": 12,
+     "stable_pct": null,
+     "wall_median": 0.6355828499999916,
+     "wall_p90": 579.3453578999997,
+     "wall_total": 580.658
+    }
+   },
+   "gating": 21,
+   "platform": "Windows-x64",
+   "suite": "swashes",
+   "verdicts": {
+    "BASELINE-FAIL": 11,
+    "BASELINE-PASS": 10,
+    "FAIL": 6,
+    "PASS": 37,
+    "SKIP": 4,
+    "XFAIL": 1,
+    "XPASS": 4
+   }
+  },
+  {
+   "cells": 15,
+   "engines": {
+    "coverage": {
+     "continuity_worst": null,
+     "passed": 1,
+     "peak_rss_max": null,
+     "runs": 1,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    },
+    "swmm2d-cpu-full-swe-rk2": {
+     "continuity_worst": 4.34162079845578e-13,
+     "passed": 4,
+     "peak_rss_max": null,
+     "runs": 10,
+     "stable_pct": null,
+     "wall_median": 118.10187781099995,
+     "wall_p90": 204.84249352000006,
+     "wall_total": 442.214
+    },
+    "swmm2d-own-baseline": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 4,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 4,
+   "platform": "Linux-x64",
+   "suite": "uk_2d",
+   "verdicts": {
+    "BASELINE-FAIL": 4,
+    "PASS": 5,
+    "SKIP": 3,
+    "UNAVAILABLE": 3
+   }
+  },
+  {
+   "cells": 15,
+   "engines": {
+    "coverage": {
+     "continuity_worst": null,
+     "passed": 1,
+     "peak_rss_max": null,
+     "runs": 1,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    },
+    "swmm2d-cpu-full-swe-rk2": {
+     "continuity_worst": 4.881591398759655e-13,
+     "passed": 4,
+     "peak_rss_max": null,
+     "runs": 10,
+     "stable_pct": null,
+     "wall_median": 121.3424680999999,
+     "wall_p90": 213.71628810000016,
+     "wall_total": 457.645
+    },
+    "swmm2d-own-baseline": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 4,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 4,
+   "platform": "Windows-x64",
+   "suite": "uk_2d",
+   "verdicts": {
+    "BASELINE-FAIL": 4,
+    "PASS": 5,
+    "SKIP": 3,
+    "UNAVAILABLE": 3
+   }
+  },
+  {
+   "cells": 20,
+   "engines": {
+    "coverage": {
+     "continuity_worst": null,
+     "passed": 1,
+     "peak_rss_max": null,
+     "runs": 1,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    },
+    "swmm2d-cpu-full-swe-rk2": {
+     "continuity_worst": 1.1779571651069325e-11,
+     "passed": 8,
+     "peak_rss_max": null,
+     "runs": 11,
+     "stable_pct": null,
+     "wall_median": 8.354237240999964,
+     "wall_p90": 10.902733119000004,
+     "wall_total": 54.984
+    },
+    "swmm2d-own-baseline": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 8,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 10,
+   "platform": "Linux-x64",
+   "suite": "uk_river",
+   "verdicts": {
+    "BASELINE-FAIL": 8,
+    "ERROR": 2,
+    "PASS": 9,
+    "UNAVAILABLE": 1
+   }
+  },
+  {
+   "cells": 20,
+   "engines": {
+    "coverage": {
+     "continuity_worst": null,
+     "passed": 1,
+     "peak_rss_max": null,
+     "runs": 1,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    },
+    "swmm2d-cpu-full-swe-rk2": {
+     "continuity_worst": 1.1779571651069325e-11,
+     "passed": 8,
+     "peak_rss_max": null,
+     "runs": 11,
+     "stable_pct": null,
+     "wall_median": 8.013302500000009,
+     "wall_p90": 10.437328500000149,
+     "wall_total": 52.461
+    },
+    "swmm2d-own-baseline": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 8,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 10,
+   "platform": "Windows-x64",
+   "suite": "uk_river",
+   "verdicts": {
+    "BASELINE-FAIL": 8,
+    "ERROR": 2,
+    "PASS": 9,
+    "UNAVAILABLE": 1
+   }
+  }
+ ],
+ "id": "45245149715",
+ "schema": 1,
+ "started": "2026-11-23T19:14:17+00:00",
+ "url": "https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/runs/45245149715"
+}
