@@ -1,0 +1,135 @@
+{
+ "benchmarks_sha": "c3e5469",
+ "description": "Nightly (scheduled) \u00b7 swmm6_rel@25b4cfa1",
+ "engine": {
+  "commit_date": "2026-11-25T11:19:32-05:00",
+  "ref": "swmm6_rel",
+  "sha": "25b4cfa1",
+  "sha_full": "25b4cfa1cfd3ca2b394a8e5e78d41ca1043e9fbd",
+  "subject": "Seed pressurized conduits on the slot line and bound a lagging report's weight"
+ },
+ "event": "schedule",
+ "groups": [
+  {
+   "cells": 3,
+   "engines": {
+    "cpu": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 3,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "UNAVAILABLE": 3
+   }
+  },
+  {
+   "cells": 29,
+   "engines": {
+    "cpu": {
+     "continuity_worst": 1.785799527537734,
+     "passed": 27,
+     "peak_rss_max": null,
+     "runs": 29,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "PASS": 27,
+    "UNAVAILABLE": 2
+   }
+  },
+  {
+   "cells": 3925,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064495.696,
+     "passed": 1048,
+     "peak_rss_max": 1442.5,
+     "runs": 1263,
+     "stable_pct": 50.51,
+     "wall_median": 0.32455154000001585,
+     "wall_p90": 33.33435121399998,
+     "wall_total": 15082.581
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064495.696,
+     "passed": 1049,
+     "peak_rss_max": 2898.6,
+     "runs": 1263,
+     "stable_pct": 50.45,
+     "wall_median": 0.15768669899989618,
+     "wall_p90": 22.633146482000484,
+     "wall_total": 11719.386
+    }
+   },
+   "gating": 399,
+   "platform": "Linux-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 398,
+    "FAIL": 1,
+    "PASS": 3138,
+    "SKIP": 136,
+    "UNAVAILABLE": 201,
+    "XFAIL": 45
+   }
+  },
+  {
+   "cells": 3925,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064499.291,
+     "passed": 1048,
+     "peak_rss_max": null,
+     "runs": 1263,
+     "stable_pct": 50.51,
+     "wall_median": 0.23888914999997723,
+     "wall_p90": 26.74070490000122,
+     "wall_total": 13395.015
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064499.291,
+     "passed": 1049,
+     "peak_rss_max": null,
+     "runs": 1263,
+     "stable_pct": 50.45,
+     "wall_median": 0.16617980000000898,
+     "wall_p90": 23.036159900000712,
+     "wall_total": 11755.852
+    }
+   },
+   "gating": 399,
+   "platform": "Windows-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 398,
+    "FAIL": 1,
+    "PASS": 3138,
+    "SKIP": 136,
+    "UNAVAILABLE": 201,
+    "XFAIL": 45
+   }
+  }
+ ],
+ "id": "45669272328",
+ "schema": 1,
+ "started": "2026-11-25T18:01:12+00:00",
+ "url": "https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/runs/45669272328"
+}
