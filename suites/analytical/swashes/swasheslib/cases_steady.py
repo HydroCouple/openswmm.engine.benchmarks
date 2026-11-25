@@ -184,19 +184,15 @@ STEADY_CASES = [
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.03}),
             "2d-explicit": CellPolicy(
                 "baseline", {"l1_h": 0.03}, baseline_tol=BASE_TOL,
-                note="passes Fr=1; local-inertial neglects convective inertia "
-                     "— FROUDE_MAX raised to 3 (recorded). What that costs: q "
-                     "is EXACT everywhere (1.5300) and mass is 7e-13, so "
-                     "nothing is wrong with the fluxes or areas; only h is "
-                     "wrong, and only upstream (0.5898 vs 1.0144). Critical "
-                     "depth here is (q^2/g)^(1/3)=0.620, so the model sits at "
-                     "Fr 1.08 where the truth is Fr 0.48 — the SUPERCRITICAL "
-                     "BRANCH of the same specific energy, over the whole "
-                     "domain; downstream, where the truth is supercritical "
-                     "too, it matches to 0.2%. Without the advective term the "
-                     "frictionless steady balance reduces to d(eta)/dx=0, and "
-                     "the measured eta is indeed constant at 0.5898 from x=0.5 "
-                     "through the crest, so the upstream pool can never build"),
+                note="Baseline re-pinned 2026-11-24 after the FULL_SWE inlet "
+                     "fix (HydroCouple/openswmm.engine#214): the upstream pool "
+                     "now builds (0.99 m vs the analytic 1.014; l1 3.3 %, just "
+                     "outside the 3 % analytic gate at this nx), where the old "
+                     "pin recorded the inlet jet — q exact but h on the "
+                     "supercritical branch of the same specific energy over "
+                     "the whole upstream reach (0.590 m, l1 27 %), because a "
+                     "SPECIFIED_FLOW ghost copied a supercritical interior "
+                     "depth back. FROUDE_MAX 3 kept."),
             "2d-explicit-adv": CellPolicy(
                 "baseline", {"l1_h": 0.03}, baseline_tol=BASE_TOL,
                 note="passes Fr=1; local-inertial neglects convective inertia "
@@ -275,8 +271,12 @@ STEADY_CASES = [
                 note="zero-storage VJ chain matches the junction chain on "
                      "frictional channels (l1 1.7%, mass 0.001%)"),
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.03}),
-            "2d-explicit": CellPolicy("analytic", {"l1_h": 0.03},
-                                      note="R=h native — no width correction"),
+            "2d-explicit": CellPolicy(
+                "analytic", {"l1_h": 0.03},
+                note="CI pin (nx 200) re-recorded 2026-11-24 after the "
+                     "FULL_SWE inlet fix (HydroCouple/openswmm.engine#214): "
+                     "l1 vs analytic 1.84 % -> 0.44 %, inlet depth 0.16 -> "
+                     "0.82 m (analytic 0.75)."),
             "2d-explicit-adv": CellPolicy("analytic", {"l1_h": 0.03},
                                       note="R=h native — no width correction"),
         }),
@@ -333,12 +333,11 @@ STEADY_CASES = [
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
                 "analytic", {"l1_h": 0.04},
-                note="supercritical throughout; FROUDE_MAX 3. PROMOTED "
-                     "2026-11-22: it was XFAIL because local inertia carries "
-                     "no convective advection term and the profile never "
-                     "steadies; FULL_SWE (the 2D default since 2026-11-13) "
-                     "has it: l1 0.56%, local inertial still l1 10.0% "
-                     "(1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
+                note="CI pin (nx 200) re-recorded 2026-11-24 after the "
+                     "FULL_SWE inlet fix (HydroCouple/openswmm.engine#214): "
+                     "l1 vs analytic 3.94 % -> 2.94 %, inlet depth 0.22 -> "
+                     "0.90 m (a q-only inlet enters at critical depth, 0.74 "
+                     "m; the supercritical analytic inlet is 0.74 m too)."),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="supercritical throughout; FROUDE_MAX 3. XFAIL: the "
@@ -380,10 +379,10 @@ STEADY_CASES = [
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
                 "analytic", {"l1_h": 0.04}, baseline_tol=BASE_TOL,
-                note="downstream half is supercritical. PROMOTED 2026-11-22: "
-                     "FULL_SWE (the 2D default since 2026-11-13) l1 0.10%; "
-                     "local inertial now meets the gate too, l1 2.1% "
-                     "(1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
+                note="CI pin (nx 200) re-recorded 2026-11-24 after the "
+                     "FULL_SWE inlet fix (HydroCouple/openswmm.engine#214): "
+                     "l1 vs analytic 6.15 % -> 0.49 %, inlet depth 0.10 -> "
+                     "0.97 m (analytic 0.97)."),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="never steadies with ADVECTION on (drift 0.34): the "
@@ -433,11 +432,11 @@ STEADY_CASES = [
             "2d-explicit": CellPolicy(
                 "analytic", {"l1_h": 0.05, "shock_err_m": 25.0},
                 baseline_tol=BASE_TOL,
-                note="PROMOTED 2026-11-22: FULL_SWE (the 2D default since "
-                     "2026-11-13) l1 0.54% meets the gates at 1 m, where "
-                     "local inertial had smeared the shock (shock_err 69 m, "
-                     "l1 4.5%, 2026-08); local inertial now meets them too, "
-                     "l1 3.0% (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
+                note="CI pin (nx 200) re-recorded 2026-11-24 after the "
+                     "FULL_SWE inlet fix (HydroCouple/openswmm.engine#214): "
+                     "l1 vs analytic 2.36 % -> 0.70 %, inlet depth 0.10 -> "
+                     "0.74 m (critical; the analytic supercritical inlet is "
+                     "0.55 m)."),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.05, "shock_err_m": 25.0},
                 note="never steadies with ADVECTION on (drift 0.21, shock "
@@ -479,14 +478,15 @@ STEADY_CASES = [
                                 {"l1_h": 0.05, "shock_err_m": 5.0},
                                 note="l1 0.38%, shock 0.08 m at dx=0.5"),
             "2d-explicit": CellPolicy(
-                "baseline", {"l1_h": 0.05, "shock_err_m": 5.0},
+                "analytic", {"l1_h": 0.05, "shock_err_m": 5.0},
                 baseline_tol=BASE_TOL,
-                note="ENGINE FINDING 2026-11-22: FULL_SWE (the 2D default "
-                     "since 2026-11-13) is LESS accurate here than local "
-                     "inertial: l1 15.5% vs 7.0%, all of it a shallow jet at "
-                     "the SPECIFIED_FLOW inlet (HydroCouple/openswmm.engine#214). "
-                     "The baseline is re-pinned under FULL_SWE; local inertial "
-                     "reproduced the old pin exactly (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
+                note="FULL_SWE inlet jet fixed in the engine "
+                     "(HydroCouple/openswmm.engine#214, 2026-11-24: a "
+                     "SPECIFIED_FLOW inflow ghost is never shallower than the "
+                     "critical depth of its discharge); analytic tolerance met "
+                     "at nx (l1 within 5 %), so the cell is graded "
+                     "analytically again. Before the fix: l1 15.5 % from a "
+                     "shallow jet at the inlet; local inertial 7.0 %."),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.05, "shock_err_m": 5.0},
                 note="never steadies with ADVECTION on (drift 0.057): "
@@ -523,13 +523,14 @@ STEADY_CASES = [
                 "baseline", {"l1_h": 0.04}, baseline_tol=BASE_TOL),
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
-                "xfail", {"l1_h": 0.04},
-                note="fully supercritical. XFAIL under FULL_SWE too (the 2D "
-                     "default since 2026-11-13), so the missing-advection "
-                     "reason no longer applies: FULL_SWE l1 17.1%, local "
-                     "inertial 5.5% — ENGINE FINDING: a shallow jet at the "
-                     "SPECIFIED_FLOW inlet, HydroCouple/openswmm.engine#214 "
-                     "(1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
+                "analytic", {"l1_h": 0.04},
+                note="FULL_SWE inlet jet fixed in the engine "
+                     "(HydroCouple/openswmm.engine#214, 2026-11-24); analytic "
+                     "tolerance met at nx, so XFAIL is lifted. Before the "
+                     "fix: l1 17.1 % from a shallow jet at the SPECIFIED_FLOW "
+                     "inlet (local inertial 5.5 %); the q-only inflow now "
+                     "enters at critical depth, the deepest a one-condition "
+                     "supercritical inlet can be."),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="l1 41% at CFL 0.5 (drifting); NOT a CFL-margin issue "
@@ -566,13 +567,12 @@ STEADY_CASES = [
                 "baseline", {"l1_h": 0.04}, baseline_tol=BASE_TOL),
             "1d-fv": CellPolicy("analytic", {"l1_h": 0.04}),
             "2d-explicit": CellPolicy(
-                "baseline", {"l1_h": 0.04}, baseline_tol=BASE_TOL,
-                note="ENGINE FINDING 2026-11-22: FULL_SWE (the 2D default "
-                     "since 2026-11-13) is LESS accurate here than local "
-                     "inertial: l1 25.1% vs 6.4%, all of it a shallow jet at "
-                     "the SPECIFIED_FLOW inlet (HydroCouple/openswmm.engine#214). "
-                     "The baseline is re-pinned under FULL_SWE; local inertial "
-                     "reproduced the old pin exactly (1 m, 2026-11-22: FULL_SWE from CI Nightly 45045451271, local inertial from a forced-LI rerun, results/swashes-2d-scheme-2026-11-22)"),
+                "analytic", {"l1_h": 0.04}, baseline_tol=BASE_TOL,
+                note="FULL_SWE inlet jet fixed in the engine "
+                     "(HydroCouple/openswmm.engine#214, 2026-11-24); analytic "
+                     "tolerance met at nx, so the cell is graded analytically "
+                     "again. Before the fix: l1 25.1 % from a shallow jet at "
+                     "the SPECIFIED_FLOW inlet; local inertial 6.4 %."),
             "2d-explicit-adv": CellPolicy(
                 "xfail", {"l1_h": 0.04},
                 note="never steadies with ADVECTION on (drift 0.10): "
