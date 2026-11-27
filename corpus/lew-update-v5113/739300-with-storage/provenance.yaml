@@ -10,3 +10,5 @@ notes: 'Provenance carried over mechanically during the corpus migration; the re
   corpus, from an engine and version that were not recorded. It is the evidence behind
   this case''s surcharge/flooding/flow_instability tags. It is NOT a grading reference:
   the case is graded as self_consistency.'
+modifications: Removed conflict markers and the duplicate model. Retained the HEAD
+  version after both variants produced identical output within each engine.

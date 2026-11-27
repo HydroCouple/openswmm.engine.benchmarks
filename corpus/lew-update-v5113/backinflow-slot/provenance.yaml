@@ -1,0 +1,7 @@
+source: Legacy benchmarks collection 'lew-update-v5113' (originally LEW_update_v5113/backinflow.inp)
+license: public-domain
+contributed_by: unknown (pre-migration corpus)
+date_added: '2026-11-27'
+original_units: US
+modifications: Extracted the SLOT surcharge variant from the incoming side of the
+  conflict in the archived input. The default-method variant is case backinflow.
