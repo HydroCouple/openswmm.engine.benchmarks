@@ -1,0 +1,135 @@
+{
+ "benchmarks_sha": "d6a8332",
+ "description": "Nightly (scheduled) \u00b7 swmm6_rel@25404228",
+ "engine": {
+  "commit_date": "2026-11-27T11:59:52-05:00",
+  "ref": "swmm6_rel",
+  "sha": "25404228",
+  "sha_full": "25404228b932a149dd27da3c9ae711354d56e537",
+  "subject": "Drown the coupling weir once the sewer head reaches the crest"
+ },
+ "event": "schedule",
+ "groups": [
+  {
+   "cells": 3,
+   "engines": {
+    "cpu": {
+     "continuity_worst": null,
+     "passed": 0,
+     "peak_rss_max": null,
+     "runs": 3,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Linux-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "UNAVAILABLE": 3
+   }
+  },
+  {
+   "cells": 29,
+   "engines": {
+    "cpu": {
+     "continuity_worst": 1.8633645518340618,
+     "passed": 27,
+     "peak_rss_max": null,
+     "runs": 29,
+     "stable_pct": null,
+     "wall_median": null,
+     "wall_p90": null,
+     "wall_total": 0.0
+    }
+   },
+   "gating": 0,
+   "platform": "Windows-x64",
+   "suite": "coupling",
+   "verdicts": {
+    "PASS": 27,
+    "UNAVAILABLE": 2
+   }
+  },
+  {
+   "cells": 3925,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064495.696,
+     "passed": 1048,
+     "peak_rss_max": 1442.8,
+     "runs": 1263,
+     "stable_pct": 50.51,
+     "wall_median": 0.3781267025001398,
+     "wall_p90": 35.96911010500003,
+     "wall_total": 15781.111
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064495.696,
+     "passed": 1049,
+     "peak_rss_max": 2898.6,
+     "runs": 1263,
+     "stable_pct": 50.45,
+     "wall_median": 0.17358123600001818,
+     "wall_p90": 22.70073952199982,
+     "wall_total": 12001.691
+    }
+   },
+   "gating": 399,
+   "platform": "Linux-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 398,
+    "FAIL": 1,
+    "PASS": 3138,
+    "SKIP": 136,
+    "UNAVAILABLE": 201,
+    "XFAIL": 45
+   }
+  },
+  {
+   "cells": 3925,
+   "engines": {
+    "openswmm-v6": {
+     "continuity_worst": 9064499.291,
+     "passed": 1048,
+     "peak_rss_max": null,
+     "runs": 1263,
+     "stable_pct": 50.51,
+     "wall_median": 0.26572090000013304,
+     "wall_p90": 30.71918639999967,
+     "wall_total": 14580.928
+    },
+    "swmm-5.3.0": {
+     "continuity_worst": 9064499.291,
+     "passed": 1049,
+     "peak_rss_max": null,
+     "runs": 1263,
+     "stable_pct": 50.45,
+     "wall_median": 0.18368939999982103,
+     "wall_p90": 25.36923879999995,
+     "wall_total": 12681.438
+    }
+   },
+   "gating": 399,
+   "platform": "Windows-x64",
+   "suite": "parity",
+   "verdicts": {
+    "BASELINE-PASS": 6,
+    "ERROR": 398,
+    "FAIL": 1,
+    "PASS": 3138,
+    "SKIP": 136,
+    "UNAVAILABLE": 201,
+    "XFAIL": 45
+   }
+  }
+ ],
+ "id": "46040882732",
+ "schema": 1,
+ "started": "2026-11-27T17:31:00+00:00",
+ "url": "https://github.com/HydroCouple/openswmm.engine.benchmarks/actions/runs/46040882732"
+}
