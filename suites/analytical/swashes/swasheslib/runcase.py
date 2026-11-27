@@ -139,7 +139,7 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
         cell["verdict"] = "SKIP"
         cell["reason"] = "not applicable"
         return cell
-    cell["mode"] = policy.mode
+    cell["mode"] = "ci-baseline" if ci else policy.mode
     if not solver.available:
         cell["verdict"] = "UNAVAILABLE"
         cell["reason"] = "solver not available in this engine build"
@@ -243,7 +243,6 @@ def run_cell(case: CaseSpec, solver: SolverSpec, *, force: bool = False,
         steady_gate=case.steady_gate or STEADY_GATE)
 
     if ci:
-        cell["mode"] = "ci-baseline"
         cell["analytic_verdict"] = a_verdict
         cell["verdict"], cell["reasons"], bm = ci_regression(
             case, solver.id, res, policy, mass_pct, mass_gate)

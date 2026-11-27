@@ -32,6 +32,7 @@ import html
 import json
 import re
 import shutil
+import statistics
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -195,11 +196,11 @@ def _status(ok: bool | None, text: str) -> str:
     return f"<span class='status status--{cls}'><span aria-hidden=true>{icon}</span>{E(text)}</span>"
 
 
-def _tile(k: str, v, note: str = "", status: str = "") -> str:
+def _tile(k: str, v, note: str = "", link: str = "") -> str:
     return (f"<div class=tile><div class=tile__k>{E(k)}</div>"
             f"<div class=tile__v>{E(str(v))}</div>"
-            + (f"<div class=tile__s>{status}</div>" if status else "")
-            + (f"<div class=tile__n>{E(note)}</div>" if note else "") + "</div>")
+            + (f"<div class=tile__n>{E(note)}</div>" if note else "")
+            + (f"<div class=tile__n>{link}</div>" if link else "") + "</div>")
 
 
 def _num(v, fmt: str = "{:,.3g}", cls: str = "num") -> str:
@@ -573,10 +574,12 @@ def _engine_hists(cells: list[dict], value, edges, *, unit_label: str, what: str
 def _mass_balance(cells: list[dict], r: str, case_pages: set[str]) -> str:
     cont = metrics.continuity(cells)
     if not cont["graded"]:
-        return "<p class=note>No continuity errors reported in this set.</p>"
+        if cont["by_design"]:
+            return (f"<p class=note>All {cont['by_design']:,} measured runs were excluded "
+                    "because their models have documented high continuity errors.</p>")
+        return "<p class=note>No flow routing continuity measurements reported in this set.</p>"
     hist = _engine_hists(
-        [c for c in cells if not c.get("expected_high_continuity")],
-        lambda c: abs(c["continuity_err"]) if isinstance(c.get("continuity_err"), (int, float)) else None,
+        cont["graded"], lambda c: abs(c["continuity_err"]),
         CONT_EDGES, unit_label="|flow routing continuity error| (%)",
         what="Engine runs per |flow routing continuity error| bin.")
     rows = "".join(
@@ -750,14 +753,40 @@ def _hero(envelopes: list[dict]) -> str:
         "</svg></section>")
 
 
-def _tiles(cells: list[dict], badge_map: dict, n_cases: int) -> str:
-    def msg(k):
-        return badge_map.get(k, {}).get("message", "—")
+def _outcome_tile(title: str, cells: list[dict], missing: str) -> str:
+    if not cells:
+        return _tile(title, "No results", missing)
+    counts = metrics.group_counts(cells)
+    checked = len(cells) - counts["not_run"]
+    gating = counts["gating"]
+    details = [f"{gating:,} gate failure{'s' if gating != 1 else ''}"]
+    if counts["expected"]:
+        expected = counts["expected"]
+        details.append(f"{expected:,} expected failure{'s' if expected != 1 else ''}")
+    if counts["not_run"]:
+        details.append(f"{counts['not_run']:,} skipped or unavailable")
+    headline = f"{counts['pass']:,} of {checked:,} passed" if checked else "None checked"
+    return _tile(title, headline, " · ".join(details))
+
+
+def _mass_balance_tile(cells: list[dict]) -> str:
+    cont = metrics.continuity(cells)
+    errors = [abs(c["continuity_err"]) for c in cont["graded"]]
+    excluded = (f" · {cont['by_design']:,} excluded for known high continuity error"
+                if cont["by_design"] else "")
+    if not errors:
+        return _tile("Mass balance", "No graded runs", "Flow routing continuity" + excluded)
+    within = sum(error <= 1 for error in errors)
+    return _tile("Mass balance", f"{statistics.median(errors):.3g}% median",
+                 f"Absolute flow routing error · {within:,} of {len(errors):,} measured runs "
+                 f"at or below 1%{excluded}", "<a href='#mass-balance'>Distribution and largest errors</a>")
+
+
+def _tiles(cells: list[dict], n_cases: int) -> str:
     truth = [c for c in cells if scoring.is_truth(c.get("reference_class", ""))]
-    gating = [c for c in cells if c.get("verdict") in scoring.GATING]
+    regression = [c for c in cells if not scoring.is_truth(c.get("reference_class", ""))]
     ps = metrics.pairs(cells)
     identical = sum(1 for c in ps if c["max_rel"] == 0)
-    cont = metrics.continuity(cells)
     st = metrics.stability(cells)
     runs = [c for c in cells if metrics.is_engine_run(c)]
     total = sum(metrics.wall(c) or 0 for c in runs)
@@ -768,18 +797,13 @@ def _tiles(cells: list[dict], badge_map: dict, n_cases: int) -> str:
             ratio_note = f"median {metrics.V6} ÷ legacy {rs['median']:.2f} on {p}"
             break
     rss = [c["peak_rss_mb"] for c in runs if isinstance(c.get("peak_rss_mb"), (int, float))]
-    ver_ok = None if not truth else not any(c.get("verdict") in scoring.GATING for c in truth)
     tiles = [
-        _tile("Verification", msg("verification"), "exact-solution cases only",
-              _status(ver_ok, "exact solutions")),
-        _tile("Regression", msg("regression"), "parity and baseline drift",
-              _status(not gating, f"{len(gating):,} gating cell(s)")),
-        _tile("Cells graded", f"{len(cells):,}", f"{len(runs):,} engine runs · {len(ps):,} pairs"),
+        _outcome_tile("Regression checks", regression, "This run reported no regression checks."),
+        _outcome_tile("Exact-solution checks", truth, "This run reported no analytical or manufactured checks."),
+        _mass_balance_tile(cells),
+        _tile("Results reported", f"{len(cells):,}", f"{len(runs):,} engine runs · {len(ps):,} measured pairs"),
         _tile("Parity", f"{identical:,} of {len(ps):,}" if ps else "—",
               "pairs bit-identical at every element and period"),
-        _tile("Mass balance", f"{abs(cont['worst'][0]['continuity_err']):.2f} %" if cont["worst"] else "—",
-              "worst |flow routing continuity|"
-              + (f" · {cont['by_design']:,} by design left out" if cont["by_design"] else "")),
         _tile("Stability", f"{100 * st['stable'] / len(st['runs']):.1f} %" if st["runs"] else "—",
               f"runs with ≤ {metrics.STABLE_PCT:g} % of steps not converging"),
         _tile("Engine time", charts.fmt_seconds(total) if total else "—", ratio_note or "all engine runs"),
@@ -815,7 +839,7 @@ def build_site(envelopes: list[dict], dest: Path,
     cells = metrics.cells_of(envelopes)
     case_pages = {c["case"] for c in cells if c.get("case") and c["case"] != "-"}
 
-    written += _write_index(envelopes, cells, badge_map, n_cases, tag_counts, case_pages, dest)
+    written += _write_index(envelopes, cells, n_cases, tag_counts, case_pages, dest)
     written += _write_run_pages(envelopes, dest, case_pages)
     written += _write_case_pages(cells, corpus_cases, dest)
     written += _write_tag_pages(tag_counts, cells, dest, corpus_cases, case_pages)
@@ -823,19 +847,16 @@ def build_site(envelopes: list[dict], dest: Path,
     return written
 
 
-def _write_index(envelopes, cells, badge_map, n_cases, tag_counts, case_pages, dest) -> list[Path]:
+def _write_index(envelopes, cells, n_cases, tag_counts, case_pages, dest) -> list[Path]:
     r = ""
-    truth = [c for c in cells if scoring.is_truth(c.get("reference_class", ""))]
-    regression = [c for c in cells if not scoring.is_truth(c.get("reference_class", ""))]
     envs_sorted = sorted(envelopes, key=lambda e: (str(e.get("suite")), metrics.platform_of(e),
                                                    e.get("shard") or ""))
     body = [
-        _hero(envelopes), _tiles(cells, badge_map, n_cases), "<div class=wrap>",
-        "<div class=note><strong>Verification is not regression.</strong> "
-        f"{len(truth):,} cell(s) here are graded against an exact solution and can show an engine "
-        f"is <em>wrong</em> (verification: exact-solution cases only). The other {len(regression):,} "
-        "cover baseline changes, observations or numerical consistency. Their verdicts must be "
-        "interpreted according to their reference and check scope.</div>",
+        _hero(envelopes), _tiles(cells, n_cases), "<div class=wrap>",
+        "<div class=note>Exact-solution checks compare solver output with analytical solutions "
+        "or check that a formula reproduces a reference dataset. Regression checks cover "
+        "engine agreement, baseline changes and other comparisons. Each case can contribute "
+        "several checks across solvers and platforms.</div>",
         "".join(_coverage_note(env) for env in envelopes),
         _section("suites", "Results by suite",
                  "Verdicts for each suite on each platform. Gating verdicts (FAIL, BASELINE-FAIL, "

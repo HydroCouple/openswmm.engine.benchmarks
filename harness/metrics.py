@@ -129,7 +129,7 @@ def ratio_summary(points: list[tuple[str, float, float]],
 def continuity(cells: list[dict], key: str = "continuity_err") -> dict:
     """|continuity error| of engine runs; by-design cases separated out."""
     runs = [c for c in cells if is_engine_run(c)
-            and isinstance(c.get(key), (int, float))]
+            and isinstance(c.get(key), (int, float)) and math.isfinite(c[key])]
     graded = [c for c in runs if not c.get("expected_high_continuity")]
     return {"graded": graded, "by_design": len(runs) - len(graded),
             "worst": sorted(graded, key=lambda c: -abs(c[key]))}

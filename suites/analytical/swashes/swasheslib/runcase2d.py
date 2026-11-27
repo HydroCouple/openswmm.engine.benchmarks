@@ -109,7 +109,6 @@ def run_cell_2d(case: CaseSpec, solver: SolverSpec, policy: CellPolicy,
         steady_gate=case.steady_gate or STEADY_GATE)
 
     if ci:
-        cell["mode"] = "ci-baseline"
         cell["analytic_verdict"] = a_verdict
         cell["verdict"], cell["reasons"], bm = ci_regression(
             case, solver.id, res, policy, mass_pct, mass_gate)

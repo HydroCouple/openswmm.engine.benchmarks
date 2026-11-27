@@ -69,6 +69,7 @@ jobs:
           name: results-engine-${{ github.event.client_payload.sha }}
           path: |
             results/
+            suites/analytical/*/*_scores.json
             badges/
           retention-days: 14
 

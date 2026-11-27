@@ -86,11 +86,8 @@ def load_envelopes(paths: list[Path]) -> list[dict]:
         for f in files:
             if "site" in f.parts or "runs" in f.parts:
                 continue                     # generated copies, not new runs
-            try:
-                env = json.loads(f.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                continue
-            if not isinstance(env, dict) or "cells" not in env:
+            env = scoring.load(f)
+            if env is None or "cells" not in env:
                 continue
             env["_run"] = _manifest_for(f, p if p.is_dir() else f.parent)
             out.append(env)

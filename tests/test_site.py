@@ -133,8 +133,8 @@ def test_remote_load_check_catches_what_it_should():
 def test_scoreboard_separates_verification_from_regression(built):
     root, _ = built
     body = text_of(root / "index.html")
-    assert "Verification is not regression" in body
-    assert "exact-solution cases only" in body
+    assert "Exact-solution checks 1 of 1 passed 0 gate failures · 1 skipped or unavailable" in body
+    assert "Regression checks 0 of 1 passed 1 gate failure" in body
 
 
 def test_failures_are_shown_not_summarized_away(built):
@@ -341,3 +341,42 @@ def test_every_chart_has_a_table_view(with_run):
     assert s.count("<svg class=chart__svg") + s.count("<svg class='chart__svg") > 0
     charts_with_bins = s.count("<div class=chart>") - s.count("chart__svg--square")
     assert s.count("<details class=tableview>") >= charts_with_bins
+
+
+def test_overview_uses_archived_grading_modes(tmp_path):
+    from harness import report
+    archived = envelope("swashes", [
+        {"case": "a", "mode": "analytic", "verdict": "PASS"},
+        {"case": "b", "mode": "xfail", "verdict": "XFAIL"},
+        {"case": "c", "mode": "baseline", "verdict": "XPASS"},
+        {"case": "d", "mode": "ci-baseline", "analytic_verdict": "FAIL", "verdict": "BASELINE-PASS"},
+        {"case": "e", "verdict": "SKIP"},
+    ])
+    source = tmp_path / "swashes_scores.json"
+    source.write_text(json.dumps(archived))
+    assert report.main([str(source), "--site", str(tmp_path / "public")]) == 0
+    body = text_of(tmp_path / "public/index.html")
+    assert "Exact-solution checks 1 of 2 passed 0 gate failures · 1 expected failure · 1 skipped" in body
+    assert "Regression checks 1 of 2 passed 1 gate failure" in body
+    badge = json.loads((tmp_path / "public/badges/verification.json").read_text())
+    assert badge["message"] == "1/2 checked · 1 unchecked"
+
+
+def test_overview_explains_absent_and_unchecked_exact_results():
+    assert "This run reported no analytical or manufactured checks." in site._tiles(
+        [_engine_cell("a", "v6", _suite="parity")], 1)
+    tile = site._outcome_tile("Exact-solution checks", [{"verdict": "UNAVAILABLE"}], "")
+    assert "None checked" in tile and "1 skipped or unavailable" in tile
+
+
+def test_mass_balance_tile_uses_absolute_measured_engine_errors_only():
+    cells = [_engine_cell(str(i), "v6", continuity_err=error)
+             for i, error in enumerate([-1, -0.04, 80, None, float("nan")])]
+    cells += [_engine_cell("excluded", "v6", continuity_err=99, expected_high_continuity=True),
+              {"pair": "a vs b", "continuity_err": 100}]
+    tile = site._mass_balance_tile(cells)
+    assert "1% median" in tile
+    assert "2 of 3 measured runs at or below 1%" in tile
+    assert "1 excluded" in tile
+    assert "href='#mass-balance'" in tile
+    assert "No graded runs" in site._mass_balance_tile(cells[-2:])

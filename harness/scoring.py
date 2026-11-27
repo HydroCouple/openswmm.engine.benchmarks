@@ -91,13 +91,30 @@ def load(path: Path) -> dict | None:
     if not path.exists():
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        env = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return None
+    if not isinstance(env, dict):
+        return None
+    for cell in env.get("cells", []):
+        classify_analytical_cell(env.get("suite", ""), cell)
+    return env
+
+
+def classify_analytical_cell(suite: str, cell: dict) -> None:
+    """Resolve the reference used by legacy SWASHES and transition score files."""
+    if suite not in {"swashes", "analytical/swashes", "transitions", "analytical/transitions"}:
+        return
+    if cell.get("mode") in {"baseline", "ci-baseline"}:
+        cell["reference_class"] = "blessed_baseline"
+    elif cell.get("mode") in {"analytic", "xfail"} or (
+            cell.get("mode") is None and cell.get("verdict") in {"SKIP", "UNAVAILABLE"}):
+        cell.setdefault("reference_class", "analytic")
 
 
 def save_cell(path: Path, envelope: dict, cell: dict) -> None:
     """Replace any prior cell for the same (case, solver) and rewrite the file."""
+    classify_analytical_cell(envelope.get("suite", ""), cell)
     key = (cell.get("case"), cell.get("solver"))
     envelope["cells"] = [c for c in envelope["cells"]
                          if (c.get("case"), c.get("solver")) != key]
@@ -155,16 +172,16 @@ def badges(envelopes: list[dict], *, corpus_count: int | None = None) -> dict[st
                      if c.get("verdict") in ("SKIP", "UNAVAILABLE")]
         checked = [c for c in ver if c not in unchecked]
         ok = sum(1 for c in checked
-                 if c.get("verdict") in ("PASS", "BASELINE-PASS", "XFAIL"))
+                 if c.get("verdict") in ("PASS", "BASELINE-PASS"))
         msg = f"{ok}/{len(checked)} checked" if checked else "none checked"
         if unchecked:
             msg += f" · {len(unchecked)} unchecked"
         if not checked:
             color = BADGE_GREY
-        elif ok < len(checked):
+        elif any(c.get("verdict") in GATING for c in checked):
             color = BADGE_RED
-        elif unchecked:
-            color = BADGE_YELLOW      # all checks pass, but coverage is partial
+        elif unchecked or ok < len(checked):
+            color = BADGE_YELLOW      # partial coverage or expected failures
         else:
             color = BADGE_GREEN
         out["verification"] = badge("verification", msg, color)
