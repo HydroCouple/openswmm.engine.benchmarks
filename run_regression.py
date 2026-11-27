@@ -42,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
                          "--suite all --exclude parity)")
     ap.add_argument("--list", action="store_true",
                     help="list available suites and exit")
+    ap.add_argument("--ci-resolution", action="store_true",
+                    help="run SWASHES cases with a CI grid at that resolution")
     ap.add_argument("--report-only", action="store_true",
                     help="regenerate reports without running sweeps")
     ap.add_argument("--summary", type=Path,
@@ -99,26 +101,28 @@ def main(argv: list[str] | None = None) -> int:
         runinfo.write(manifest)
     for name in names:
         mod = registry[name]
+        suite_args = list(passthrough)
+        if name == "analytical/swashes" and args.ci_resolution:
+            suite_args.append("--ci-resolution")
         print(f"=== suite: {name} ===")
-        if not args.report_only:
-            try:
-                envelope = mod.run(passthrough)
-            except Exception as exc:
-                # One suite's crash must not take the suites after it down with
-                # it: the 2026-11-22 Nightly lost transitions and reactions to
-                # a ValueError inside the SWASHES reference generator. It still
-                # fails the run, and the summary names the suite.
-                import traceback
-                traceback.print_exc()
-                crashed.append(f"{name}: {type(exc).__name__}: {exc}"[:300])
-                rc |= 1
-                continue
-            if envelope is not None:
-                envelopes.append(envelope)
-                print(scoring.summary(envelope))
-                rc |= scoring.exit_code(envelope)
-        for path in mod.report(passthrough) or []:
-            print(f"  report: {path}")
+        try:
+            if not args.report_only:
+                envelope = mod.run(suite_args)
+                if envelope is not None:
+                    envelopes.append(envelope)
+                    print(scoring.summary(envelope))
+                    rc |= scoring.exit_code(envelope)
+            for path in mod.report(suite_args) or []:
+                print(f"  report: {path}")
+        except (Exception, SystemExit) as exc:
+            # A suite's argparse error exits through SystemExit. Keep its
+            # failure visible and let the remaining suites publish their scores.
+            if isinstance(exc, SystemExit) and (len(names) == 1 or exc.code in (None, 0)):
+                raise
+            import traceback
+            traceback.print_exc()
+            crashed.append(f"{name}: {type(exc).__name__}: {exc}"[:300])
+            rc |= 1
 
     if envelopes and (args.summary or args.badges):
         from harness import report as report_mod

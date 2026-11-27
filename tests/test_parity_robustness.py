@@ -343,8 +343,41 @@ def test_exclude_drops_a_suite_and_rejects_a_typo(monkeypatch):
     assert run_regression.main(["--suite", "all", "--exclude", "partiy"]) == 2
 
 
+@pytest.mark.parametrize("report_only", [False, True])
+def test_nightly_ci_resolution_reaches_only_swashes(monkeypatch, report_only):
+    from types import SimpleNamespace
+    import run_regression
+    from suites.uk_2d import suite as uk_2d
+    from suites.uk_river import suite as uk_river
+
+    calls = []
+
+    def recorder(name, phase):
+        def record(argv):
+            if name in {"uk_2d", "uk_river"}:
+                parser = uk_2d.options if name == "uk_2d" else uk_river.options
+                assert parser(argv).max_wall == 300
+            calls.append((name, phase, "--ci-resolution" in argv))
+        return record
+
+    names = ["uk_2d", "uk_river", "analytical/swashes"]
+    mods = {n: SimpleNamespace(run=recorder(n, "run"), report=recorder(n, "report"))
+            for n in names}
+    monkeypatch.setattr(run_regression.suites, "list_suites", lambda: ["parity", *names])
+    monkeypatch.setattr(run_regression.suites, "discover", lambda selected: mods)
+    args = ["--suite", "all", "--exclude", "parity", "--ci-resolution", "--tier", "nightly",
+            "--max-wall", "300"]
+    if report_only:
+        args.append("--report-only")
+    assert run_regression.main(args) == 0
+    phases = ["report"] if report_only else ["run", "report"]
+    assert calls == [(n, phase, n == "analytical/swashes") for n in names for phase in phases]
+
+
+@pytest.mark.parametrize("failure, phase", [(ValueError("no positive root"), "run"),
+                                            (SystemExit(2), "run"), (SystemExit(2), "report")])
 def test_a_crashing_suite_fails_the_run_but_not_the_suites_after_it(
-        monkeypatch, tmp_path):
+        monkeypatch, tmp_path, failure, phase):
     """The 2026-11-22 Nightly's other-suites job died inside the SWASHES
     reference generator, and transitions and reactions never ran. A crash is a
     failed run, and the summary names the suite; it is not the end of the
@@ -354,12 +387,13 @@ def test_a_crashing_suite_fails_the_run_but_not_the_suites_after_it(
     ran: list[str] = []
 
     def boom(argv):
-        raise ValueError("no positive root")
+        raise failure
 
     mods = {
         "coupling": SimpleNamespace(run=lambda argv: ran.append("coupling"),
                                     report=lambda argv: []),
-        "analytical/swashes": SimpleNamespace(run=boom, report=lambda argv: []),
+        "analytical/swashes": SimpleNamespace(run=boom if phase == "run" else lambda argv: None,
+                                              report=boom if phase == "report" else lambda argv: []),
         "transitions": SimpleNamespace(run=lambda argv: ran.append("transitions"),
                                        report=lambda argv: []),
     }
@@ -369,7 +403,7 @@ def test_a_crashing_suite_fails_the_run_but_not_the_suites_after_it(
     summary = tmp_path / "summary.md"
     assert run_regression.main(["--suite", "all", "--summary", str(summary)]) == 1
     assert ran == ["coupling", "transitions"]
-    assert ("analytical/swashes: ValueError: no positive root"
+    assert (f"analytical/swashes: {type(failure).__name__}: {failure}"
             in summary.read_text(encoding="utf-8"))
 
 
