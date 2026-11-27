@@ -353,12 +353,12 @@ def test_overview_uses_archived_grading_modes(tmp_path):
         {"case": "e", "verdict": "SKIP"},
     ])
     source = tmp_path / "swashes_scores.json"
-    source.write_text(json.dumps(archived))
+    source.write_text(json.dumps(archived), encoding="utf-8")
     assert report.main([str(source), "--site", str(tmp_path / "public")]) == 0
     body = text_of(tmp_path / "public/index.html")
     assert "Exact-solution checks 1 of 2 passed 0 gate failures · 1 expected failure · 1 skipped" in body
     assert "Regression checks 1 of 2 passed 1 gate failure" in body
-    badge = json.loads((tmp_path / "public/badges/verification.json").read_text())
+    badge = json.loads((tmp_path / "public/badges/verification.json").read_text(encoding="utf-8"))
     assert badge["message"] == "1/2 checked · 1 unchecked"
 
 
