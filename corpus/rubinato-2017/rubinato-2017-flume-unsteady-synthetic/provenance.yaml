@@ -7,7 +7,7 @@ contributed_by: OpenSWMM project
 date_added: "2026-10-21"
 original_units: SI
 modifications: >
-  Synthetic ramp/plateau hydrograph, not an observed event or validation against Figure 11. Table 1 constrains only the peak ratio and duration.
+  Synthetic ramp/plateau hydrograph, not an observed event or validation against Figure 11. Table 1 constrains only the peak ratio and duration. The decks set HEAD_TOLERANCE 0.00001 and the WEIR_ORIFICE law's regularization head H_EPS=0.0033333 (0.02/6 m, the rig scale), as the engine's Rubinato test decks do.
 notes: >
   Reference tables are reproduced under CC-BY-4.0; the original input decks are CC0-1.0.
   This is a reconstructed numerical demonstration, not the authors numerical model.

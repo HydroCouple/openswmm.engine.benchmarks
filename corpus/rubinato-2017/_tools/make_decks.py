@@ -19,6 +19,10 @@ rebuild the same flume:
     whole exchange in a sliver.
   * Pond: the manhole shaft (COUPLING_POND_MODE CHAMBER); head: the
     structure-area wet mean (COUPLING_HEAD STENCIL_WET_MEAN).
+  * HEAD_TOLERANCE 0.00001 and the law's regularization head H_EPS=0.0033333
+    (0.02/6 m, the rig scale), as the engine's test decks set them: the rig's
+    heads are millimeters, narrower than the default head tolerance (1.5 mm)
+    and than the field-scale regularization head (0.02 m).
 
 usage:
   python corpus/rubinato-2017/_tools/make_decks.py --engine-ref \\
@@ -126,7 +130,7 @@ def options_2d(law: str) -> str:
     return ("[2D_OPTIONS]\nMAX_TIMESTEP  1\nDRY_DEPTH  0.0002\nREPORT_2D  NO\n"
             f"COUPLING_LAW  {law}\nCOUPLING_HEAD  STENCIL_WET_MEAN\nCOUPLING_POND_MODE  CHAMBER\n\n"
             "[2D_NODE_COUPLING]\n;;Node  Type  KEY=VALUE\n"
-            "MH  MANHOLE  D=0.24 COEFFS=RUBINATO2017\n")
+            "MH  MANHOLE  D=0.24 COEFFS=RUBINATO2017 H_EPS=0.0033333\n")
 
 
 def steady_deck(case: dict, rig: dict[str, float], law: str = "WEIR_ORIFICE", title: str = "") -> str:
@@ -135,7 +139,8 @@ def steady_deck(case: dict, rig: dict[str, float], law: str = "WEIR_ORIFICE", ti
     lines = ["[TITLE]", title or f"Rubinato et al. (2017) flume, steady {case['scenario']}", "",
              "[OPTIONS]", "FLOW_UNITS  CMS", "FLOW_ROUTING  DYNWAVE",
              "START_DATE  01/01/2026", "START_TIME  00:00:00", "END_DATE  01/01/2026",
-             "END_TIME  00:05:00", "REPORT_STEP  00:00:10", "ROUTING_STEP  0.5", "",
+             "END_TIME  00:05:00", "REPORT_STEP  00:00:10", "ROUTING_STEP  0.5",
+             "HEAD_TOLERANCE  0.00001", "",
              "[REPORT]", "NODES ALL", "LINKS ALL", "",
              "[JUNCTIONS]", ";;Name  Elev  MaxDepth  InitDepth  SurDepth  Aponded",
              f"MH  0  {fmt(zc)}  0  0  0", "", "[OUTFALLS]"]
@@ -177,7 +182,7 @@ def unsteady_deck(rig: dict[str, float], ratio: float = 1.26, duration_s: float 
              f"(Q3max/Q1 {ratio:g}, {duration_s:g} s)", "",
              "[OPTIONS]", "FLOW_UNITS  CMS", "FLOW_ROUTING  DYNWAVE",
              "START_DATE  01/01/2026", "START_TIME  00:00:00", "END_DATE  01/01/2026",
-             "END_TIME  00:10:00", "REPORT_STEP  00:00:10", "ROUTING_STEP  0.5",
+             "END_TIME  00:10:00", "REPORT_STEP  00:00:10", "ROUTING_STEP  0.5", "HEAD_TOLERANCE  0.00001",
              f"MIN_SURFAREA  {fmt(math.pi*rig['manhole_diameter_m']**2/4)}", "",
              "[REPORT]", "NODES ALL", "LINKS ALL", "",
              "[STORAGE]", f"MH  0  {fmt(zc)}  0  FUNCTIONAL  0  0  {fmt(math.pi*rig['manhole_diameter_m']**2/4)}  0  0",

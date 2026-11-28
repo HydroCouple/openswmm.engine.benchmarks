@@ -7,7 +7,7 @@ contributed_by: OpenSWMM project
 date_added: "2026-10-21"
 original_units: SI
 modifications: >
-  Reconstructed inflows and outfall stage, 0.2 m mesh, central manhole assumed. Absolute fit is report-only; inspect mass balance and steady-state drift separately. Map-row CD/AREA omitted. Current reconstruction is not experimentally qualified.
+  Reconstructed inflows and outfall stage, 0.2 m mesh, central manhole assumed. Absolute fit is report-only; inspect mass balance and steady-state drift separately. Map-row CD/AREA omitted. Current reconstruction is not experimentally qualified. The decks set HEAD_TOLERANCE 0.00001 and the WEIR_ORIFICE law's regularization head H_EPS=0.0033333 (0.02/6 m, the rig scale), as the engine's Rubinato test decks do.
 notes: >
   Reference tables are reproduced under CC-BY-4.0; the original input decks are CC0-1.0.
   This is a reconstructed numerical demonstration, not the authors numerical model.
