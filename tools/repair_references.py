@@ -39,8 +39,11 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import tools.migrate_corpus as M  # noqa: E402
 
-USE_RE = re.compile(r"^(\s*USE\s+\w+\s+)(.+?)(\s*)$", re.I)
-SAVE_RE = re.compile(r"^(\s*SAVE\s+\w+\s+)(.+?)(\s*)$", re.I)
+# The kind token is matched by its leading part in SWMM (input.c match()), so
+# decks carry forms such as `SAVE Outflows/Calibration "..."`; accept any
+# non-blank kind token rather than a bare word.
+USE_RE = re.compile(r"^(\s*USE\s+\S+\s+)(.+?)(\s*)$", re.I)
+SAVE_RE = re.compile(r"^(\s*SAVE\s+\S+\s+)(.+?)(\s*)$", re.I)
 FILE_RE = re.compile(r"(\bFILE\s+)(\"[^\"]+\"|\S+)", re.I)
 
 SEARCH_ROOTS = ("data", "legacy")

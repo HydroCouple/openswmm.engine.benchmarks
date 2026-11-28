@@ -384,7 +384,7 @@ Cierre           -0.19      FREE                        NO
 9                CIRCULAR     0.6              0.0        0          0          1                    
 10               CIRCULAR     0.6              0.0        0          0          1                    
 11               CATENARY     1.9              0.0        0          0          1                    
-12               SEMI_ELLIPTICAL 1.9           0.0        0          0          1                    
+12               SEMIELLIPTICAL  1.9           0.0        0          0          1                    
 13               BASKETHANDLE 1.9              0.0        0          0          1                    
 14               CIRCULAR     1.2              0.0        0          0          1                    
 15               CIRCULAR     1.2              0.0        0          0          1                    
@@ -393,7 +393,7 @@ Cierre           -0.19      FREE                        NO
 18               CIRCULAR     1.2              0.0        0          0          1                    
 19               CIRCULAR     1.2              0.0        0          0          1                    
 20               MODBASKETHANDLE 1.7           0.0        0          0          1                    
-21               SEMI_CIRCULAR 1.7             0.0        0          0          1                    
+21               SEMICIRCULAR  1.7             0.0        0          0          1                    
 22               FILLED_CIRCULAR 1.7           0.34       0          0          1                    
 23               VERT_ELLIPSE 1.7              1.28       0          0          1                    
 24               RECT_TRIANGULAR 1.6           1.92       0.48       0          1                    

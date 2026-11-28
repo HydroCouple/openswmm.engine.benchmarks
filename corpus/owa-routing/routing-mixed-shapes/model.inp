@@ -74,7 +74,7 @@ Test mixed cross-section shapes in series
   5                GOTHIC       4          0          0          0          1         
   6                BASKETHANDLE 4          0          0          0          1         
   7                CATENARY     4          0          0          0          1         
-  8                SEMI_ELLIPTICAL 4       0          0          0          1         
+  8                SEMIELLIPTICAL  4       0          0          0          1         
   9                TRIANGULAR   4          6          0          0          1         
   10               TRAPEZOIDAL  3          6          2          2          1         
 

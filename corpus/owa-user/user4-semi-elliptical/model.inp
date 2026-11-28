@@ -834,18 +834,18 @@ GMMC19CC0112     6.0        0.25       2.016      0.04134    0
 [XSECTIONS]
 ;;Link           Shape        Geom1            Geom2      Geom3      Geom4      Barrels    Culvert   
 ;;-------------- ------------ ---------------- ---------- ---------- ---------- ---------- ----------
-20704016-20704017 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-20704017-20704018 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-20704018-20704025 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-20704025-23916025 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-20712009-20712010 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-20712010-20712011 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-20712011-23809003 SEMI_ELLIPTICAL 1.25             0.0        0          0          1
-20713008-23816017 SEMI_ELLIPTICAL 1.0              0.0        0          0          1
-23701001-23701040 SEMI_ELLIPTICAL 2.0              0.0        0          0          1
-23701005-23701001 SEMI_ELLIPTICAL 2.0              0.0        0          0          1
-23701006-23701005 SEMI_ELLIPTICAL 2.0              0.0        0          0          1
-23701007-23701006 SEMI_ELLIPTICAL 2.0              0.0        0          0          1
+20704016-20704017 SEMIELLIPTICAL  1.0              0.0        0          0          1
+20704017-20704018 SEMIELLIPTICAL  1.0              0.0        0          0          1
+20704018-20704025 SEMIELLIPTICAL  1.0              0.0        0          0          1
+20704025-23916025 SEMIELLIPTICAL  1.0              0.0        0          0          1
+20712009-20712010 SEMIELLIPTICAL  1.0              0.0        0          0          1
+20712010-20712011 SEMIELLIPTICAL  1.0              0.0        0          0          1
+20712011-23809003 SEMIELLIPTICAL  1.25             0.0        0          0          1
+20713008-23816017 SEMIELLIPTICAL  1.0              0.0        0          0          1
+23701001-23701040 SEMIELLIPTICAL  2.0              0.0        0          0          1
+23701005-23701001 SEMIELLIPTICAL  2.0              0.0        0          0          1
+23701006-23701005 SEMIELLIPTICAL  2.0              0.0        0          0          1
+23701007-23701006 SEMIELLIPTICAL  2.0              0.0        0          0          1
 23701008-23701007 CIRCULAR     1.75             0.0        0          0          1                    
 23701009-23701008 CIRCULAR     1.75             0.0        0          0          1                    
 23701010-23701009 CIRCULAR     1.5              0.0        0          0          1                    

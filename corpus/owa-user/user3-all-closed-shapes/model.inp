@@ -877,10 +877,10 @@ CHIGMAU          EGG          1.828            0          0.0        0.0        
 CPORSHB          HORSESHOE    0.914            0.0        0          0          1
 CPORDOM          GOTHIC       0.914            0.0        0          0          1
 CPORGRE          CATENARY     0.914            0.0        0          0          1
-CPORSPR          SEMI_ELLIPTICAL 0.762            0.0        0          0          1
+CPORSPR          SEMIELLIPTICAL  0.762            0.0        0          0          1
 CPORWLL          BASKETHANDLE 0.762            0.0        0          0          1
 CPORBAN          MODBASKETHANDLE 0.914            0.0        0          0          1
-CPORBUR          SEMI_CIRCULAR 0.914            0.0        0          0          1
+CPORBUR          SEMICIRCULAR  0.914            0.0        0          0          1
 CSMTING          FILLED_CIRCULAR 0.762         0.15       0          0          1
 CSTMSHB          VERT_ELLIPSE 0.762            0.57       0          0          1
 CELCING          RECT_TRIANGULAR 0.914         1.10       0.27       0          1

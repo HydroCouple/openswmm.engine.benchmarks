@@ -5,3 +5,6 @@ date_added: '2026-08-22'
 original_units: SI
 notes: Provenance carried over mechanically during the corpus migration; the repository's
   blanket public-domain dedication applies. Refine if the specific origin is known.
+modifications: '[XSECTIONS] shape keyword(s) corrected to SWMM''s spelling (12 SEMI_CIRCULAR
+  -> SEMICIRCULAR); the underscored forms are ERROR 205 in EPA SWMM 5.2.4 and in OpenSWMM,
+  so the model had never run. Only the keyword''s spelling changed.'

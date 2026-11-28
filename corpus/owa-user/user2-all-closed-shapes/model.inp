@@ -318,13 +318,13 @@ TW01200          RECT_CLOSED  7.5              7.4        0.0        0.0        
 TW01220          HORSESHOE    8.0              0.0        0          0          1
 TW01240          GOTHIC       9.0              0.0        0          0          1
 TW01260          CATENARY     8.0              0.0        0          0          1
-TW01280          SEMI_ELLIPTICAL 9.0              0.0        0          0          1
+TW01280          SEMIELLIPTICAL  9.0              0.0        0          0          1
 TW01310          ARCH         58.0             0.0        0.0        0.0        1                    
 TW01330          HORIZ_ELLIPSE 17.0             0          0          0          1                    
 TW01331          RECT_CLOSED  4.0              4.0        0.0        0.0        1                    
 TW01350          BASKETHANDLE 5.0              0.0        0          0          1
 TW01355          MODBASKETHANDLE 1.5              0.0        0          0          1
-TW01357          SEMI_CIRCULAR 6.5              0.0        0          0          1
+TW01357          SEMICIRCULAR  6.5              0.0        0          0          1
 TW01360          FILLED_CIRCULAR 4.5           0.90       0          0          1
 TW01370          VERT_ELLIPSE 4.5              3.38       0          0          1
 TW01380          RECT_TRIANGULAR 4.5           5.40       1.35       0          1

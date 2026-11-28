@@ -1053,7 +1053,7 @@ WEIR3            1127             1128             TRANSVERSE   8.0        2.63 
 650              IRREGULAR    50               0          0          0          1                    
 655              GOTHIC       3.5              0.0        0          0          1
 656              CATENARY     3.5              0.0        0          0          1
-657              SEMI_ELLIPTICAL 3.5              0.0        0          0          1
+657              SEMIELLIPTICAL  3.5              0.0        0          0          1
 658              IRREGULAR    51               0          0          0          1                    
 659              IRREGULAR    52               0          0          0          1                    
 660              IRREGULAR    53               0          0          0          1                    
@@ -1123,7 +1123,7 @@ WEIR3            1127             1128             TRANSVERSE   8.0        2.63 
 817chan          IRREGULAR    115              0          0          0          1                    
 816pipe          MODBASKETHANDLE 2.0              0.0        0          0          1
 816chan          IRREGULAR    116              0          0          0          1                    
-815pipe1         SEMI_CIRCULAR 2.0              0.0        0          0          1
+815pipe1         SEMICIRCULAR  2.0              0.0        0          0          1
 815chan          IRREGULAR    117              0          0          0          1                    
 815pipe2         FILLED_CIRCULAR 2.0           0.40       0          0          1
 814pipe          VERT_ELLIPSE 2.0              1.50       0          0          1
